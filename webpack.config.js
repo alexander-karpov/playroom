@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
     entry: './src/index.ts',
-    mode: 'development', //production
+    mode: 'development', //production development
     output: {
         filename: 'main.js',
         path: path.resolve(__dirname, 'dist'),

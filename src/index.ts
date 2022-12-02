@@ -1,7 +1,39 @@
-import * as React from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App';
+import * as THREE from 'three';
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-const root = createRoot(document.getElementById('app-root')!);
-root.render(React.createElement(App));
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
+const geometry = new THREE.BoxGeometry(1, 1, 1);
+const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+const cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
+
+camera.position.z = 5;
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    cube.rotation.x += 0.01;
+    cube.rotation.y += 0.01;
+
+    renderer.render(scene, camera);
+};
+
+animate();
+
+
+import { Simulation } from './ecs'
+
+
+const sim = new Simulation();
+
+function update() {
+    sim.update();
+
+    requestAnimationFrame(update);
+}
+
+update();
