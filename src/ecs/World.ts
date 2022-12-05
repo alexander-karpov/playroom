@@ -1,6 +1,26 @@
 import { ComponentClass } from "./ComponentClass";
 import { Pool } from "./Pool";
 
+/**
+ * Порядковый номер сущности в массиве.
+ * Может быть переиспользовал
+ */
+type EntityId = number;
+
+/**
+ * Кодирует перечисление нескольких компонентов в виде bitmap.
+ * Номер бина соотв. номеру класса компонента в componentClasses (componentClassesId + 1)
+ */
+type QueryMask = number;
+
+/**
+ * Первые 5 байт занимает СomponentClassesId,
+ * остальное занимает EntityId
+ */
+type EntityComponentId = number;
+
+type Component = unknown;
+
 
 export class World {
     /**
@@ -15,20 +35,28 @@ export class World {
 
     /**
      * Ключ - сочетание componentClassesId и entityId
+     * Значение - инстанс компонента
      */
-    private readonly components: Map<number, unknown> = new Map();
+    private readonly components: Map<EntityComponentId, Component> = new Map();
 
-    private readonly selectResult: number[] = [];
+    private readonly selectResult: EntityId[] = [];
+
+    /**
+     * Ключ - componentClassesId
+     * Значение - entityId
+     */
+    // private readonly selectOneCache: Map<QueryMask, EntityId[]> = new Map();
 
     /**
      * Регистрирует новую сущность (id переиспользуются)
      * @param componentClass Первый компонент новой сущности
      */
-    public addEntity(componentClass: ComponentClass): void {
+    public addEntity<T>(componentClass: ComponentClass<T>): [entityId: number, component: T] {
         // 0 - отсутствие компонентов
         const entityId = Pool.alloc(this.entities, 0);
+        const component = this.addComponent(componentClass, entityId);
 
-        this.addComponent(componentClass, entityId);
+        return [entityId, component];
     }
 
     /**
@@ -42,12 +70,16 @@ export class World {
      * Добавляет компонент к сущности
      * @param entity
      */
-    public addComponent(componentClass: ComponentClass, entityId: number): void {
+    public addComponent<T>(componentClass: ComponentClass<T>, entityId: number): T {
         const componentClassId = this.componentClassId(componentClass);
         const componentId = this.componentId(entityId, componentClassId);
 
         this.entities[entityId] |= (1 << componentClassId);
-        this.components.set(componentId, new componentClass());
+
+        const component = new componentClass();
+        this.components.set(componentId, component);
+
+        return component;
     }
 
     public getComponent<T>(componentClass: ComponentClass<T>, entityId: number): T {
@@ -74,9 +106,28 @@ export class World {
         this.entities[entityId] ^= (1 << componentClassId);
     }
 
-    public select(query: ComponentClass[]): readonly number[] {
-        this.selectResult.length = 0;
+
+    // public selectAll(query: ComponentClass[]): readonly EntityId[] {
+    //     const queryMask = this.queryMask(query);
+
+    //     return this.select(queryMask, this.entities.length);
+    // }
+
+    // public selectOne(query: ComponentClass[]): readonly EntityId[] {
+    //     const queryMask = this.queryMask(query);
+
+    //     return this.select(queryMask, 1);;
+    // }
+
+    /**
+     * Заполняет массив this.selectResult совпавщими сущностями
+     * @param query Список искомых на сущности компонентов
+     * @returns Ссылка на this.selectResult
+     */
+    public select(query: ComponentClass[]): readonly EntityId[] {
         const queryMask = this.queryMask(query);
+
+        this.selectResult.length = 0;
 
         for (let entityId = 0; entityId < this.entities.length; entityId++) {
             if ((this.entities[entityId]! & queryMask) === queryMask) {
@@ -90,7 +141,7 @@ export class World {
     /**
      * Возвращает общую маску компонентов
      */
-    private queryMask(query: ComponentClass<unknown>[]) {
+    private queryMask(query: ComponentClass<unknown>[]): QueryMask {
         let mask = 0;
 
         for (let i = 0; i < query.length; i++) {
