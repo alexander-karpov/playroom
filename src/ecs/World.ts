@@ -39,8 +39,6 @@ export class World {
      */
     private readonly components: Map<EntityComponentId, Component> = new Map();
 
-    private readonly selectResult: EntityId[] = [];
-
     /**
      * Ключ - componentClassesId
      * Значение - entityId
@@ -119,23 +117,17 @@ export class World {
     //     return this.select(queryMask, 1);;
     // }
 
-    /**
-     * Заполняет массив this.selectResult совпавщими сущностями
-     * @param query Список искомых на сущности компонентов
-     * @returns Ссылка на this.selectResult
-     */
     public select(query: ComponentClass[]): readonly EntityId[] {
+        const selectResult = [];
         const queryMask = this.queryMask(query);
-
-        this.selectResult.length = 0;
 
         for (let entityId = 0; entityId < this.entities.length; entityId++) {
             if ((this.entities[entityId]! & queryMask) === queryMask) {
-                this.selectResult.push(entityId);
+                selectResult.push(entityId);
             }
         }
 
-        return this.selectResult;
+        return selectResult;
     }
 
     /**
@@ -183,3 +175,9 @@ export class World {
         return (this.entities[entityId]! & componentClassMask) === componentClassMask;
     }
 }
+
+console.warn(`
+Нужна оптимизация. Помнить сущности, которых есть только 1 штука
+или сделать метод selectOne. Такие сущности двигать наверх списка
+От будет искать только первый элемент
+        `)

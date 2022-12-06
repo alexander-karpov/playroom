@@ -1,49 +1,75 @@
-import { World, System, SimulationTime } from "./index";
+import { World, System, } from "./index";
 
-
-type P = keyof System
-
-let x: P = 'onUpdate';
 
 export class Simulation {
-    systems: System[] = [];
-    time: SimulationTime = new SimulationTime(0, 0);
-    startSimulationTimeMs: number = 0;
-    world: World = new World();
+    private lastUpdateTime: number = 0;
+    private world: World = new World();
 
-    public update(): void {
-        if (this.startSimulationTimeMs === 0) {
-            this.startSimulationTimeMs = Date.now();
+    private inputSystems!: System[]
+    private simulateSystems!: System[]
+    private outputSystems!: System[]
+
+    constructor(
+        private readonly systems: System[]
+    ) {
+
+        this.separateSystemsByHandlers();
+        this.callStartupSystemHandlers();
+    }
+
+    public update() {
+        const timeDelta = this.updateTime();
+
+        this.callRuntimeSystemHandlerts(timeDelta);
+    }
+
+    private callRuntimeSystemHandlerts(timeDelta: number): void {
+        for (const system of this.inputSystems) {
+            system.onInput(this.world, timeDelta);
         }
 
-        this.updateSimulationTime();
+        for (const system of this.simulateSystems) {
+            system.onSimulate(this.world, timeDelta);
+        }
 
-        for (let i = 0; i < this.systems.length; i++) {
-            this.systems[i]!.onUpdate(this.world, this.time);
+        for (const system of this.outputSystems) {
+            system.onOutput(this.world, timeDelta);
         }
     }
 
-    public addSystem(system: System) {
-        if (this.isSystemOverrides(system, 'onCreate')) {
-            system.onCreate(this.world);
+    private callStartupSystemHandlers() {
+        for (const system of this.systems) {
+            if (this.isSystemOverridesHandler(system, 'onCreate')) {
+                system.onCreate(this.world);
+            }
         }
 
-        if (this.isSystemOverrides(system, 'onUpdate')) {
-            this.systems.push(system);
+        for (const system of this.systems) {
+            if (this.isSystemOverridesHandler(system, 'onLink')) {
+                system.onLink(this.world);
+            }
         }
     }
 
-    private isSystemOverrides(system: System, methodName: keyof System) {
+    /**
+     * Разделяем системы заранее, чтобы не делать этого на ходу
+     */
+    private separateSystemsByHandlers() {
+        this.inputSystems = this.systems.filter(s => this.isSystemOverridesHandler(s, 'onInput'));
+        this.simulateSystems = this.systems.filter(s => this.isSystemOverridesHandler(s, 'onSimulate'));
+        this.outputSystems = this.systems.filter(s => this.isSystemOverridesHandler(s, 'onOutput'));
+    }
+
+    private isSystemOverridesHandler(system: System, methodName: keyof System) {
         return system[methodName] !== System.prototype[methodName];
     }
 
-    private updateSimulationTime() {
-        const time = (Date.now() - this.startSimulationTimeMs) / 1000;
+    private updateTime() {
+        const now = Date.now();
+        const delta = (now - this.lastUpdateTime) / 1000;
 
-        // @ts-expect-error
-        this.time.delta = time - this.time.time;
+        this.lastUpdateTime = now;
 
-        // @ts-expect-error
-        this.time.time = time;
+        return delta;
     }
 }

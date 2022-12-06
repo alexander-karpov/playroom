@@ -3,13 +3,14 @@ import { RenderingSystem } from './core/RenderingSystem';
 import { Simulation } from './ecs'
 
 
-const sim = new Simulation();
+const game = new Simulation([
+    new RenderingSystem(),
+    new DemoSystem(),
+]);
 
-sim.addSystem(new RenderingSystem());
-sim.addSystem(new DemoSystem());
 
 function update() {
-    sim.update();
+    game.update();
 
     requestAnimationFrame(update);
 }
