@@ -10,9 +10,9 @@ const game = new Simulation([
 
 
 function update() {
-    game.update();
-
     requestAnimationFrame(update);
+
+    game.update();
 }
 
 update();
