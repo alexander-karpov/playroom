@@ -1,26 +1,45 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-module.exports = {
-    entry: './src/index.ts',
-    mode: 'development', //production development
-    output: {
-        filename: 'main.js',
-        path: path.resolve(__dirname, 'dist'),
-    },
-    module: {
-        rules: [
-            {
-                test: /\.ts$/,
-                use: 'ts-loader',
-                exclude: /node_modules/,
-            },
-            {
-                test: /\.(vert|frag)$/,
-                type: 'asset/source'
-            }
+module.exports = (env) => {
+    const mode = env.production ? 'production' : 'development';
+
+    console.log('Mode:', mode);
+
+    return {
+        entry: './src/index.ts',
+        mode,
+        output: {
+            filename: '[name].bundle.js',
+            path: path.resolve(__dirname, 'dist'),
+            clean: true,
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.ts$/,
+                    use: 'ts-loader',
+                    exclude: /node_modules/,
+                },
+                {
+                    test: /\.(vert|frag)$/,
+                    type: 'asset/source'
+                }
+            ],
+        },
+        resolve: {
+            extensions: ['.ts', '.js'],
+        },
+        plugins: [
+            new HtmlWebpackPlugin({
+                title: 'Game',
+            }),
         ],
-    },
-    resolve: {
-        extensions: ['.ts', '.js'],
-    },
+        devServer: {
+            static: './dist',
+        },
+        optimization: {
+            runtimeChunk: 'single',
+        },
+    };
 };
