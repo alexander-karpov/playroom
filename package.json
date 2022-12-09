@@ -6,6 +6,9 @@
     "start": "webpack serve --open"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.46.0",
+    "@typescript-eslint/parser": "^5.46.0",
+    "eslint": "^8.29.0",
     "html-webpack-plugin": "^5.5.0",
     "lil-gui": "0.17.0",
     "ts-loader": "9.4.1",
