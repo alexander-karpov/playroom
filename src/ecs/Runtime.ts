@@ -1,26 +1,22 @@
-import { World, System, } from "./index";
+import { World, System } from './index';
 
 
-export class Simulation {
-    private lastUpdateTime: number = 0;
-    private world: World = new World();
+export class Runtime {
+    private readonly world: World = new World();
 
-    private inputSystems!: System[]
-    private simulateSystems!: System[]
-    private outputSystems!: System[]
+    private inputSystems!: System[];
+    private simulateSystems!: System[];
+    private outputSystems!: System[];
 
-    constructor(
+    public constructor(
         private readonly systems: System[]
     ) {
-
         this.separateSystemsByHandlers();
         this.callStartupSystemHandlers();
     }
 
-    public update() {
-        const timeDelta = this.updateTime();
-
-        this.callRuntimeSystemHandlerts(timeDelta);
+    public update(deltaS: number): void {
+        this.callRuntimeSystemHandlerts(deltaS);
     }
 
     private callRuntimeSystemHandlerts(timeDelta: number): void {
@@ -37,7 +33,7 @@ export class Simulation {
         }
     }
 
-    private callStartupSystemHandlers() {
+    private callStartupSystemHandlers(): void {
         for (const system of this.systems) {
             if (this.isSystemOverridesHandler(system, 'onCreate')) {
                 system.onCreate(this.world);
@@ -54,22 +50,13 @@ export class Simulation {
     /**
      * Разделяем системы заранее, чтобы не делать этого на ходу
      */
-    private separateSystemsByHandlers() {
+    private separateSystemsByHandlers(): void {
         this.inputSystems = this.systems.filter(s => this.isSystemOverridesHandler(s, 'onInput'));
         this.simulateSystems = this.systems.filter(s => this.isSystemOverridesHandler(s, 'onSimulate'));
         this.outputSystems = this.systems.filter(s => this.isSystemOverridesHandler(s, 'onOutput'));
     }
 
-    private isSystemOverridesHandler(system: System, methodName: keyof System) {
+    private isSystemOverridesHandler(system: System, methodName: keyof System): boolean {
         return system[methodName] !== System.prototype[methodName];
-    }
-
-    private updateTime() {
-        const now = Date.now();
-        const delta = (now - this.lastUpdateTime) / 1000;
-
-        this.lastUpdateTime = now;
-
-        return delta;
     }
 }

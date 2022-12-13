@@ -1,18 +1,16 @@
-import { DemoSystem } from './core/DemoSystem';
-import { RenderingSystem } from './core/RenderingSystem';
-import { Simulation } from './ecs'
+import { Runtime } from './ecs';
+import { ApplicationSystem, SceneSystem } from './core';
+import { Ticker, UPDATE_PRIORITY } from 'pixi.js';
 
 
-const game = new Simulation([
-    new RenderingSystem(),
-    new DemoSystem(),
+const game = new Runtime([
+    new ApplicationSystem(),
+    new SceneSystem(),
 ]);
 
+Ticker.shared.add(function () {
+    const deltaS = Ticker.shared.deltaMS / 1000;
+    game.update(deltaS);
 
-function update() {
-    requestAnimationFrame(update);
+}, undefined, UPDATE_PRIORITY.NORMAL);
 
-    game.update();
-}
-
-update();
