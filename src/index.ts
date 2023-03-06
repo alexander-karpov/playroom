@@ -8,7 +8,7 @@ const game = new Runtime([
     new SceneSystem(),
 ]);
 
-Ticker.shared.add(function () {
+Ticker.shared.add(function() {
     const deltaS = Ticker.shared.deltaMS / 1000;
     game.update(deltaS);
 

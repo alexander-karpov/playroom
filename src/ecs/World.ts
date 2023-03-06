@@ -85,7 +85,7 @@ export class World {
         const componentId = this.componentId(entityId, componentClassId);
 
         if (!this.hasComponentClassId(componentClassId, entityId)) {
-            throw new Error("Entity does not contain a component");
+            throw new Error('Entity does not contain a component');
         }
 
         return this.components.get(componentId) as T;
@@ -117,7 +117,7 @@ export class World {
     //     return this.select(queryMask, 1);;
     // }
 
-    public select(query: ComponentClass[]): readonly EntityId[] {
+    public select(query: readonly ComponentClass[]): readonly EntityId[] {
         const selectResult = [];
         const queryMask = this.queryMask(query);
 
@@ -133,9 +133,10 @@ export class World {
     /**
      * Возвращает общую маску компонентов
      */
-    private queryMask(query: ComponentClass<unknown>[]): QueryMask {
+    private queryMask(query: readonly ComponentClass[]): QueryMask {
         let mask = 0;
 
+        // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let i = 0; i < query.length; i++) {
             mask |= (1 << this.componentClassId(query[i]!));
         }
@@ -162,7 +163,7 @@ export class World {
         }
 
         if (this.componentClasses.length === 32) {
-            throw new Error("Компонентов уже 32");
+            throw new Error('Компонентов уже 32');
         }
 
         this.componentClasses.push(componentClass);

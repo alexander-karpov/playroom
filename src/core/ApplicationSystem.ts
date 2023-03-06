@@ -2,7 +2,6 @@ import { Application as PixiApplication } from 'pixi.js';
 import { System, type World } from '../ecs';
 import { Application } from '../components';
 
-
 export class ApplicationSystem extends System {
     public override onCreate(world: World): void {
         const [, component] = world.addEntity(Application);
@@ -15,7 +14,7 @@ export class ApplicationSystem extends System {
             height: window.innerHeight,
             useContextAlpha: false,
             antialias: false,
-            clearBeforeRender: false,
+            backgroundColor: 0x429387,
             hello: true,
         });
 
