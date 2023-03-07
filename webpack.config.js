@@ -41,5 +41,6 @@ module.exports = (env) => {
         optimization: {
             runtimeChunk: 'single',
         },
+        devtool: 'source-map'
     };
 };

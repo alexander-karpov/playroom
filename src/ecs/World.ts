@@ -1,5 +1,5 @@
-import { ComponentClass } from "./ComponentClass";
-import { Pool } from "./Pool";
+import type { ComponentClass } from './ComponentClass';
+import { Pool } from './Pool';
 
 /**
  * Порядковый номер сущности в массиве.
@@ -37,7 +37,7 @@ export class World {
      * Ключ - сочетание componentClassesId и entityId
      * Значение - инстанс компонента
      */
-    private readonly components: Map<EntityComponentId, Component> = new Map();
+    private readonly components = new Map<EntityComponentId, Component>();
 
     /**
      * Ключ - componentClassesId
@@ -181,4 +181,4 @@ console.warn(`
 Нужна оптимизация. Помнить сущности, которых есть только 1 штука
 или сделать метод selectOne. Такие сущности двигать наверх списка
 От будет искать только первый элемент
-        `)
+        `);
