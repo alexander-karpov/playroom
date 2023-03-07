@@ -1,16 +1,17 @@
-import { World } from './index';
+import type { World } from './index';
 
 export abstract class System {
     /**
-     * Сущности создаются
+     * Сущности создаются.
+     * Выполняется только один раз при старте.
      */
     public onCreate(world: World): void {
         throw new Error('Not implemented');
     }
 
     /**
-     * Сущности созданы и их можно связать
-     * друг с другом
+     * Сущности созданы и их можно связать друг с другом.
+     * Выполняется только один раз после onCreate.
      */
     public onLink(world: World): void {
         throw new Error('Not implemented');

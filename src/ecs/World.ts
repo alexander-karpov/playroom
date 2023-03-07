@@ -104,18 +104,17 @@ export class World {
         this.entities[entityId] ^= (1 << componentClassId);
     }
 
+    public selectOne(query: readonly ComponentClass[]): EntityId | -1 {
+        const queryMask = this.queryMask(query);
 
-    // public selectAll(query: ComponentClass[]): readonly EntityId[] {
-    //     const queryMask = this.queryMask(query);
+        for (let entityId = 0; entityId < this.entities.length; entityId++) {
+            if ((this.entities[entityId]! & queryMask) === queryMask) {
+                return entityId;
+            }
+        }
 
-    //     return this.select(queryMask, this.entities.length);
-    // }
-
-    // public selectOne(query: ComponentClass[]): readonly EntityId[] {
-    //     const queryMask = this.queryMask(query);
-
-    //     return this.select(queryMask, 1);;
-    // }
+        return -1;
+    }
 
     public select(query: readonly ComponentClass[]): readonly EntityId[] {
         const selectResult = [];
@@ -124,6 +123,21 @@ export class World {
         for (let entityId = 0; entityId < this.entities.length; entityId++) {
             if ((this.entities[entityId]! & queryMask) === queryMask) {
                 selectResult.push(entityId);
+            }
+        }
+
+        return selectResult;
+    }
+
+    public selectComponents<TComponent>(componentClass: ComponentClass<TComponent>): readonly TComponent[] {
+        const selectResult: TComponent[] = [];
+        const queryMask = this.queryMask([componentClass]);
+
+        for (let entityId = 0; entityId < this.entities.length; entityId++) {
+            if ((this.entities[entityId]! & queryMask) === queryMask) {
+                selectResult.push(
+                    this.getComponent(componentClass, entityId)
+                );
             }
         }
 
@@ -170,7 +184,7 @@ export class World {
         return this.componentClasses.length - 1;
     }
 
-    public hasComponentClassId(componentClassId: number, entityId: number): boolean {
+    private hasComponentClassId(componentClassId: number, entityId: number): boolean {
         const componentClassMask = (1 << componentClassId);
 
         return (this.entities[entityId]! & componentClassMask) === componentClassMask;
@@ -181,4 +195,4 @@ console.warn(`
 Нужна оптимизация. Помнить сущности, которых есть только 1 штука
 или сделать метод selectOne. Такие сущности двигать наверх списка
 От будет искать только первый элемент
-        `);
+`);

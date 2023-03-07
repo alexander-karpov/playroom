@@ -1,4 +1,5 @@
 import { Application as PixiApplication } from 'pixi.js';
+import { Engine } from 'matter-js';
 import { System, type World } from '../ecs';
 import { Application } from '../components';
 
@@ -9,18 +10,19 @@ export class ApplicationSystem extends System {
         document.body.style.margin = '0';
         document.body.style.overflow = 'hidden';
 
-        const app = new PixiApplication({
+        const pixi = new PixiApplication({
             width: window.innerWidth,
             height: window.innerHeight,
-            useContextAlpha: false,
-            antialias: false,
-            backgroundColor: 0x429387,
+            backgroundColor: Math.random() * 0xffffff,
             hello: true,
         });
 
         // @ts-expect-error
-        document.body.appendChild(app.view);
+        document.body.appendChild(pixi.view);
 
-        component.app = app;
+        component.pixi = pixi;
+        component.physics = Engine.create({
+            // gravity: { x: 0, y: 0.1 }
+        });
     }
 }
