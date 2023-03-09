@@ -22,7 +22,7 @@ export class ApplicationSystem extends System {
 
         component.pixi = pixi;
         component.physics = Engine.create({
-            // gravity: { x: 0, y: 0.1 }
+            gravity: { x: 0, y: 0.0 }
         });
     }
 }

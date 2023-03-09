@@ -1,5 +1,5 @@
 import { System, type World } from '../ecs';
-import { Application, Actor } from '../components';
+import { Application, Actor, Pointer } from '../components';
 import { Graphics } from 'pixi.js';
 import { Engine, Bodies, Composite, Body } from 'matter-js';
 
@@ -19,7 +19,7 @@ export class SceneSystem extends System {
             component.body = Bodies.rectangle(x, y, w, h, { isStatic });
         }
 
-        box(64 * 3, 64 * 7, 64 * 10, 64, rc(), true);
+        box(0, 0, 64, 64, rc());
 
 
         for (let i = 1; i < 7; i++) {
@@ -37,12 +37,20 @@ export class SceneSystem extends System {
         Composite.add(physics!.world, actors.map(a => a.body!));
     }
 
-    public override onSimulate(world: World, delta: number): void {
+    public override onInput(world: World, _delta: number): void {
+        const pointer = world.getComponent(Pointer, world.selectOne([Pointer]));
+
         const staticId = world.selectOne([Actor]);
         const { body } = world.getComponent(Actor, staticId);
 
-        // Body.setPosition(body!, { x: body!.position.x, y: body!.position.y - 64 * delta });
-        Body.setAngle(body!, body!.angle + delta * 0.2);
+        Body.setPosition(body!, pointer.position);
+    }
+
+    public override onSimulate(world: World, delta: number): void {
+
+
+
+        // Body.setAngle(body!, body!.angle + delta * 0.2);
 
         const appId = world.selectOne([Application]);
         const { physics } = world.getComponent(Application, appId);

@@ -1,10 +1,10 @@
 import { Runtime } from './ecs';
-import { ApplicationSystem, SceneSystem } from './core';
+import { ApplicationSystem, MouseSystem, SceneSystem } from './core';
 import { Ticker, UPDATE_PRIORITY } from 'pixi.js';
-
 
 const game = new Runtime([
     new ApplicationSystem(),
+    new MouseSystem(),
     new SceneSystem(),
 ]);
 
