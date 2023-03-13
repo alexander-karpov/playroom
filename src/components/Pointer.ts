@@ -1,4 +1,6 @@
+import type { Vector } from 'matter-js';
+
 export class Pointer {
-    public position!: { x: number, y: number };
-    public pressed!: Boolean;
+    public position!: Vector;
+    public pressed!: boolean;
 }

@@ -1,11 +1,12 @@
 import { System, type World } from '../ecs';
 import { Pointer } from '../components';
+import { Vector } from 'matter-js';
 
 export class MouseSystem extends System {
     public override onCreate(world: World): void {
         const [, pointer] = world.addEntity(Pointer);
 
-        pointer.position = { x: 0, y: 0 };
+        pointer.position = Vector.create(0, 0);
         pointer.pressed = false;
     }
 

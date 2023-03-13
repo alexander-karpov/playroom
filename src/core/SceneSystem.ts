@@ -1,7 +1,7 @@
 import { System, type World } from '../ecs';
 import { Application, Actor, Pointer } from '../components';
 import { Graphics } from 'pixi.js';
-import { Engine, Bodies, Composite, Body } from 'matter-js';
+import { Engine, Bodies, Composite, Body, Vector } from 'matter-js';
 
 
 export class SceneSystem extends System {
@@ -19,8 +19,7 @@ export class SceneSystem extends System {
             component.body = Bodies.rectangle(x, y, w, h, { isStatic });
         }
 
-        box(0, 0, 64, 64, rc());
-
+        box(0, 0, 64, 64, 0, false);
 
         for (let i = 1; i < 7; i++) {
             box(64 * i * 0.7, 64 * 6 - 64 * i, 64, 64, rc());
@@ -33,36 +32,26 @@ export class SceneSystem extends System {
 
         const actors = world.selectComponents(Actor);
 
-        pixi!.stage.addChild(...actors.map(a => a.graphics!));
-        Composite.add(physics!.world, actors.map(a => a.body!));
+        pixi.stage.addChild(...actors.map(a => a.graphics));
+        Composite.add(physics.world, actors.map(a => a.body));
     }
 
-    public override onInput(world: World, _delta: number): void {
+    public override onInput(world: World, delta: number): void {
         const pointer = world.getComponent(Pointer, world.selectOne([Pointer]));
 
         const staticId = world.selectOne([Actor]);
         const { body } = world.getComponent(Actor, staticId);
 
-        Body.setPosition(body!, pointer.position);
-    }
+        const dir = Vector.normalise(Vector.sub(pointer.position, body.position));
 
-    public override onSimulate(world: World, delta: number): void {
-
-
-
-        // Body.setAngle(body!, body!.angle + delta * 0.2);
-
-        const appId = world.selectOne([Application]);
-        const { physics } = world.getComponent(Application, appId);
-
-        Engine.update(physics!, delta * 1000);
-    }
-
-    public override onOutput(world: World, delta: number): void {
-        for (const obj of world.select([Actor])) {
-            const { graphics, body } = world.getComponent(Actor, obj);
-            graphics!.position.set(body!.position.x, body!.position.y);
-            graphics!.rotation = body!.angle;
+        if (pointer.pressed) {
+            Body.applyForce(body, body.position, Vector.mult(dir, delta * 0.1));
         }
     }
 }
+
+
+console.warn(`
+Переиспользовать Графику кубика для всех (одинаковых) кубиков
+с целью оптимизации
+`);
