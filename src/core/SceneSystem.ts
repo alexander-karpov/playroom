@@ -28,11 +28,11 @@ export class SceneSystem extends System {
 
     public override onLink(world: World): void {
         const appId = world.selectOne([Application]);
-        const { pixi, physics } = world.getComponent(Application, appId);
+        const { stage, physics } = world.getComponent(Application, appId);
 
         const actors = world.selectComponents(Actor);
 
-        pixi.stage.addChild(...actors.map(a => a.graphics));
+        stage.addChild(...actors.map(a => a.graphics));
         Composite.add(physics.world, actors.map(a => a.body));
     }
 

@@ -1,7 +1,8 @@
-import type { Application as PixiApplication } from 'pixi.js';
+import type { Renderer, Container } from 'pixi.js';
 import type { Engine } from 'matter-js';
 
 export class Application {
-    public pixi!: PixiApplication;
+    public renderer!: Renderer;
+    public stage!: Container;
     public physics!: Engine;
 }
