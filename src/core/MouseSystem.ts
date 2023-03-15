@@ -11,7 +11,7 @@ export class MouseSystem extends System {
     }
 
     public override onLink(world: World): void {
-        const pointer = world.getComponent(Pointer, world.selectOne([Pointer]));
+        const pointer = world.firstComponent(Pointer);
 
         window.addEventListener('mousemove', (ev: MouseEvent) => {
             pointer.position.x = ev.x;

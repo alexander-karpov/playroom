@@ -84,6 +84,7 @@ export class World {
         const componentClassId = this.componentClassId(componentClass);
         const componentId = this.componentId(entityId, componentClassId);
 
+        // TODO: сделать только в dev-mode
         if (!this.hasComponentClassId(componentClassId, entityId)) {
             throw new Error('Entity does not contain a component');
         }
@@ -104,7 +105,7 @@ export class World {
         this.entities[entityId] ^= (1 << componentClassId);
     }
 
-    public selectOne(query: readonly ComponentClass[]): EntityId | -1 {
+    public first(query: readonly ComponentClass[]): EntityId {
         const queryMask = this.queryMask(query);
 
         for (let entityId = 0; entityId < this.entities.length; entityId++) {
@@ -113,7 +114,12 @@ export class World {
             }
         }
 
-        return -1;
+        // TODO: добавить проверку id в dev-mode
+        throw new Error('Entity not found');
+    }
+
+    public firstComponent<T>(componentClass: ComponentClass<T>): T {
+        return this.getComponent(componentClass, this.first([componentClass]));
     }
 
     public select(query: readonly ComponentClass[]): readonly EntityId[] {
@@ -130,18 +136,7 @@ export class World {
     }
 
     public selectComponents<TComponent>(componentClass: ComponentClass<TComponent>): readonly TComponent[] {
-        const selectResult: TComponent[] = [];
-        const queryMask = this.queryMask([componentClass]);
-
-        for (let entityId = 0; entityId < this.entities.length; entityId++) {
-            if ((this.entities[entityId]! & queryMask) === queryMask) {
-                selectResult.push(
-                    this.getComponent(componentClass, entityId)
-                );
-            }
-        }
-
-        return selectResult;
+        return this.select([componentClass]).map(id => this.getComponent(componentClass, id));
     }
 
     /**
@@ -176,6 +171,7 @@ export class World {
             return componentClassId;
         }
 
+        // TODO: вернуть проверку в dev-mode
         if (this.componentClasses.length === 32) {
             throw new Error('Компонентов уже 32');
         }
