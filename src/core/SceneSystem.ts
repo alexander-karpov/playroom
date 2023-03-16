@@ -1,7 +1,7 @@
 import { System, type World } from '../ecs';
-import { Application, Actor, Pointer, Player, Camera } from '../components';
+import { Application, Actor, Pointer, Player, Camera, Goal } from '../components';
 import { Graphics } from 'pixi.js';
-import { Engine, Bodies, Composite, Body, Vector } from 'matter-js';
+import { Events, Bodies, Composite, Body, Vector } from 'matter-js';
 
 
 export class SceneSystem extends System {
@@ -29,7 +29,18 @@ export class SceneSystem extends System {
             actor.body = Bodies.circle(x, y, r);
         }
 
+        function goal(x: number, y: number, r: number, color: number): void {
+            const [goalId,] = world.addEntity(Goal);
+            const actor = world.addComponent(Actor, goalId);
+
+            actor.graphics = new Graphics().beginFill(color).drawCircle(0, 0, r);
+            // actor.graphics.pivot.set(r / 2, h / 2);
+            actor.graphics.position.set(x, y);
+            actor.body = Bodies.circle(x, y, r);
+        }
+
         player(0, 0, 16, 0);
+        goal(256, 256, 16, 0xf0f000);
 
         for (let i = 1; i < 7; i++) {
             box(64 * i * 0.7, 64 * 6 - 64 * i, 64, 64, rc());
@@ -37,13 +48,23 @@ export class SceneSystem extends System {
     }
 
     public override onLink(world: World): void {
-        const appId = world.first([Application]);
-        const { stage, physics } = world.getComponent(Application, appId);
+        const { stage, physics } = world.firstComponent(Application);
+
+        const playerActor = world.getComponent(Actor, world.first([Player]));
+        const goalActor = world.getComponent(Actor, world.first([Goal]));
 
         const actors = world.selectComponents(Actor);
 
         stage.addChild(...actors.map(a => a.graphics));
         Composite.add(physics.world, actors.map(a => a.body));
+
+        Events.on(physics, 'collisionStart', function(event) {
+            for (const { bodyA, bodyB } of event.pairs) {
+                if ((bodyA === playerActor.body && bodyB === goalActor.body) || bodyB === playerActor.body && bodyA === goalActor.body) {
+                    alert('Goal!');
+                }
+            }
+        });
     }
 
     public override onInput(world: World, delta: number): void {
