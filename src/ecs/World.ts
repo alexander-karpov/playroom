@@ -135,7 +135,7 @@ export class World {
         return selectResult;
     }
 
-    public selectComponents<TComponent>(componentClass: ComponentClass<TComponent>): readonly TComponent[] {
+    public getComponents<TComponent>(componentClass: ComponentClass<TComponent>): readonly TComponent[] {
         return this.select([componentClass]).map(id => this.getComponent(componentClass, id));
     }
 

@@ -1,5 +1,5 @@
 import { System, type World } from '../ecs';
-import { Application, Actor, Pointer, Player, Camera, Goal } from '../components';
+import { Application, Actor, Pointer, Player, Camera, Goal, Hint } from '../components';
 import { Graphics } from 'pixi.js';
 import { Events, Bodies, Composite, Body, Vector } from 'matter-js';
 
@@ -32,12 +32,27 @@ export class SceneSystem extends System {
         function goal(x: number, y: number, r: number, color: number): void {
             const [goalId,] = world.addEntity(Goal);
             const actor = world.addComponent(Actor, goalId);
+            const hint = world.addComponent(Hint, goalId);
 
             actor.graphics = new Graphics().beginFill(color).drawCircle(0, 0, r);
             // actor.graphics.pivot.set(r / 2, h / 2);
             actor.graphics.position.set(x, y);
             actor.body = Bodies.circle(x, y, r);
+
+            const hintStep = (window.innerHeight / 2) * (0.618);
+            const top = hintStep + hintStep * (1 - 0.618);
+
+            hint.graphics = new Graphics()
+                .lineStyle(3, 0x000000)
+                .moveTo(hintStep, 0)
+                .lineTo(top, 0)
+                .lineTo(top - 7, -7)
+                .moveTo(top, 0)
+                .lineTo(top - 7, 7);
+
+            hint.graphics.visible = false;
         }
+
 
         player(0, 0, 16, 0);
         goal(256, 256, 16, 0xf0f000);
@@ -52,11 +67,14 @@ export class SceneSystem extends System {
 
         const playerActor = world.getComponent(Actor, world.first([Player]));
         const goalActor = world.getComponent(Actor, world.first([Goal]));
-
-        const actors = world.selectComponents(Actor);
+        const actors = world.getComponents(Actor);
 
         stage.addChild(...actors.map(a => a.graphics));
         Composite.add(physics.world, actors.map(a => a.body));
+
+        const hints = world.getComponents(Hint);
+
+        playerActor.graphics.addChild(...hints.map(h => h.graphics));
 
         Events.on(physics, 'collisionStart', function(event) {
             for (const { bodyA, bodyB } of event.pairs) {
@@ -81,7 +99,7 @@ export class SceneSystem extends System {
 
             const dir = Vector.normalise(Vector.sub(Vector.create(worldX, worldY), body.position));
             console.log({ dir: JSON.stringify(dir) });
-            Body.applyForce(body, body.position, Vector.mult(dir, delta * 0.0001));
+            Body.applyForce(body, body.position, Vector.mult(dir, delta * 0.00005));
         }
     }
 }
