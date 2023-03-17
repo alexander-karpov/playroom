@@ -85,7 +85,6 @@ export class SceneSystem extends System {
             const worldY = pointer.position.y - stage.position.y + camera.position.y;
 
             const dir = Vector.normalise(Vector.sub(Vector.create(worldX, worldY), body.position));
-            console.log({ dir: JSON.stringify(dir) });
             Body.applyForce(body, body.position, Vector.mult(dir, delta * 0.00005));
         }
     }

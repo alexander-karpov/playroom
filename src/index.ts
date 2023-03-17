@@ -1,5 +1,5 @@
 import { Runtime } from './ecs';
-import { ApplicationSystem, MouseSystem, SceneSystem, FollowingCameraSystem, HintsSystem, LevelsSystem } from './core';
+import { ApplicationSystem, MouseSystem, SceneSystem, FollowingCameraSystem, HintsSystem, LevelsSystem, LilSystem } from './core';
 import { Ticker } from 'pixi.js';
 
 Ticker.shared.autoStart = false;
@@ -12,6 +12,7 @@ const game = new Runtime([
     new FollowingCameraSystem(),
     new SceneSystem(),
     new ApplicationSystem(),
+    new LilSystem(),
 ]);
 
 let lastTime = performance.now();
