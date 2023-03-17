@@ -1,11 +1,12 @@
 import { Runtime } from './ecs';
-import { ApplicationSystem, MouseSystem, SceneSystem, FollowingCameraSystem, HintsSystem } from './core';
+import { ApplicationSystem, MouseSystem, SceneSystem, FollowingCameraSystem, HintsSystem, LevelsSystem } from './core';
 import { Ticker } from 'pixi.js';
 
 Ticker.shared.autoStart = false;
 Ticker.shared.stop();
 
 const game = new Runtime([
+    new LevelsSystem(),
     new HintsSystem(),
     new MouseSystem(),
     new FollowingCameraSystem(),

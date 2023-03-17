@@ -5,3 +5,5 @@ export * from './Camera';
 export * from './Pointer';
 export * from './Player';
 export * from './Hint';
+export * from './Rock';
+export * from './Level';

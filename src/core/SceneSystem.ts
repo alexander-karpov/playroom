@@ -1,5 +1,5 @@
 import { System, type World } from '../ecs';
-import { Application, Actor, Pointer, Player, Camera, Goal, Hint } from '../components';
+import { Application, Actor, Pointer, Player, Camera, Goal, Hint, Rock, Level } from '../components';
 import { Graphics } from 'pixi.js';
 import { Events, Bodies, Composite, Body, Vector } from 'matter-js';
 
@@ -8,15 +8,6 @@ export class SceneSystem extends System {
     public override onCreate(world: World): void {
         function rc(): number {
             return Math.random() * 0xffffff;
-        }
-
-        function box(x: number, y: number, w: number, h: number, color: number, isStatic: boolean = false): void {
-            const [, component] = world.addEntity(Actor);
-
-            component.graphics = new Graphics().beginFill(color).drawRect(0, 0, w, h);
-            component.graphics.pivot.set(w / 2, h / 2);
-            component.graphics.position.set(x, y);
-            component.body = Bodies.rectangle(x, y, w, h, { isStatic });
         }
 
         function player(x: number, y: number, r: number, color: number): void {
@@ -53,13 +44,8 @@ export class SceneSystem extends System {
             hint.graphics.visible = false;
         }
 
-
         player(0, 0, 16, 0);
         goal(256, 256, 16, 0xf0f000);
-
-        for (let i = 1; i < 7; i++) {
-            box(64 * i * 0.7, 64 * 6 - 64 * i, 64, 64, rc());
-        }
     }
 
     public override onLink(world: World): void {
@@ -79,7 +65,8 @@ export class SceneSystem extends System {
         Events.on(physics, 'collisionStart', function(event) {
             for (const { bodyA, bodyB } of event.pairs) {
                 if ((bodyA === playerActor.body && bodyB === goalActor.body) || bodyB === playerActor.body && bodyA === goalActor.body) {
-                    alert('Goal!');
+                    const level = world.firstComponent(Level);
+                    level.finished = true;
                 }
             }
         });
