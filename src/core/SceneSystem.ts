@@ -1,6 +1,6 @@
 import { System, type World } from '../ecs';
 import { Application, Actor, Pointer, Player, Camera, Goal, Hint, Rock, Level } from '../components';
-import { Graphics } from 'pixi.js';
+import { Graphics, Texture } from 'pixi.js';
 import { Events, Bodies, Composite, Body, Vector } from 'matter-js';
 
 
@@ -14,7 +14,14 @@ export class SceneSystem extends System {
             const [playerId,] = world.addEntity(Player);
             const actor = world.addComponent(Actor, playerId);
 
-            actor.graphics = new Graphics().beginFill(color).drawCircle(0, 0, r);
+            // const texture = Texture.from('exo.png');
+            // .beginTextureFill({
+            //     texture,
+
+            // })
+            actor.graphics = new Graphics()
+                .beginFill(0)
+                .drawCircle(0, 0, r);
             // actor.graphics.pivot.set(r / 2, h / 2);
             actor.graphics.position.set(x, y);
             actor.body = Bodies.circle(x, y, r);

@@ -1,26 +1,46 @@
 import { System, type World } from '../ecs';
-import { Actor, Rock, Level, Player, Goal } from '../components';
+import { Actor, Rock, Level, Player, Goal, Application } from '../components';
 import { Graphics } from 'pixi.js';
 import { Events, Bodies, Composite, Body, Vector, Common } from 'matter-js';
+import { hslToRgb } from '../utils/hslToRgb';
 
 
 export class LevelsSystem extends System {
     public override onCreate(world: World): void {
+
+    }
+
+
+    public override onLink(world: World): void {
         const [, level] = world.addEntity(Level);
+        const { renderer } = world.firstComponent(Application);
         level.number = 1;
         level.finished = false;
 
+        const baseColor = Math.random();
+
+        const step = 1 / 16;
+        const s = 1;
+        const l = 0.7;
+
+        const colors = [
+            hslToRgb(baseColor, s, l),
+            hslToRgb(baseColor + step, s, l),
+            hslToRgb(baseColor + step + step, s, l),
+            hslToRgb(baseColor - step, s, l),
+            hslToRgb(baseColor - step - step, s, l),
+        ];
+
+        renderer.background.color = hslToRgb(0.61, 0.43, 0.32);
+
         function rc(): number {
-            return Math.random() * 0xffffff;
+            return Common.choose(colors) as number;
         }
 
         for (let i = 0; i < 31; i++) {
             this.rock(world, Vector.create(Common.random(-1000, 1000), Common.random(-1000, 1000)), 32, 32, rc());
         }
-    }
 
-
-    public override onLink(world: World): void {
         this.movePlayerToStart(world);
         this.replaceRocks(world, 1);
     }
