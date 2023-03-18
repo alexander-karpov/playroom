@@ -1,6 +1,6 @@
 import { System, type World } from '../ecs';
 import { Application, Actor, Pointer, Player, Camera, Goal, Hint, Rock, Level } from '../components';
-import { Graphics, Texture } from 'pixi.js';
+import { Graphics, type IPointData } from 'pixi.js';
 import { Events, Bodies, Composite, Body, Vector } from 'matter-js';
 
 
@@ -32,10 +32,31 @@ export class SceneSystem extends System {
             const actor = world.addComponent(Actor, goalId);
             const hint = world.addComponent(Hint, goalId);
 
-            actor.graphics = new Graphics().beginFill(color).drawCircle(0, 0, r);
+            // actor.graphics = new Graphics().beginFill(color).drawCircle(0, 0, r);
+
+            const starEnd = Vector.create(0, -r);
+            const starHole = Vector.rotate(Vector.create(0, -r * 0.618), (Math.PI / 5));
+
+            const star: IPointData[] = [];
+
+            for (let i = 0; i < 5; i++) {
+                star.push(
+                    Vector.rotate(starEnd, (Math.PI * 2 / 5) * i)
+                );
+
+                star.push(
+                    Vector.rotate(starHole, (Math.PI * 2 / 5) * i)
+                );
+            }
+
+            actor.graphics = new Graphics()
+                .beginFill(0xff0ff0)
+                .drawPolygon(star);
+
+
             // actor.graphics.pivot.set(r / 2, h / 2);
             actor.graphics.position.set(x, y);
-            actor.body = Bodies.circle(x, y, r);
+            actor.body = Bodies.fromVertices(x, y, [star]);
 
             const hintStep = (window.innerHeight / 2) * (0.618);
             const top = hintStep + hintStep * (1 - 0.618);
@@ -52,7 +73,7 @@ export class SceneSystem extends System {
         }
 
         player(0, 0, 16, 0);
-        goal(256, 256, 16, 0xf0f000);
+        goal(256, 256, 32, 0xf0f000);
     }
 
     public override onLink(world: World): void {
