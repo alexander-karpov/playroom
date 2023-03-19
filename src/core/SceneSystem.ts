@@ -15,9 +15,27 @@ export class SceneSystem extends System {
             //     texture,
 
             // })
+            // actor.graphics = new Graphics()
+            //     .beginFill(0)
+            //     .drawCircle(0, 0, r)
+            //     .endFill();
+
+            const h = 64;
+            const w = 12;
+            const wingW = 8;
+            const wingH = h * 0.382;
+
             actor.graphics = new Graphics()
-                .beginFill(0)
-                .drawCircle(0, 0, r);
+                .beginFill(0xffffff)
+                .moveTo(-w / 2 - wingW, h / 2)
+                .lineTo(-w / 2, h / 2 - wingH)
+                .lineTo(-w / 2, -h / 2)
+                .arc(0, -h / 2, w / 2, Math.PI, 0)
+                .lineTo(w / 2, h / 2 - wingH)
+                .lineTo(w / 2 + wingW, h / 2)
+                .endFill();
+
+
             // actor.graphics.pivot.set(r / 2, h / 2);
             actor.graphics.position.set(x, y);
             actor.body = Bodies.circle(x, y, r);
@@ -47,7 +65,8 @@ export class SceneSystem extends System {
 
             actor.graphics = new Graphics()
                 .beginFill(0xff0ff0)
-                .drawPolygon(star);
+                .drawPolygon(star)
+                .endFill();
 
 
             // actor.graphics.pivot.set(r / 2, h / 2);
