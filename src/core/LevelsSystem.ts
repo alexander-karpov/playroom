@@ -17,14 +17,14 @@ export class LevelsSystem extends System {
         level.number = 1;
         level.finished = false;
 
-        const baseColor = Math.random();
+        const baseColor = 0.61;//Math.random();
 
         const step = 1 / 16;
         const s = 1;
         const l = 0.7;
 
         const colors = [
-            hslToRgb(baseColor, s, l),
+            // hslToRgb(baseColor, s, l),
             hslToRgb(baseColor + step, s, l),
             hslToRgb(baseColor + step + step, s, l),
             hslToRgb(baseColor - step, s, l),
@@ -37,7 +37,7 @@ export class LevelsSystem extends System {
             return Common.choose(colors) as number;
         }
 
-        for (let i = 0; i < 31; i++) {
+        for (let i = 0; i < 128; i++) {
             this.rock(world, Vector.create(Common.random(-1000, 1000), Common.random(-1000, 1000)), 32, 32, rc());
         }
 
@@ -69,12 +69,20 @@ export class LevelsSystem extends System {
         const rockIds = world.select([Rock, Actor]);
 
         if (level === 1) {
-            const point = Vector.create(256, 0);
+            let point = Vector.create(128, 0);
 
-            for (let i = 0; i < 31 && i < rockIds.length; i++) {
+            for (let i = 0; i < 32 && i < rockIds.length; i++) {
                 const rockId = rockIds[i]!;
                 const { body } = world.getComponent(Actor, rockId);
                 Body.setPosition(body, Vector.rotate(point, 0.2 * i));
+            }
+
+            point = Vector.create(256, 0);
+
+            for (let i = 32; i < 128 && i < rockIds.length; i++) {
+                const rockId = rockIds[i]!;
+                const { body } = world.getComponent(Actor, rockId);
+                Body.setPosition(body, Vector.rotate(point, 0.1 * i));
             }
         }
     }
