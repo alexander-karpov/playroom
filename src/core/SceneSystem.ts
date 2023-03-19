@@ -6,10 +6,6 @@ import { Events, Bodies, Composite, Body, Vector } from 'matter-js';
 
 export class SceneSystem extends System {
     public override onCreate(world: World): void {
-        function rc(): number {
-            return Math.random() * 0xffffff;
-        }
-
         function player(x: number, y: number, r: number, color: number): void {
             const [playerId,] = world.addEntity(Player);
             const actor = world.addComponent(Actor, playerId);

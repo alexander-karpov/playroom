@@ -1,6 +1,6 @@
 import { Engine, Vector } from 'matter-js';
 import { System, type World } from '../ecs';
-import { Actor, Application, Camera } from '../components';
+import { Actor, Application, Camera, Dust } from '../components';
 import { Renderer, Container } from 'pixi.js';
 
 export class ApplicationSystem extends System {
@@ -63,8 +63,38 @@ export class ApplicationSystem extends System {
         /**
          * Render
          */
-        renderer.render(stage);
+        // this.renderDust(world);
+
+        renderer.render(stage, {
+            clear: false
+        });
     }
+
+    // private renderDust(renderer: Renderer, stage: Container): void {
+    //     const dust = world.firstComponent(Dust);
+
+    //     const x = stage.pivot.x < 0 ? window.innerWidth + (stage.pivot.x % window.innerWidth) : stage.pivot.x % window.innerWidth;
+    //     const x2 = x - window.innerWidth;
+
+    //     const y = stage.pivot.y < 0 ? window.innerHeight + (stage.pivot.y % window.innerHeight) : stage.pivot.y % window.innerHeight;
+    //     const y2 = y - window.innerHeight;
+
+    //     let clear: boolean = true;
+
+    //     for (const [_x, _y] of [
+    //         [x, y], [x2, y],
+    //         [x, y2], [x2, y2],
+    //     ]) {
+    //         dust.container.pivot.set(
+    //             _x,
+    //             _y
+    //         );
+    //         renderer.render(dust.container, { clear });
+    //         clear = false;
+    //     }
+
+
+    // }
 }
 
 console.warn(`

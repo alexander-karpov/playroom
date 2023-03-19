@@ -5,3 +5,4 @@ export * from './FollowingCameraSystem';
 export * from './HintsSystem';
 export * from './LevelsSystem';
 export * from './LilSystem';
+export * from './DustSystem';
