@@ -6,12 +6,12 @@ Ticker.shared.autoStart = false;
 Ticker.shared.stop();
 
 const game = new Runtime([
+    new LilSystem(),
     new LevelsSystem(),
     new HintsSystem(),
     new MouseSystem(),
     new FollowingCameraSystem(),
     new SceneSystem(),
-    new LilSystem(),
     new DustSystem(),
     new ApplicationSystem(),
 ]);

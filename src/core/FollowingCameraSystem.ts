@@ -1,5 +1,6 @@
 import { System, type World } from '../ecs';
 import { Actor, Camera, Player } from '../components';
+import { lerp } from '../utils/lerp';
 
 export class FollowingCameraSystem extends System {
     public override onSimulate(world: World, delta: number): void {
@@ -7,8 +8,9 @@ export class FollowingCameraSystem extends System {
         const playerActor = world.getComponent(Actor, playerId);
 
         const camera = world.firstComponent(Camera);
+        const t = camera.speed * (delta / 1000);
 
-        camera.position.x = playerActor.body.position.x;
-        camera.position.y = playerActor.body.position.y;
+        camera.position.x = lerp(camera.position.x, playerActor.body.position.x, t);
+        camera.position.y = lerp(camera.position.y, playerActor.body.position.y, t);
     }
 }
