@@ -1,16 +1,21 @@
 import { Runtime } from './ecs';
+import type { FollowingCameraSystemOptions } from './core';
 import { ApplicationSystem, MouseSystem, SceneSystem, FollowingCameraSystem, HintsSystem, LevelsSystem, LilSystem, DustSystem } from './core';
 import { Ticker } from 'pixi.js';
 
 Ticker.shared.autoStart = false;
 Ticker.shared.stop();
 
+const camera: FollowingCameraSystemOptions = {
+    followingSpeed: 5,
+};
+
 const game = new Runtime([
-    new LilSystem(),
+    new LilSystem(camera),
     new LevelsSystem(),
     new HintsSystem(),
     new MouseSystem(),
-    new FollowingCameraSystem(),
+    new FollowingCameraSystem(camera),
     new SceneSystem(),
     new DustSystem(),
     new ApplicationSystem(),

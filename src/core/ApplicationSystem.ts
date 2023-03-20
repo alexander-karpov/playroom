@@ -34,7 +34,6 @@ export class ApplicationSystem extends System {
          */
         const [, camera] = world.addEntity(Camera);
         camera.position = Vector.create(0, 0);
-        camera.speed = 5;
     }
 
     public override onOutput(world: World, delta: number): void {
