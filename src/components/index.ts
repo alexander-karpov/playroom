@@ -8,3 +8,4 @@ export * from './Hint';
 export * from './Rock';
 export * from './Level';
 export * from './Dust';
+export * from './Sound';

@@ -86,7 +86,7 @@ export class World {
 
         // TODO: сделать только в dev-mode
         if (!this.hasComponentClassId(componentClassId, entityId)) {
-            throw new Error('Entity does not contain a component');
+            throw new Error(`Entity ${entityId} does not contain a component ${componentClass.name}`);
         }
 
         return this.components.get(componentId) as T;

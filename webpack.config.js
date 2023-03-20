@@ -36,7 +36,13 @@ module.exports = (env) => {
             }),
         ],
         devServer: {
-            static: './dist',
+            static: [
+                {
+                    directory: path.join(__dirname, 'assets'),
+                    publicPath: '/assets',
+                },
+                './dist',
+            ],
         },
         optimization: {
             runtimeChunk: 'single',

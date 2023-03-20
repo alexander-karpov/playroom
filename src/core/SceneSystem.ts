@@ -1,8 +1,7 @@
 import { System, type World } from '../ecs';
-import { Application, Actor, Pointer, Player, Camera, Goal, Hint, Rock, Level } from '../components';
+import { Application, Actor, Pointer, Player, Camera, Goal, Hint, Level, Sound } from '../components';
 import { Graphics, type IPointData } from 'pixi.js';
 import { Events, Bodies, Composite, Body, Vector } from 'matter-js';
-
 
 export class SceneSystem extends System {
     public override onCreate(world: World): void {
@@ -10,30 +9,25 @@ export class SceneSystem extends System {
             const [playerId,] = world.addEntity(Player);
             const actor = world.addComponent(Actor, playerId);
 
-            // const texture = Texture.from('exo.png');
-            // .beginTextureFill({
-            //     texture,
-
-            // })
-            // actor.graphics = new Graphics()
-            //     .beginFill(0)
-            //     .drawCircle(0, 0, r)
-            //     .endFill();
-
-            const h = 64;
-            const w = 12;
-            const wingW = 8;
-            const wingH = h * 0.382;
-
             actor.graphics = new Graphics()
                 .beginFill(0xffffff)
-                .moveTo(-w / 2 - wingW, h / 2)
-                .lineTo(-w / 2, h / 2 - wingH)
-                .lineTo(-w / 2, -h / 2)
-                .arc(0, -h / 2, w / 2, Math.PI, 0)
-                .lineTo(w / 2, h / 2 - wingH)
-                .lineTo(w / 2 + wingW, h / 2)
+                .drawCircle(0, 0, r)
                 .endFill();
+
+            // const h = 64;
+            // const w = 12;
+            // const wingW = 8;
+            // const wingH = h * 0.382;
+
+            // actor.graphics = new Graphics()
+            //     .beginFill(0xffffff)
+            //     .moveTo(-w / 2 - wingW, h / 2)
+            //     .lineTo(-w / 2, h / 2 - wingH)
+            //     .lineTo(-w / 2, -h / 2)
+            //     .arc(0, -h / 2, w / 2, Math.PI, 0)
+            //     .lineTo(w / 2, h / 2 - wingH)
+            //     .lineTo(w / 2 + wingW, h / 2)
+            //     .endFill();
 
 
             // actor.graphics.pivot.set(r / 2, h / 2);
@@ -106,7 +100,27 @@ export class SceneSystem extends System {
         playerActor.graphics.addChild(...hints.map(h => h.graphics));
 
         Events.on(physics, 'collisionStart', function(event) {
-            for (const { bodyA, bodyB } of event.pairs) {
+            for (const pairs of event.pairs) {
+                const { bodyA, bodyB } = pairs;
+                if (bodyA === playerActor.body || bodyB === playerActor.body) {
+                    const anotherBody = bodyA === playerActor.body ? bodyB : bodyA;
+
+                    if (playerActor.body.speed > 2) {
+                        const sound = world.addComponent(
+                            Sound,
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+                            anotherBody.plugin.entityId
+                        );
+
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                        sound.name =
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+                            anotherBody.plugin.soundName;
+
+                        return;
+                    }
+                }
+
                 if ((bodyA === playerActor.body && bodyB === goalActor.body) || bodyB === playerActor.body && bodyA === goalActor.body) {
                     const level = world.firstComponent(Level);
                     level.finished = true;

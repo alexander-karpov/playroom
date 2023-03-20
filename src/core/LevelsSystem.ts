@@ -1,21 +1,13 @@
 import { System, type World } from '../ecs';
 import { Actor, Rock, Level, Player, Goal, Application } from '../components';
 import { Graphics } from 'pixi.js';
-import { Events, Bodies, Composite, Body, Vector, Common } from 'matter-js';
+import { Bodies, Body, Vector, Common } from 'matter-js';
 import { hslToRgb } from '../utils/hslToRgb';
-
+import { choose } from '../utils/choose';
+import { sounds } from './AudioSystem';
 
 export class LevelsSystem extends System {
     public override onCreate(world: World): void {
-
-    }
-
-
-    public override onLink(world: World): void {
-        const [, level] = world.addEntity(Level);
-        const { renderer } = world.firstComponent(Application);
-        level.number = 1;
-        level.finished = false;
 
         const baseColor = 0.61;//Math.random();
 
@@ -31,15 +23,23 @@ export class LevelsSystem extends System {
             hslToRgb(baseColor - step - step, s, l),
         ];
 
-        renderer.background.color = hslToRgb(0.61, 0.43, 0.32);
-
         function rc(): number {
             return Common.choose(colors) as number;
         }
 
-        for (let i = 0; i < 128; i++) {
-            this.rock(world, Vector.create(Common.random(-1000, 1000), Common.random(-1000, 1000)), 32, 32, rc());
+        for (let i = 0; i < 64; i++) {
+            this.createRock(world, Vector.create(Common.random(-1000, 1000), Common.random(-1000, 1000)), 32, 32, rc());
         }
+    }
+
+
+    public override onLink(world: World): void {
+        const [, level] = world.addEntity(Level);
+        const { renderer } = world.firstComponent(Application);
+        level.number = 1;
+        level.finished = false;
+
+        renderer.background.color = hslToRgb(0.61, 0.43, 0.32);
 
         this.movePlayerToStart(world);
         this.replaceRocks(world, 1);
@@ -55,14 +55,19 @@ export class LevelsSystem extends System {
         }
     }
 
-    private rock(world: World, position: Vector, w: number, h: number, color: number, isStatic: boolean = false): void {
+    private createRock(world: World, position: Vector, w: number, h: number, color: number, isStatic: boolean = false): void {
         const [rockId] = world.addEntity(Rock);
-        const component = world.addComponent(Actor, rockId);
+        const actor = world.addComponent(Actor, rockId);
 
-        component.graphics = new Graphics().beginFill(color).drawRect(0, 0, w, h);
-        component.graphics.pivot.set(w / 2, h / 2);
-        component.graphics.position.set(position.x, position.y);
-        component.body = Bodies.rectangle(position.x, position.y, w, h, { isStatic });
+        actor.graphics = new Graphics().beginFill(color).drawRect(0, 0, w, h);
+        actor.graphics.pivot.set(w / 2, h / 2);
+        actor.graphics.position.set(position.x, position.y);
+        actor.body = Bodies.rectangle(position.x, position.y, w, h, { isStatic });
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        actor.body.plugin.entityId = rockId;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        actor.body.plugin.soundName = choose(sounds);
     }
 
     private replaceRocks(world: World, level: number): void {
