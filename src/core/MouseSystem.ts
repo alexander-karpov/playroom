@@ -12,17 +12,18 @@ export class MouseSystem extends System {
 
     public override onLink(world: World): void {
         const pointer = world.firstComponent(Pointer);
+        const canvas = document.getElementsByTagName('canvas')[0]!;
 
-        window.addEventListener('mousemove', (ev: MouseEvent) => {
+        canvas.addEventListener('mousemove', (ev: MouseEvent) => {
             pointer.position.x = ev.x;
             pointer.position.y = ev.y;
         });
 
-        window.addEventListener('mousedown', (_ev: MouseEvent) => {
+        canvas.addEventListener('mousedown', (_ev: MouseEvent) => {
             pointer.pressed = true;
         });
 
-        window.addEventListener('mouseup', (_ev: MouseEvent) => {
+        canvas.addEventListener('mouseup', (_ev: MouseEvent) => {
             pointer.pressed = false;
         });
     }

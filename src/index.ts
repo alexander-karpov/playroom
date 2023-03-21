@@ -1,5 +1,5 @@
 import { Runtime } from './ecs';
-import type { FollowingCameraSystemOptions } from './core';
+import type { FollowingCameraSystemOptions, AudioSystemOptions } from './core';
 import { AudioSystem, ApplicationSystem, MouseSystem, SceneSystem, FollowingCameraSystem, HintsSystem, LevelsSystem, LilSystem, DustSystem } from './core';
 import { Ticker } from 'pixi.js';
 
@@ -10,9 +10,14 @@ const camera: FollowingCameraSystemOptions = {
     followingSpeed: 7,
 };
 
+const audio: AudioSystemOptions = {
+    soundsOn: true,
+    soundsVolume: 70,
+};
+
 const game = new Runtime([
-    new LilSystem(camera),
-    new AudioSystem(),
+    new LilSystem(camera, audio),
+    new AudioSystem(audio),
     new LevelsSystem(),
     new HintsSystem(),
     new MouseSystem(),
