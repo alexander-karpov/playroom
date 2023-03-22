@@ -1,6 +1,6 @@
 import { Runtime } from './ecs';
 import type { FollowingCameraSystemOptions, AudioSystemOptions } from './core';
-import { AudioSystem, ApplicationSystem, MouseSystem, SceneSystem, FollowingCameraSystem, HintsSystem, LevelsSystem, LilSystem, DustSystem } from './core';
+import { AudioSystem, ApplicationSystem, UserInputSystem, SceneSystem, FollowingCameraSystem, HintsSystem, LevelsSystem, LilSystem, DustSystem } from './core';
 import { Ticker } from 'pixi.js';
 
 Ticker.shared.autoStart = false;
@@ -20,7 +20,7 @@ const game = new Runtime([
     new AudioSystem(audio),
     new LevelsSystem(),
     new HintsSystem(),
-    new MouseSystem(),
+    new UserInputSystem(),
     new FollowingCameraSystem(camera),
     new SceneSystem(),
     new DustSystem(),

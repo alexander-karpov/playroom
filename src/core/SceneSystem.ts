@@ -1,5 +1,5 @@
 import { System, type World } from '../ecs';
-import { Application, Actor, Pointer, Player, Camera, Goal, Hint, Level, Sound } from '../components';
+import { Application, Actor, Controller, Player, Camera, Goal, Hint, Level, Sound } from '../components';
 import { Graphics, type IPointData } from 'pixi.js';
 import { Events, Bodies, Composite, Body, Vector } from 'matter-js';
 import { starShape } from '../graphics/shapes';
@@ -118,19 +118,38 @@ export class SceneSystem extends System {
     }
 
     public override onInput(world: World, delta: number): void {
-        const pointer = world.getComponent(Pointer, world.first([Pointer]));
+        const controller = world.getComponent(Controller, world.first([Controller]));
         const camera = world.firstComponent(Camera);
         const { stage } = world.firstComponent(Application);
 
         const playerId = world.first([Player]);
         const { body } = world.getComponent(Actor, playerId);
 
-        if (pointer.pressed) {
-            const worldX = pointer.position.x - stage.position.x + camera.position.x;
-            const worldY = pointer.position.y - stage.position.y + camera.position.y;
+        const dir = Vector.create(0, 0);
 
-            const dir = Vector.normalise(Vector.sub(Vector.create(worldX, worldY), body.position));
-            Body.applyForce(body, body.position, Vector.mult(dir, delta * 0.00005));
+        if (controller.pointerPressed) {
+            const worldX = controller.pointer.x - stage.position.x + camera.position.x;
+            const worldY = controller.pointer.y - stage.position.y + camera.position.y;
+            const pointerDir = Vector.normalise(Vector.sub(Vector.create(worldX, worldY), body.position));
+
+            Vector.add(dir, pointerDir, dir);
+        }
+
+        if (controller.topPressed && !controller.bottomPressed) {
+            dir.y -= 1;
+        }
+        if (controller.rightPressed && !controller.leftPressed) {
+            dir.x += 1;
+        }
+        if (controller.bottomPressed && !controller.topPressed) {
+            dir.y += 1;
+        }
+        if (controller.leftPressed && !controller.rightPressed) {
+            dir.x -= 1;
+        }
+
+        if (dir.x !== 0 || dir.y !== 0) {
+            Body.applyForce(body, body.position, Vector.mult(Vector.normalise(dir), delta * 0.00005));
         }
     }
 }
