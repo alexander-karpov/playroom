@@ -56,7 +56,10 @@ export class AudioSystem extends System {
                 const sound = world.getComponent(Sound, entity);
                 const audio = this.HTMLAudioElems.get(sound.name);
 
-                if (audio) {
+                if (audio &&
+                    // Чтобы избежать трели одного и того же звука
+                    (audio.paused || audio.currentTime > 0.3)
+                ) {
                     audio.volume = Common.clamp(this.options.soundsVolume, 0, 100) / 100;
                     audio.currentTime = 0;
                     void audio.play();
