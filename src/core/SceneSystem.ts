@@ -2,6 +2,7 @@ import { System, type World } from '../ecs';
 import { Application, Actor, Pointer, Player, Camera, Goal, Hint, Level, Sound } from '../components';
 import { Graphics, type IPointData } from 'pixi.js';
 import { Events, Bodies, Composite, Body, Vector } from 'matter-js';
+import { starShape } from '../graphics/shapes';
 
 export class SceneSystem extends System {
     public override onCreate(world: World): void {
@@ -42,20 +43,7 @@ export class SceneSystem extends System {
 
             // actor.graphics = new Graphics().beginFill(color).drawCircle(0, 0, r);
 
-            const starEnd = Vector.create(0, -r);
-            const starHole = Vector.rotate(Vector.create(0, -r * 0.618), (Math.PI / 5));
-
-            const star: IPointData[] = [];
-
-            for (let i = 0; i < 5; i++) {
-                star.push(
-                    Vector.rotate(starEnd, (Math.PI * 2 / 5) * i)
-                );
-
-                star.push(
-                    Vector.rotate(starHole, (Math.PI * 2 / 5) * i)
-                );
-            }
+            const [star] = starShape(r, 0);
 
             actor.graphics = new Graphics()
                 .beginFill(0xff0ff0)
@@ -68,10 +56,10 @@ export class SceneSystem extends System {
             actor.body = Bodies.fromVertices(x, y, [star]);
 
             const hintStep = (window.innerHeight / 2) * (0.618);
-            const top = hintStep + hintStep * (1 - 0.618);
+            const top = hintStep + hintStep * (1 - 0.618) * (1 - 0.618);
 
             hint.graphics = new Graphics()
-                .lineStyle(3, 0x000000)
+                .lineStyle(3, 0xffffff)
                 .moveTo(hintStep, 0)
                 .lineTo(top, 0)
                 .lineTo(top - 7, -7)

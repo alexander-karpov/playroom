@@ -1,10 +1,11 @@
 import { System, type World } from '../ecs';
 import { Actor, Rock, Level, Player, Goal, Application } from '../components';
-import { Graphics } from 'pixi.js';
+import { Graphics, PI_2 } from 'pixi.js';
 import { Bodies, Body, Vector, Common } from 'matter-js';
 import { hslToRgb } from '../utils/hslToRgb';
 import { choose } from '../utils/choose';
 import { sounds } from './AudioSystem';
+import { starShape } from '../graphics/shapes';
 
 export class LevelsSystem extends System {
     public override onCreate(world: World): void {
@@ -28,7 +29,7 @@ export class LevelsSystem extends System {
         }
 
         for (let i = 0; i < 64; i++) {
-            this.createRock(world, Vector.create(Common.random(-1000, 1000), Common.random(-1000, 1000)), 32, 32, rc());
+            this.createRock(world, Vector.create(Common.random(-1000, 1000), Common.random(-1000, 1000)), Common.random(16, 128), rc());
         }
     }
 
@@ -55,19 +56,23 @@ export class LevelsSystem extends System {
         }
     }
 
-    private createRock(world: World, position: Vector, w: number, h: number, color: number, isStatic: boolean = false): void {
+    private createRock(world: World, position: Vector, r: number, color: number): void {
         const [rockId] = world.addEntity(Rock);
         const actor = world.addComponent(Actor, rockId);
 
-        actor.graphics = new Graphics().beginFill(color).drawRect(0, 0, w, h);
-        actor.graphics.pivot.set(w / 2, h / 2);
+        const [wholeShape, tips] = starShape(r, 0);
+        actor.graphics = new Graphics().beginFill(color).drawPolygon(wholeShape).endFill();
         actor.graphics.position.set(position.x, position.y);
-        actor.body = Bodies.rectangle(position.x, position.y, w, h, { isStatic });
+        actor.body = Bodies.fromVertices(position.x, position.y, [wholeShape]);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         actor.body.plugin.entityId = rockId;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         actor.body.plugin.soundName = choose(sounds);
+
+        const angle = Common.random(0, PI_2);
+        Body.setAngle(actor.body, angle);
+        actor.graphics.rotation = angle;
     }
 
     private replaceRocks(world: World, level: number): void {
