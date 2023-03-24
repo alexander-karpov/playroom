@@ -4,4 +4,5 @@ import { type Body } from 'matter-js';
 export class Actor {
     public graphics!: Graphics;
     public body!: Body;
+    public color!: number;
 }

@@ -7,6 +7,8 @@ export class ApplicationSystem extends System {
     public override onCreate(world: World): void {
         const [, app] = world.addEntity(Application);
 
+        app.touchedStarEntities = [];
+
         app.renderer = new Renderer({
             width: window.innerWidth,
             height: window.innerHeight,
@@ -69,32 +71,6 @@ export class ApplicationSystem extends System {
             clear: false
         });
     }
-
-    // private renderDust(renderer: Renderer, stage: Container): void {
-    //     const dust = world.firstComponent(Dust);
-
-    //     const x = stage.pivot.x < 0 ? window.innerWidth + (stage.pivot.x % window.innerWidth) : stage.pivot.x % window.innerWidth;
-    //     const x2 = x - window.innerWidth;
-
-    //     const y = stage.pivot.y < 0 ? window.innerHeight + (stage.pivot.y % window.innerHeight) : stage.pivot.y % window.innerHeight;
-    //     const y2 = y - window.innerHeight;
-
-    //     let clear: boolean = true;
-
-    //     for (const [_x, _y] of [
-    //         [x, y], [x2, y],
-    //         [x, y2], [x2, y2],
-    //     ]) {
-    //         dust.container.pivot.set(
-    //             _x,
-    //             _y
-    //         );
-    //         renderer.render(dust.container, { clear });
-    //         clear = false;
-    //     }
-
-
-    // }
 }
 
 console.warn(`

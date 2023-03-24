@@ -5,4 +5,10 @@ export class Application {
     public renderer!: Renderer;
     public stage!: Container;
     public physics!: Engine;
+    // public puzzle!: Puzzle;
+    public touchedStarEntities!: number[];
 }
+
+// class Puzzle {
+//     public tones!: [string, ...string[]];
+// }

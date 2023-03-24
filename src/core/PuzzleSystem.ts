@@ -1,14 +1,15 @@
 import { System, type World } from '../ecs';
-import { Actor, Rock, Level, Player, Goal, Application } from '../components';
+import { Actor, Rock, Player, Goal, Application } from '../components';
 import { Graphics, PI_2 } from 'pixi.js';
 import { Bodies, Body, Vector, Common } from 'matter-js';
 import { hslToRgb } from '../utils/hslToRgb';
-import { choose } from '../utils/choose';
 import { xylophone } from './AudioSystem';
 import { starShape } from '../graphics/shapes';
 import { fib } from '../utils/fib';
+import { last } from '../utils/last';
+import { CollisionCategories } from './CollisionCategories';
 
-export class LevelsSystem extends System {
+export class PuzzleSystem extends System {
     public override onCreate(world: World): void {
 
         const baseColor = 0.61;//Math.random();
@@ -40,9 +41,9 @@ export class LevelsSystem extends System {
 
         Common.shuffle(sizes);
 
-        for (let i = 0; i < sizes.length * 3; i++) {
+        for (let i = 0; i < sizes.length * 2; i++) {
             const size = sizes[i % sizes.length]!;
-            this.createRock(
+            this.createStar(
                 world,
                 Vector.create(Common.random(-1000, 1000), Common.random(-1000, 1000)),
                 size,
@@ -53,10 +54,7 @@ export class LevelsSystem extends System {
 
 
     public override onLink(world: World): void {
-        const [, level] = world.addEntity(Level);
         const { renderer } = world.firstComponent(Application);
-        level.number = 1;
-        level.finished = false;
 
         renderer.background.color = hslToRgb(0.61, 0.43, 0.32);
 
@@ -65,24 +63,52 @@ export class LevelsSystem extends System {
     }
 
     public override onSimulate(world: World, delta: number): void {
-        const level = world.firstComponent(Level);
+        const { touchedStarEntities } = world.firstComponent(Application);
 
-        if (level.finished) {
-            level.finished = false;
-            this.replaceRocks(world, level.number);
-            this.movePlayerToStart(world);
+        if (touchedStarEntities.length >= 2) {
+            const entityA = last(touchedStarEntities)!;
+            const entityB = touchedStarEntities[touchedStarEntities.length - 2]!;
+
+            if (entityA === entityB) {
+                return;
+            }
+
+            const actorA = world.getComponent(Actor, entityA);
+            const actorB = world.getComponent(Actor, entityB);
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            const soundNameA: string = actorA.body.plugin.soundName;
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            const soundNameB: string = actorB.body.plugin.soundName;
+
+            if (soundNameA === soundNameB) {
+                actorA.graphics.tint = actorA.color;
+                actorB.graphics.tint = actorB.color;
+
+                actorA.body.collisionFilter.category = CollisionCategories.awakenedStar;
+                actorB.body.collisionFilter.category = CollisionCategories.awakenedStar;
+
+                touchedStarEntities.length = 0;
+            }
         }
     }
 
-    private createRock(world: World, position: Vector, size: number, color: number): void {
+    private createStar(world: World, position: Vector, size: number, color: number): void {
         const r = fib(size + 7);
         const [rockId] = world.addEntity(Rock);
         const actor = world.addComponent(Actor, rockId);
 
         const [wholeShape] = starShape(r, 0);
-        actor.graphics = new Graphics().beginFill(color).drawPolygon(wholeShape).endFill();
+        actor.graphics = new Graphics().beginFill(0xffffff).drawPolygon(wholeShape).endFill();
         actor.graphics.position.set(position.x, position.y);
-        actor.body = Bodies.fromVertices(position.x, position.y, [wholeShape]);
+        actor.body = Bodies.fromVertices(position.x, position.y, [wholeShape], {
+            collisionFilter: {
+                category: CollisionCategories.sleepingStar
+            }
+        });
+        actor.graphics.tint = hslToRgb(0.61, 0.43, 0.5);
+        actor.color = color;
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         actor.body.plugin.entityId = rockId;

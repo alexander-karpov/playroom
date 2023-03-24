@@ -1,10 +1,19 @@
 import { Runtime } from './ecs';
 import type { FollowingCameraSystemOptions, AudioSystemOptions } from './core';
-import { AudioSystem, ApplicationSystem, UserInputSystem, SceneSystem, FollowingCameraSystem, HintsSystem, LevelsSystem, LilSystem, DustSystem } from './core';
+import { AudioSystem, ApplicationSystem, UserInputSystem, SceneSystem, FollowingCameraSystem, HintsSystem, PuzzleSystem, LilSystem, DustSystem } from './core';
 import { Ticker } from 'pixi.js';
+import { Common } from 'matter-js';
 
 Ticker.shared.autoStart = false;
 Ticker.shared.stop();
+
+// @ts-expect-error
+if (typeof Common._seed !== 'number') {
+    throw new Error('Пропало поле Common._seed');
+}
+
+// @ts-expect-error
+Common._seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
 
 const camera: FollowingCameraSystemOptions = {
     followingSpeed: 7,
@@ -18,7 +27,7 @@ const audio: AudioSystemOptions = {
 const game = new Runtime([
     new LilSystem(camera, audio),
     new AudioSystem(audio),
-    new LevelsSystem(),
+    new PuzzleSystem(),
     new HintsSystem(),
     new UserInputSystem(),
     new FollowingCameraSystem(camera),
