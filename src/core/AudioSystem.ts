@@ -2,15 +2,15 @@ import { System, type World } from '../ecs';
 import { Sound } from '../components';
 import { Common } from 'matter-js';
 
-export const sounds = [
-    'xylophone-a.ogg',
-    'xylophone-b.ogg',
+export const xylophone = [
     'xylophone-c.ogg',
-    'xylophone-c2.ogg',
     'xylophone-d1.ogg',
     'xylophone-e1.ogg',
     'xylophone-f.ogg',
     'xylophone-g.ogg',
+    'xylophone-a.ogg',
+    'xylophone-b.ogg',
+    'xylophone-c2.ogg',
 ] as readonly string[];
 
 export interface AudioSystemOptions {
@@ -36,7 +36,7 @@ export class AudioSystem extends System {
         /**
          * Create audio elements, load sounds
          */
-        for (const soundName of sounds) {
+        for (const soundName of xylophone) {
             this.HTMLAudioElems.set(soundName, new Audio(`./assets/sounds/${soundName}`));
         }
     }

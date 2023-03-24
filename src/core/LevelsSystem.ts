@@ -4,8 +4,9 @@ import { Graphics, PI_2 } from 'pixi.js';
 import { Bodies, Body, Vector, Common } from 'matter-js';
 import { hslToRgb } from '../utils/hslToRgb';
 import { choose } from '../utils/choose';
-import { sounds } from './AudioSystem';
+import { xylophone } from './AudioSystem';
 import { starShape } from '../graphics/shapes';
+import { fib } from '../utils/fib';
 
 export class LevelsSystem extends System {
     public override onCreate(world: World): void {
@@ -28,8 +29,25 @@ export class LevelsSystem extends System {
             return Common.choose(colors) as number;
         }
 
-        for (let i = 0; i < 64; i++) {
-            this.createRock(world, Vector.create(Common.random(-1000, 1000), Common.random(-1000, 1000)), Common.random(16, 128), rc());
+        const sizes = [
+            0, 0, 0, 0, 0, 0,
+            1, 1, 1, 1, 1,
+            2, 2, 2, 2,
+            3, 3, 3,
+            4, 4,
+            5
+        ];
+
+        Common.shuffle(sizes);
+
+        for (let i = 0; i < sizes.length * 3; i++) {
+            const size = sizes[i % sizes.length]!;
+            this.createRock(
+                world,
+                Vector.create(Common.random(-1000, 1000), Common.random(-1000, 1000)),
+                size,
+                rc()
+            );
         }
     }
 
@@ -56,11 +74,12 @@ export class LevelsSystem extends System {
         }
     }
 
-    private createRock(world: World, position: Vector, r: number, color: number): void {
+    private createRock(world: World, position: Vector, size: number, color: number): void {
+        const r = fib(size + 7);
         const [rockId] = world.addEntity(Rock);
         const actor = world.addComponent(Actor, rockId);
 
-        const [wholeShape, tips] = starShape(r, 0);
+        const [wholeShape] = starShape(r, 0);
         actor.graphics = new Graphics().beginFill(color).drawPolygon(wholeShape).endFill();
         actor.graphics.position.set(position.x, position.y);
         actor.body = Bodies.fromVertices(position.x, position.y, [wholeShape]);
@@ -68,7 +87,7 @@ export class LevelsSystem extends System {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         actor.body.plugin.entityId = rockId;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        actor.body.plugin.soundName = choose(sounds);
+        actor.body.plugin.soundName = xylophone[xylophone.length - size - 2]!;
 
         const angle = Common.random(0, PI_2);
         Body.setAngle(actor.body, angle);
