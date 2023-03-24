@@ -3,14 +3,14 @@ import { Sound } from '../components';
 import { Common } from 'matter-js';
 
 export const sounds = [
-    'xylophone-a.wav',
-    'xylophone-b.wav',
-    'xylophone-c.wav',
-    'xylophone-c2.wav',
-    'xylophone-d1.wav',
-    'xylophone-e1.wav',
-    'xylophone-f.wav',
-    'xylophone-g.wav',
+    'xylophone-a.ogg',
+    'xylophone-b.ogg',
+    'xylophone-c.ogg',
+    'xylophone-c2.ogg',
+    'xylophone-d1.ogg',
+    'xylophone-e1.ogg',
+    'xylophone-f.ogg',
+    'xylophone-g.ogg',
 ] as readonly string[];
 
 export interface AudioSystemOptions {
