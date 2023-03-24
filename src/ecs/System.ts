@@ -28,4 +28,8 @@ export abstract class System {
     public onOutput(world: World, delta: number): void {
         throw new Error('Not implemented');
     }
+
+    public onSometimes(world: World): void {
+        throw new Error('Not implemented');
+    }
 }

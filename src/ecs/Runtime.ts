@@ -7,33 +7,39 @@ export class Runtime {
     private inputSystems!: System[];
     private simulateSystems!: System[];
     private outputSystems!: System[];
+    private sometimesSystems!: System[];
+
+    private readonly timeBetweenSameSometimesCallsMs = 5000;
+    private nextSometimesHandlerIndex = 0;
+    private timeSinceLastSometimesCallMs = 0;
 
     public constructor(
         private readonly systems: System[]
     ) {
         this.separateSystemsByHandlers();
-        this.callStartupSystemHandlers();
+        this.callStartupHandlers();
     }
 
-    public update(deltaS: number): void {
-        this.callRuntimeSystemHandlerts(deltaS);
+    public update(deltaMs: number): void {
+        this.callRuntimeHandlers(deltaMs);
+        this.callSometimesHandlers(deltaMs);
     }
 
-    private callRuntimeSystemHandlerts(timeDelta: number): void {
+    private callRuntimeHandlers(deltaMs: number): void {
         for (const system of this.inputSystems) {
-            system.onInput(this.world, timeDelta);
+            system.onInput(this.world, deltaMs);
         }
 
         for (const system of this.simulateSystems) {
-            system.onSimulate(this.world, timeDelta);
+            system.onSimulate(this.world, deltaMs);
         }
 
         for (const system of this.outputSystems) {
-            system.onOutput(this.world, timeDelta);
+            system.onOutput(this.world, deltaMs);
         }
     }
 
-    private callStartupSystemHandlers(): void {
+    private callStartupHandlers(): void {
         for (const system of this.systems) {
             if (this.isSystemOverridesHandler(system, 'onCreate')) {
                 system.onCreate(this.world);
@@ -47,6 +53,17 @@ export class Runtime {
         }
     }
 
+    private callSometimesHandlers(timeDeltaMs: number): void {
+        this.timeSinceLastSometimesCallMs += timeDeltaMs;
+
+        if (this.timeSinceLastSometimesCallMs > this.timeBetweenSameSometimesCallsMs / this.sometimesSystems.length) {
+            this.nextSometimesHandlerIndex %= this.sometimesSystems.length;
+            this.sometimesSystems[this.nextSometimesHandlerIndex]!.onSometimes(this.world);
+            this.nextSometimesHandlerIndex += 1;
+            this.timeSinceLastSometimesCallMs = 0;
+        }
+    }
+
     /**
      * Разделяем системы заранее, чтобы не делать этого на ходу
      */
@@ -54,6 +71,8 @@ export class Runtime {
         this.inputSystems = this.systems.filter(s => this.isSystemOverridesHandler(s, 'onInput'));
         this.simulateSystems = this.systems.filter(s => this.isSystemOverridesHandler(s, 'onSimulate'));
         this.outputSystems = this.systems.filter(s => this.isSystemOverridesHandler(s, 'onOutput'));
+
+        this.sometimesSystems = this.systems.filter(s => this.isSystemOverridesHandler(s, 'onSometimes'));
     }
 
     private isSystemOverridesHandler(system: System, methodName: keyof System): boolean {
