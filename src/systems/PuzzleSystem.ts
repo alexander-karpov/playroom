@@ -1,12 +1,12 @@
-import { System, type World } from '../ecs';
+import { System, type World } from '@ecs';
 import { Actor, Rock, Player, Goal, Application } from '../components';
 import { Graphics, PI_2 } from 'pixi.js';
 import { Bodies, Body, Vector, Common } from 'matter-js';
-import { hslToRgb } from '../utils/hslToRgb';
+import { hslToRgb } from '@utils/hslToRgb';
 import { xylophone } from './AudioSystem';
 import { starShape } from '../graphics/shapes';
-import { fib } from '../utils/fib';
-import { last } from '../utils/last';
+import { fib } from '@utils/fib';
+import { last } from '@utils/last';
 import { CollisionCategories } from './CollisionCategories';
 
 export class PuzzleSystem extends System {

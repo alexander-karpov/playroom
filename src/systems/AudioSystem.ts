@@ -1,4 +1,4 @@
-import { System, type World } from '../ecs';
+import { System, type World } from '@ecs';
 import { Sound } from '../components';
 import { Common } from 'matter-js';
 

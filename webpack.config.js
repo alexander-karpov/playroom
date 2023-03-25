@@ -29,6 +29,12 @@ module.exports = (env) => {
         },
         resolve: {
             extensions: ['.ts', '.js'],
+            alias: {
+                '@ecs': path.resolve(__dirname, 'src/ecs/index.ts'),
+                '@systems': path.resolve(__dirname, 'src/systems/index.ts'),
+                '@components': path.resolve(__dirname, 'src/components/index.ts'),
+                '@utils': path.resolve(__dirname, 'src/utils'),
+            },
         },
         plugins: [
             new HtmlWebpackPlugin({

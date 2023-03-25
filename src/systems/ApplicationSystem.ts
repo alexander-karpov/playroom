@@ -1,5 +1,5 @@
 import { Engine, Vector } from 'matter-js';
-import { System, type World } from '../ecs';
+import { System, type World } from '@ecs';
 import { Actor, Application, Camera, Dust } from '../components';
 import { Renderer, Container } from 'pixi.js';
 

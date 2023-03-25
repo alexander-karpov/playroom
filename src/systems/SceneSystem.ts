@@ -1,4 +1,4 @@
-import { System, type World } from '../ecs';
+import { System, type World } from '@ecs';
 import { Application, Actor, Controller, Player, Camera, Goal, Hint, Sound } from '../components';
 import { Graphics } from 'pixi.js';
 import { Events, Bodies, Composite, Body, Vector } from 'matter-js';
@@ -113,10 +113,8 @@ export class SceneSystem extends System {
             dir.x -= 1;
         }
 
-        console.log(delta)
-
         if (dir.x !== 0 || dir.y !== 0) {
-            Body.applyForce(body, body.position, Vector.mult(Vector.normalise(dir), delta * 0.00005));
+            Body.applyForce(body, body.position, Vector.mult(Vector.normalise(dir), delta * 0.00003));
         }
     }
 

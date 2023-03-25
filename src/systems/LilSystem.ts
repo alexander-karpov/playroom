@@ -1,6 +1,6 @@
-import { System, type World } from '../ecs';
+import { System, type World } from '@ecs';
 import GUI from 'lil-gui';
-import { nameof } from '../utils/nameof';
+import { nameof } from '@utils/nameof';
 import type { FollowingCameraSystemOptions, AudioSystemOptions } from '.';
 import { Actor, Player } from '../components';
 

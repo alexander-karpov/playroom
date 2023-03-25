@@ -9,5 +9,20 @@
         "noImplicitOverride": true,
         "noPropertyAccessFromIndexSignature": true,
         "noUncheckedIndexedAccess": true,
+        "baseUrl": "./",
+        "paths": {
+            "@ecs": [
+                "./src/ecs/index.ts"
+            ],
+            "@systems": [
+                "./src/systems/index.ts"
+            ],
+            "@components": [
+                "./src/components/index.ts"
+            ],
+            "@utils/*": [
+                "./src/utils/*"
+            ]
+        }
     }
 }

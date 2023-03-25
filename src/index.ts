@@ -1,6 +1,6 @@
-import { Runtime } from './ecs';
-import type { FollowingCameraSystemOptions, AudioSystemOptions } from './core';
-import { AudioSystem, ApplicationSystem, UserInputSystem, SceneSystem, FollowingCameraSystem, HintsSystem, PuzzleSystem, LilSystem, DustSystem } from './core';
+import { Runtime } from '@ecs';
+import type { FollowingCameraSystemOptions, AudioSystemOptions } from './systems';
+import { AudioSystem, ApplicationSystem, UserInputSystem, SceneSystem, FollowingCameraSystem, HintsSystem, PuzzleSystem, LilSystem, DustSystem } from './systems';
 import { Ticker } from 'pixi.js';
 import { Common } from 'matter-js';
 
