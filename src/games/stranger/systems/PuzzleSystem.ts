@@ -4,7 +4,7 @@ import { Graphics, PI_2 } from 'pixi.js';
 import { Bodies, Body, Vector, Common } from 'matter-js';
 import { hslToRgb } from '@utils/hslToRgb';
 import { xylophone } from './AudioSystem';
-import { starShape } from '../graphics/shapes';
+import { starShape } from '../../../graphics/shapes';
 import { fib } from '@utils/fib';
 import { last } from '@utils/last';
 import { CollisionCategories } from './CollisionCategories';

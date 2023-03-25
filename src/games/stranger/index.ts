@@ -1,19 +1,13 @@
 import { Runtime } from '@ecs';
 import type { FollowingCameraSystemOptions, AudioSystemOptions } from './systems';
+import { changeMatterJsRandomSeed } from '@utils/changeMatterJsRandomSeed';
 import { AudioSystem, ApplicationSystem, UserInputSystem, SceneSystem, FollowingCameraSystem, HintsSystem, PuzzleSystem, LilSystem, DustSystem } from './systems';
 import { Ticker } from 'pixi.js';
-import { Common } from 'matter-js';
 
 Ticker.shared.autoStart = false;
 Ticker.shared.stop();
 
-// @ts-expect-error
-if (typeof Common._seed !== 'number') {
-    throw new Error('Пропало поле Common._seed');
-}
-
-// @ts-expect-error
-Common._seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+changeMatterJsRandomSeed();
 
 const camera: FollowingCameraSystemOptions = {
     followingSpeed: 7,

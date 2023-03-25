@@ -2,8 +2,8 @@ import { System, type World } from '@ecs';
 import { Application, Actor, Controller, Player, Camera, Goal, Hint, Sound } from '../components';
 import { Graphics } from 'pixi.js';
 import { Events, Bodies, Composite, Body, Vector } from 'matter-js';
-import { starShape } from '../graphics/shapes';
 import { CollisionCategories } from './CollisionCategories';
+import { starShape } from 'src/graphics/shapes';
 
 export class SceneSystem extends System {
     public override onCreate(world: World): void {

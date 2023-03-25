@@ -67,7 +67,9 @@ export class ApplicationSystem extends System {
          */
         // this.renderDust(world);
 
-        renderer.render(stage);
+        renderer.render(stage, {
+            clear: false
+        });
     }
 }
 

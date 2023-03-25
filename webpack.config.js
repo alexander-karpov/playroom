@@ -7,7 +7,7 @@ module.exports = (env) => {
     console.log('Mode:', mode);
 
     return {
-        entry: './src/index.ts',
+        entry: './src/games/music/index.ts',
         mode,
         output: {
             filename: '[name].bundle.js',
