@@ -1,5 +1,5 @@
 import { System, type World } from '@ecs';
-import { Sound } from '../components';
+import { Sound } from '../games/stranger/components';
 import { Common } from 'matter-js';
 
 export const xylophone = [
@@ -37,7 +37,10 @@ export class AudioSystem extends System {
          * Create audio elements, load sounds
          */
         for (const soundName of xylophone) {
-            this.HTMLAudioElems.set(soundName, new Audio(`./assets/sounds/${soundName}`));
+            this.HTMLAudioElems.set(
+                soundName,
+                new Audio(`./assets/sounds/${soundName}`)
+            );
         }
     }
 
@@ -56,11 +59,13 @@ export class AudioSystem extends System {
                 const sound = world.getComponent(Sound, entity);
                 const audio = this.HTMLAudioElems.get(sound.name);
 
-                if (audio &&
+                if (
+                    audio &&
                     // Чтобы избежать трели одного и того же звука
                     (audio.paused || audio.currentTime > 0.3)
                 ) {
-                    audio.volume = Common.clamp(this.options.soundsVolume, 0, 100) / 100;
+                    audio.volume =
+                        Common.clamp(this.options.soundsVolume, 0, 100) / 100;
                     audio.currentTime = 0;
                     void audio.play();
                 }

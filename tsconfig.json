@@ -11,14 +11,20 @@
         "noUncheckedIndexedAccess": true,
         "baseUrl": "./",
         "paths": {
+            "@ecs/*": [
+                "./src/ecs/*"
+            ],
             "@ecs": [
                 "./src/ecs/index.ts"
             ],
-            "@systems": [
-                "./src/systems/index.ts"
+            "@components/*": [
+                "./src/components/*"
             ],
             "@components": [
                 "./src/components/index.ts"
+            ],
+            "@systems/*": [
+                "./src/systems/*"
             ],
             "@utils/*": [
                 "./src/utils/*"

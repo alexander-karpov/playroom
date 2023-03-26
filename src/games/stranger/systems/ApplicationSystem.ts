@@ -1,4 +1,4 @@
-import { Engine, Vector } from 'matter-js';
+import { Composite, Engine, Vector } from 'matter-js';
 import { System, type World } from '@ecs';
 import { Actor, Application, Camera } from '@components';
 import { Renderer, Container } from 'pixi.js';
@@ -6,8 +6,6 @@ import { Renderer, Container } from 'pixi.js';
 export class ApplicationSystem extends System {
     public override onCreate(world: World): void {
         const [, app] = world.addEntity(Application);
-
-        app.touchedStarEntities = [];
 
         app.renderer = new Renderer({
             width: window.innerWidth,
@@ -19,7 +17,7 @@ export class ApplicationSystem extends System {
         app.stage = new Container();
 
         app.physics = Engine.create({
-            gravity: { x: 0, y: 0.0 }
+            gravity: { x: 0, y: 0.0 },
         });
 
         app.stage.position.x = app.renderer.width / 2;
@@ -39,7 +37,7 @@ export class ApplicationSystem extends System {
     }
 
     public override onOutput(world: World, delta: number): void {
-        const { renderer, stage, physics } = world.getComponent(Application, world.first([Application]));
+        const { renderer, stage, physics } = world.firstComponent(Application);
 
         /**
          * Update physics
@@ -68,7 +66,7 @@ export class ApplicationSystem extends System {
         // this.renderDust(world);
 
         renderer.render(stage, {
-            clear: false
+            clear: false,
         });
     }
 }

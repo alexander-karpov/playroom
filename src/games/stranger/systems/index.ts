@@ -6,4 +6,4 @@ export * from './HintsSystem';
 export * from './PuzzleSystem';
 export * from './LilSystem';
 export * from './DustSystem';
-export * from './AudioSystem';
+export * from '../../../systems/AudioSystem';
