@@ -37,10 +37,7 @@ export class AudioSystem extends System {
          * Create audio elements, load sounds
          */
         for (const soundName of xylophone) {
-            this.HTMLAudioElems.set(
-                soundName,
-                new Audio(`./assets/sounds/${soundName}`)
-            );
+            this.HTMLAudioElems.set(soundName, new Audio(`./assets/sounds/${soundName}`));
         }
     }
 
@@ -62,10 +59,9 @@ export class AudioSystem extends System {
                 if (
                     audio &&
                     // Чтобы избежать трели одного и того же звука
-                    (audio.paused || audio.currentTime > 0.3)
+                    (audio.paused || audio.currentTime > sound.throttleMs / 1000)
                 ) {
-                    audio.volume =
-                        Common.clamp(this.options.soundsVolume, 0, 100) / 100;
+                    audio.volume = Common.clamp(this.options.soundsVolume, 0, 100) / 100;
                     audio.currentTime = 0;
                     void audio.play();
                 }

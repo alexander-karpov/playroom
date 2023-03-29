@@ -3,13 +3,19 @@ import { ApplicationSystem } from '@systems/ApplicationSystem';
 import { Ticker } from 'pixi.js';
 import { changeMatterJsRandomSeed } from '@utils/changeMatterJsRandomSeed';
 import { GameSystem } from './systems/GameSystem';
+import { AudioSystem, type AudioSystemOptions } from '@systems/AudioSystem';
 
 Ticker.shared.autoStart = false;
 Ticker.shared.stop();
 
 changeMatterJsRandomSeed();
 
-const game = new Runtime([new GameSystem(), new ApplicationSystem()]);
+const audio: AudioSystemOptions = {
+    soundsOn: true,
+    soundsVolume: 70,
+};
+
+const game = new Runtime([new GameSystem(), new AudioSystem(audio), new ApplicationSystem()]);
 
 let lastTime = performance.now();
 

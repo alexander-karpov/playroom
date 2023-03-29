@@ -8,7 +8,7 @@ import { starShape } from 'src/graphics/shapes';
 export class SceneSystem extends System {
     public override onCreate(world: World): void {
         function goal(x: number, y: number, r: number, color: number): void {
-            const [goalId,] = world.addEntity(Goal);
+            const [goalId] = world.addEntity(Goal);
             const actor = world.addComponent(Actor, goalId);
             const hint = world.addComponent(Hint, goalId);
 
@@ -16,17 +16,13 @@ export class SceneSystem extends System {
 
             const [star] = starShape(r, 0);
 
-            actor.graphics = new Graphics()
-                .beginFill(0xff0ff0)
-                .drawPolygon(star)
-                .endFill();
-
+            actor.graphics = new Graphics().beginFill(0xff0ff0).drawPolygon(star).endFill();
 
             // actor.graphics.pivot.set(r / 2, h / 2);
             actor.graphics.position.set(x, y);
             actor.body = Bodies.fromVertices(x, y, [star]);
 
-            const hintStep = (window.innerHeight / 2) * (0.618);
+            const hintStep = (window.innerHeight / 2) * 0.618;
             const top = hintStep + hintStep * (1 - 0.618) * (1 - 0.618);
 
             hint.graphics = new Graphics()
@@ -50,14 +46,17 @@ export class SceneSystem extends System {
         const playerActor = world.getComponent(Actor, world.first([Player]));
         const actors = world.getComponents(Actor);
 
-        stage.addChild(...actors.map(a => a.graphics));
-        Composite.add(physics.world, actors.map(a => a.body));
+        stage.addChild(...actors.map((a) => a.graphics));
+        Composite.add(
+            physics.world,
+            actors.map((a) => a.body)
+        );
 
         const hints = world.getComponents(Hint);
 
-        playerActor.graphics.addChild(...hints.map(h => h.graphics));
+        playerActor.graphics.addChild(...hints.map((h) => h.graphics));
 
-        Events.on(physics, 'collisionStart', function(event) {
+        Events.on(physics, 'collisionStart', function (event) {
             for (const pairs of event.pairs) {
                 const { bodyA, bodyB } = pairs;
                 if (bodyA === playerActor.body || bodyB === playerActor.body) {
@@ -75,6 +74,7 @@ export class SceneSystem extends System {
 
                         const sound = world.addComponent(Sound, entityId);
                         sound.name = soundName;
+                        sound.throttleMs = 300;
                         touchedStarEntities.push(entityId);
                     }
                 }
@@ -95,7 +95,9 @@ export class SceneSystem extends System {
         if (controller.pointerPressed) {
             const worldX = controller.pointer.x - stage.position.x + camera.position.x;
             const worldY = controller.pointer.y - stage.position.y + camera.position.y;
-            const pointerDir = Vector.normalise(Vector.sub(Vector.create(worldX, worldY), body.position));
+            const pointerDir = Vector.normalise(
+                Vector.sub(Vector.create(worldX, worldY), body.position)
+            );
 
             Vector.add(dir, pointerDir, dir);
         }
@@ -114,18 +116,19 @@ export class SceneSystem extends System {
         }
 
         if (dir.x !== 0 || dir.y !== 0) {
-            Body.applyForce(body, body.position, Vector.mult(Vector.normalise(dir), delta * 0.00003));
+            Body.applyForce(
+                body,
+                body.position,
+                Vector.mult(Vector.normalise(dir), delta * 0.00003)
+            );
         }
     }
 
     private createPlayer(world: World, x: number, y: number, r: number, color: number): void {
-        const [playerId,] = world.addEntity(Player);
+        const [playerId] = world.addEntity(Player);
         const actor = world.addComponent(Actor, playerId);
 
-        actor.graphics = new Graphics()
-            .beginFill(0xffffff)
-            .drawCircle(0, 0, r)
-            .endFill();
+        actor.graphics = new Graphics().beginFill(0xffffff).drawCircle(0, 0, r).endFill();
 
         // const h = 64;
         // const w = 12;
@@ -142,17 +145,15 @@ export class SceneSystem extends System {
         //     .lineTo(w / 2 + wingW, h / 2)
         //     .endFill();
 
-
         // actor.graphics.pivot.set(r / 2, h / 2);
         actor.graphics.position.set(x, y);
         actor.body = Bodies.circle(x, y, r, {
             collisionFilter: {
                 mask: CollisionCategories.default | CollisionCategories.sleepingStar,
-            }
+            },
         });
     }
 }
-
 
 console.warn(`
 Переиспользовать Графику кубика для всех (одинаковых) кубиков

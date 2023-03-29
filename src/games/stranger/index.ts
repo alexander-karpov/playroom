@@ -1,7 +1,17 @@
 import { Runtime } from '@ecs';
 import type { FollowingCameraSystemOptions, AudioSystemOptions } from './systems';
 import { changeMatterJsRandomSeed } from '@utils/changeMatterJsRandomSeed';
-import { AudioSystem, ApplicationSystem, UserInputSystem, SceneSystem, FollowingCameraSystem, HintsSystem, PuzzleSystem, LilSystem, DustSystem } from './systems';
+import {
+    AudioSystem,
+    ApplicationSystem,
+    UserInputSystem,
+    SceneSystem,
+    FollowingCameraSystem,
+    HintsSystem,
+    PuzzleSystem,
+    LilSystem,
+    DustSystem,
+} from './systems';
 import { Ticker } from 'pixi.js';
 
 Ticker.shared.autoStart = false;
@@ -35,7 +45,7 @@ let lastTime = performance.now();
 function animate(time: number): void {
     requestAnimationFrame(animate);
 
-    const delta = (time - lastTime);
+    const delta = time - lastTime;
     lastTime = time;
 
     game.update(delta);

@@ -1,6 +1,5 @@
 import { World, System } from './index';
 
-
 export class Runtime {
     private readonly world: World = new World();
 
@@ -13,9 +12,7 @@ export class Runtime {
     private nextSometimesHandlerIndex = 0;
     private timeSinceLastSometimesCallMs = 0;
 
-    public constructor(
-        private readonly systems: System[]
-    ) {
+    public constructor(private readonly systems: System[]) {
         this.separateSystemsByHandlers();
         this.callStartupHandlers();
     }
@@ -56,7 +53,10 @@ export class Runtime {
     private callSometimesHandlers(timeDeltaMs: number): void {
         this.timeSinceLastSometimesCallMs += timeDeltaMs;
 
-        if (this.timeSinceLastSometimesCallMs > this.timeBetweenSameSometimesCallsMs / this.sometimesSystems.length) {
+        if (
+            this.timeSinceLastSometimesCallMs >
+            this.timeBetweenSameSometimesCallsMs / this.sometimesSystems.length
+        ) {
             this.nextSometimesHandlerIndex %= this.sometimesSystems.length;
             this.sometimesSystems[this.nextSometimesHandlerIndex]!.onSometimes(this.world);
             this.nextSometimesHandlerIndex += 1;
@@ -68,14 +68,25 @@ export class Runtime {
      * Разделяем системы заранее, чтобы не делать этого на ходу
      */
     private separateSystemsByHandlers(): void {
-        this.inputSystems = this.systems.filter(s => this.isSystemOverridesHandler(s, 'onInput'));
-        this.simulateSystems = this.systems.filter(s => this.isSystemOverridesHandler(s, 'onSimulate'));
-        this.outputSystems = this.systems.filter(s => this.isSystemOverridesHandler(s, 'onOutput'));
+        this.inputSystems = this.systems.filter((s) => this.isSystemOverridesHandler(s, 'onInput'));
+        this.simulateSystems = this.systems.filter((s) =>
+            this.isSystemOverridesHandler(s, 'onSimulate')
+        );
+        this.outputSystems = this.systems.filter((s) =>
+            this.isSystemOverridesHandler(s, 'onOutput')
+        );
 
-        this.sometimesSystems = this.systems.filter(s => this.isSystemOverridesHandler(s, 'onSometimes'));
+        this.sometimesSystems = this.systems.filter((s) =>
+            this.isSystemOverridesHandler(s, 'onSometimes')
+        );
     }
 
     private isSystemOverridesHandler(system: System, methodName: keyof System): boolean {
         return system[methodName] !== System.prototype[methodName];
     }
 }
+
+console.warn(`
+Очищать из списка системы только onCreate и onLink чтобы не держать память
+
+`);

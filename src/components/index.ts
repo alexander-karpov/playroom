@@ -7,3 +7,4 @@
 export * from './Actor';
 export * from './Application';
 export * from './Camera';
+export * from './Sound';

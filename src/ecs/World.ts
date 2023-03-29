@@ -21,7 +21,6 @@ type EntityComponentId = number;
 
 type Component = unknown;
 
-
 export class World {
     /**
      * Индекс в этом массиве – это id сущности
@@ -72,7 +71,14 @@ export class World {
         const componentClassId = this.componentClassId(componentClass);
         const componentId = this.componentId(entityId, componentClassId);
 
-        this.entities[entityId] |= (1 << componentClassId);
+        // TODO: сделать только в dev-mode
+        if (this.hasComponentClassId(componentClassId, entityId)) {
+            throw new Error(
+                `Entity ${entityId} already contains a component ${componentClass.name}`
+            );
+        }
+
+        this.entities[entityId] |= 1 << componentClassId;
 
         const component = new componentClass();
         this.components.set(componentId, component);
@@ -86,23 +92,22 @@ export class World {
 
         // TODO: сделать только в dev-mode
         if (!this.hasComponentClassId(componentClassId, entityId)) {
-            throw new Error(`Entity ${entityId} does not contain a component ${componentClass.name}`);
+            throw new Error(
+                `Entity ${entityId} does not contain a component ${componentClass.name}`
+            );
         }
 
         return this.components.get(componentId) as T;
     }
 
     public hasComponent<T>(componentClass: ComponentClass<T>, entityId: number): boolean {
-        return this.hasComponentClassId(
-            this.componentClassId(componentClass),
-            entityId
-        );
+        return this.hasComponentClassId(this.componentClassId(componentClass), entityId);
     }
 
     public deleteComponent(componentClass: ComponentClass, entityId: number): void {
         const componentClassId = this.componentClassId(componentClass);
 
-        this.entities[entityId] ^= (1 << componentClassId);
+        this.entities[entityId] ^= 1 << componentClassId;
     }
 
     public first(query: readonly ComponentClass[]): EntityId {
@@ -135,8 +140,10 @@ export class World {
         return selectResult;
     }
 
-    public getComponents<TComponent>(componentClass: ComponentClass<TComponent>): readonly TComponent[] {
-        return this.select([componentClass]).map(id => this.getComponent(componentClass, id));
+    public getComponents<TComponent>(
+        componentClass: ComponentClass<TComponent>
+    ): readonly TComponent[] {
+        return this.select([componentClass]).map((id) => this.getComponent(componentClass, id));
     }
 
     /**
@@ -147,7 +154,7 @@ export class World {
 
         // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let i = 0; i < query.length; i++) {
-            mask |= (1 << this.componentClassId(query[i]!));
+            mask |= 1 << this.componentClassId(query[i]!);
         }
 
         return mask;
@@ -181,7 +188,7 @@ export class World {
     }
 
     private hasComponentClassId(componentClassId: number, entityId: number): boolean {
-        const componentClassMask = (1 << componentClassId);
+        const componentClassMask = 1 << componentClassId;
 
         return (this.entities[entityId]! & componentClassMask) === componentClassMask;
     }

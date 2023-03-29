@@ -11,14 +11,6 @@ export function setEntityId(body: Body, entityId: number): void {
     body.plugin.entityId = entityId;
 }
 
-export function entityId(body: Body): number {
+export function entityId(body: Body): number | undefined {
     return body.plugin.entityId;
-}
-
-export function setSoundName(body: Body, soundName: string): void {
-    body.plugin.soundName = soundName;
-}
-
-export function soundName(body: Body): string {
-    return body.plugin.soundName;
 }
