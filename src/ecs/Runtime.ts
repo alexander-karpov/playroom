@@ -5,34 +5,39 @@ export class Runtime {
 
     private inputSystems!: System[];
     private simulateSystems!: System[];
+    private syncSystems!: System[];
     private outputSystems!: System[];
     private sometimesSystems!: System[];
 
-    private readonly timeBetweenSameSometimesCallsMs = 5000;
+    private readonly timeBetweenSameSometimesCallsS = 5;
     private nextSometimesHandlerIndex = 0;
-    private timeSinceLastSometimesCallMs = 0;
+    private timeSinceLastSometimesCallS = 0;
 
     public constructor(private readonly systems: System[]) {
         this.separateSystemsByHandlers();
         this.callStartupHandlers();
     }
 
-    public update(deltaMs: number): void {
-        this.callRuntimeHandlers(deltaMs);
-        this.callSometimesHandlers(deltaMs);
+    public update(deltaS: number): void {
+        this.callRuntimeHandlers(deltaS);
+        this.callSometimesHandlers(deltaS);
     }
 
-    private callRuntimeHandlers(deltaMs: number): void {
+    private callRuntimeHandlers(deltaS: number): void {
         for (const system of this.inputSystems) {
-            system.onInput(this.world, deltaMs);
+            system.onInput(this.world, deltaS);
         }
 
         for (const system of this.simulateSystems) {
-            system.onSimulate(this.world, deltaMs);
+            system.onSimulate(this.world, deltaS);
+        }
+
+        for (const system of this.syncSystems) {
+            system.onSync(this.world, deltaS);
         }
 
         for (const system of this.outputSystems) {
-            system.onOutput(this.world, deltaMs);
+            system.onOutput(this.world, deltaS);
         }
     }
 
@@ -50,17 +55,17 @@ export class Runtime {
         }
     }
 
-    private callSometimesHandlers(timeDeltaMs: number): void {
-        this.timeSinceLastSometimesCallMs += timeDeltaMs;
+    private callSometimesHandlers(timeDeltaS: number): void {
+        this.timeSinceLastSometimesCallS += timeDeltaS;
 
         if (
-            this.timeSinceLastSometimesCallMs >
-            this.timeBetweenSameSometimesCallsMs / this.sometimesSystems.length
+            this.timeSinceLastSometimesCallS >
+            this.timeBetweenSameSometimesCallsS / this.sometimesSystems.length
         ) {
             this.nextSometimesHandlerIndex %= this.sometimesSystems.length;
             this.sometimesSystems[this.nextSometimesHandlerIndex]!.onSometimes(this.world);
             this.nextSometimesHandlerIndex += 1;
-            this.timeSinceLastSometimesCallMs = 0;
+            this.timeSinceLastSometimesCallS = 0;
         }
     }
 
@@ -69,9 +74,13 @@ export class Runtime {
      */
     private separateSystemsByHandlers(): void {
         this.inputSystems = this.systems.filter((s) => this.isSystemOverridesHandler(s, 'onInput'));
+
         this.simulateSystems = this.systems.filter((s) =>
             this.isSystemOverridesHandler(s, 'onSimulate')
         );
+
+        this.syncSystems = this.systems.filter((s) => this.isSystemOverridesHandler(s, 'onSync'));
+
         this.outputSystems = this.systems.filter((s) =>
             this.isSystemOverridesHandler(s, 'onOutput')
         );

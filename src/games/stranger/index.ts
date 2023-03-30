@@ -3,7 +3,6 @@ import type { FollowingCameraSystemOptions, AudioSystemOptions } from './systems
 import { changeMatterJsRandomSeed } from '@utils/changeMatterJsRandomSeed';
 import {
     AudioSystem,
-    ApplicationSystem,
     UserInputSystem,
     SceneSystem,
     FollowingCameraSystem,
@@ -37,7 +36,6 @@ const game = new Runtime([
     new FollowingCameraSystem(camera),
     new SceneSystem(),
     new DustSystem(),
-    new ApplicationSystem(),
 ]);
 
 let lastTime = performance.now();

@@ -4,7 +4,7 @@
  * хоть и не уперен в работе три-шейкинга
  */
 
-export * from './Actor';
-export * from './Application';
-export * from './Camera';
+export * from './VisualForm';
+export * from './Scene';
 export * from './Sound';
+export * from './PhysicalBody';

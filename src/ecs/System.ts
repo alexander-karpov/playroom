@@ -17,15 +17,19 @@ export abstract class System {
         throw new Error('Not implemented');
     }
 
-    public onInput(world: World, delta: number): void {
+    public onInput(world: World, deltaS: number): void {
         throw new Error('Not implemented');
     }
 
-    public onSimulate(world: World, delta: number): void {
+    public onSimulate(world: World, deltaS: number): void {
         throw new Error('Not implemented');
     }
 
-    public onOutput(world: World, delta: number): void {
+    public onSync(world: World, deltaS: number): void {
+        throw new Error('Not implemented');
+    }
+
+    public onOutput(world: World, deltaS: number): void {
         throw new Error('Not implemented');
     }
 

@@ -123,6 +123,9 @@ export class World {
         throw new Error('Entity not found');
     }
 
+    /**
+     * @deprecated Неправильно идейно
+     */
     public firstComponent<T>(componentClass: ComponentClass<T>): T {
         return this.getComponent(componentClass, this.first([componentClass]));
     }
@@ -140,6 +143,9 @@ export class World {
         return selectResult;
     }
 
+    /**
+     * @deprecated Хрень какая-то
+     */
     public getComponents<TComponent>(
         componentClass: ComponentClass<TComponent>
     ): readonly TComponent[] {

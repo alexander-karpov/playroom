@@ -1,4 +1,3 @@
-export * from './ApplicationSystem';
 export * from './UserInputSystem';
 export * from './SceneSystem';
 export * from './FollowingCameraSystem';

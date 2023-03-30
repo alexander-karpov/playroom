@@ -1,10 +1,7 @@
 import { Vector } from 'matter-js';
 import type { IPointData } from 'pixi.js';
 
-export function starShape(
-    r: number,
-    angle: number
-): [allPoints: IPointData[], tips: IPointData[]] {
+export function starShape(r: number, angle: number): [allPoints: IPointData[], tips: IPointData[]] {
     const point = Vector.create(0, -r);
     const hole = Vector.rotate(Vector.create(0, -r * 0.618), Math.PI / 5);
 

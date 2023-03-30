@@ -4,7 +4,7 @@ import { Graphics, PI_2 } from 'pixi.js';
 import { Bodies, Body, Vector, Common } from 'matter-js';
 import { hslToRgb } from '@utils/hslToRgb';
 import { xylophone } from '../../../systems/AudioSystem';
-import { starShape } from '../../../graphics/shapes';
+import { starShape } from '../../../geometries/shapes';
 import { fib } from '@utils/fib';
 import { last } from '@utils/last';
 import { CollisionCategories } from './CollisionCategories';
@@ -29,9 +29,7 @@ export class PuzzleSystem extends System {
             return Common.choose(colors) as number;
         }
 
-        const sizes = [
-            0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 5,
-        ];
+        const sizes = [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 5];
 
         Common.shuffle(sizes);
 
@@ -39,10 +37,7 @@ export class PuzzleSystem extends System {
             const size = sizes[i % sizes.length]!;
             this.createStar(
                 world,
-                Vector.create(
-                    Common.random(-1000, 1000),
-                    Common.random(-1000, 1000)
-                ),
+                Vector.create(Common.random(-1000, 1000), Common.random(-1000, 1000)),
                 size,
                 rc()
             );
@@ -63,8 +58,7 @@ export class PuzzleSystem extends System {
 
         if (touchedStarEntities.length >= 2) {
             const entityA = last(touchedStarEntities)!;
-            const entityB =
-                touchedStarEntities[touchedStarEntities.length - 2]!;
+            const entityB = touchedStarEntities[touchedStarEntities.length - 2]!;
 
             if (entityA === entityB) {
                 return;
@@ -83,31 +77,21 @@ export class PuzzleSystem extends System {
                 actorA.graphics.tint = actorA.color;
                 actorB.graphics.tint = actorB.color;
 
-                actorA.body.collisionFilter.category =
-                    CollisionCategories.awakenedStar;
-                actorB.body.collisionFilter.category =
-                    CollisionCategories.awakenedStar;
+                actorA.body.collisionFilter.category = CollisionCategories.awakenedStar;
+                actorB.body.collisionFilter.category = CollisionCategories.awakenedStar;
 
                 touchedStarEntities.length = 0;
             }
         }
     }
 
-    private createStar(
-        world: World,
-        position: Vector,
-        size: number,
-        color: number
-    ): void {
+    private createStar(world: World, position: Vector, size: number, color: number): void {
         const r = fib(size + 7);
         const [rockId] = world.addEntity(Rock);
         const actor = world.addComponent(Actor, rockId);
 
         const [wholeShape] = starShape(r, 0);
-        actor.graphics = new Graphics()
-            .beginFill(0xffffff)
-            .drawPolygon(wholeShape)
-            .endFill();
+        actor.graphics = new Graphics().beginFill(0xffffff).drawPolygon(wholeShape).endFill();
         actor.graphics.position.set(position.x, position.y);
         actor.body = Bodies.fromVertices(position.x, position.y, [wholeShape], {
             collisionFilter: {
@@ -155,10 +139,7 @@ export class PuzzleSystem extends System {
 
         Body.setPosition(
             playerActor.body,
-            Vector.rotate(
-                Vector.create(window.outerWidth * 1, 0),
-                Math.random() * 3.14 * 2
-            )
+            Vector.rotate(Vector.create(window.outerWidth * 1, 0), Math.random() * 3.14 * 2)
         );
 
         const goalId = world.first([Goal, Actor]);

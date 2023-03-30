@@ -1,31 +1,25 @@
 import { Runtime } from '@ecs';
-import { ApplicationSystem } from '@systems/ApplicationSystem';
 import { Ticker } from 'pixi.js';
 import { changeMatterJsRandomSeed } from '@utils/changeMatterJsRandomSeed';
 import { GameSystem } from './systems/GameSystem';
-import { AudioSystem, type AudioSystemOptions } from '@systems/AudioSystem';
+import { RenderingSystem } from '@systems/RenderingSystem';
 
 Ticker.shared.autoStart = false;
 Ticker.shared.stop();
 
 changeMatterJsRandomSeed();
 
-const audio: AudioSystemOptions = {
-    soundsOn: true,
-    soundsVolume: 70,
-};
-
-const game = new Runtime([new GameSystem(), new AudioSystem(audio), new ApplicationSystem()]);
+const systemsRuntime = new Runtime([new GameSystem(), new RenderingSystem()]);
 
 let lastTime = performance.now();
 
 function animate(time: number): void {
     requestAnimationFrame(animate);
 
-    const delta = time - lastTime;
+    const deltaS = (time - lastTime) / 1000;
     lastTime = time;
 
-    game.update(delta);
+    systemsRuntime.update(deltaS);
 }
 
 animate(performance.now());
