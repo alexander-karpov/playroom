@@ -3,10 +3,11 @@ import { System, type World } from '@ecs';
 import { Bodies, Vector, Common, Composite, Engine, Body } from 'matter-js';
 import * as bodyExtraProps from '../matterBodyExtraProps';
 import { xylophone } from '@systems/AudioSystem';
-import { RigibBody, PhysicsEnv, Scene, VisualForm } from '@components';
+import { RigibBody, MatterEngine, Scene, GameObject } from '@components';
 import { Star } from '../components/Star';
 import { choose } from '@utils/choose';
 import { StarGeometry } from '../../../geometries/StarGeometry';
+import { fib } from '@utils/fib';
 
 export class GameSystem extends System {
     private readonly starGeom = new StarGeometry(1);
@@ -20,46 +21,69 @@ export class GameSystem extends System {
 
         scene.camera.position.z = 50;
 
-        const physEnv = world.addComponent(PhysicsEnv, sceneId);
+        // MatterJs плохо работает с очень маленькими цифрами
+        // по-этому делаем все объекты больших размеров
+        scene.camera.scale.z = 0.05;
+
+        const physEnv = world.addComponent(MatterEngine, sceneId);
 
         physEnv.engine = Engine.create({
-            gravity: { x: 0, y: -0.1 },
+            gravity: { x: 0, y: 0 },
+            // Включаем засыпание в PhysicsSystem
+            // Если включить тут, предметы зависнут
+            enableSleeping: false,
         });
 
-        this.createAtLeastStars(world, scene, physEnv, 10);
+        this.createAtLeastStars(world, scene, physEnv, 32);
         this.createWalls(world, physEnv);
     }
 
     private createStar(
         world: World,
         scene: Scene,
-        physEnv: PhysicsEnv,
+        physEnv: MatterEngine,
         position: Vector,
         size: number,
         angleRad: number
     ): void {
-        const [entityId, form] = world.addEntity(VisualForm);
-        form.object3d = new Mesh(this.starGeom, this.starMat);
-        form.object3d.position.set(position.x, position.y, 0);
-        scene.scene.add(form.object3d);
+        /**
+         * Object
+         */
+        const [entityId, obj] = world.addEntity(GameObject);
 
+        obj.object = new Mesh(this.starGeom, this.starMat);
+        obj.object.position.set(position.x, position.y, 0);
+        obj.object.matrixAutoUpdate = false;
+        obj.object.rotation.z = angleRad;
+        obj.object.scale.multiplyScalar(size);
+
+        scene.scene.add(obj.object);
+
+        /**
+         * Body
+         */
         const body = world.addComponent(RigibBody, entityId);
-        body.body = Bodies.fromVertices(position.x, position.y, [
-            this.starGeom.shape.getPoints(),
-            // starShape(10, 0)[1],
-        ]);
+        body.body = Bodies.fromVertices(position.x, position.y, [this.starGeom.shape.getPoints()], {
+            angle: angleRad,
+        });
         bodyExtraProps.setEntityId(body.body, entityId);
-        // Body.setMass(body.body, 500);
+        Body.scale(body.body, size, size);
+
         Composite.add(physEnv.engine.world, body.body);
 
+        /**
+         * Star
+         */
         const star = world.addComponent(Star, entityId);
         star.soundName = xylophone[xylophone.length - size - 2]!;
-
-        // Body.setAngle(actor.body, angleRad);
-        // actor.graphics.rotation = angleRad;
     }
 
-    private createAtLeastStars(world: World, scene: Scene, physEnv: PhysicsEnv, num: number): void {
+    private createAtLeastStars(
+        world: World,
+        scene: Scene,
+        physEnv: MatterEngine,
+        num: number
+    ): void {
         const stars = world.select([Star]);
         const numMissing = num - stars.length;
 
@@ -69,20 +93,21 @@ export class GameSystem extends System {
                 scene,
                 physEnv,
                 Vector.create(0, 0),
-                choose([1, 2, 3, 4]),
+                choose([fib(9), fib(10), fib(11), fib(12)]),
                 Common.random(0, Math.PI * 2)
             );
         }
     }
 
-    private createWalls(world: World, physEnv: PhysicsEnv): void {
+    private createWalls(world: World, physEnv: MatterEngine): void {
         /**
          * Walls
          */
 
         Composite.add(physEnv.engine.world, [
             // walls
-            Bodies.rectangle(0, -20, 100, 3, { isStatic: true }),
+            Bodies.rectangle(0, -600, 3000, 300, { isStatic: true }),
+            Bodies.rectangle(0, 600, 3000, 300, { isStatic: true }),
         ]);
     }
 }

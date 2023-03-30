@@ -4,8 +4,8 @@
  * хоть и не уперен в работе три-шейкинга
  */
 
-export * from './PhysicsEnv';
-export * from './VisualForm';
+export * from './MatterEngine';
+export * from './GameObject';
 export * from './Scene';
 export * from './Sound';
 export * from './RigibBody';
