@@ -1,6 +1,8 @@
 import { Composite, Engine, Vector } from 'matter-js';
 import { System, type World } from '@ecs';
-import { Renderer, Container } from 'pixi.js';
+import { RigibBody } from '@components/RigibBody';
+import { VisualForm } from '@components/VisualForm';
+import { PhysicsEnv } from '@components/PhysicsEnv';
 
 export class PhysicsSystem extends System {
     // public override onCreate(world: World): void {
@@ -56,5 +58,27 @@ export class PhysicsSystem extends System {
     //     });
     // }
 
-    public override onSync(world: World, deltaS: number): void {}
+    public override onSync(world: World, deltaS: number): void {
+        const deltaMs = deltaS * 1000;
+        const physEnvIds = world.select([PhysicsEnv]);
+
+        for (const id of physEnvIds) {
+            const physEnv = world.getComponent(PhysicsEnv, id);
+
+            Engine.update(physEnv.engine, deltaMs);
+        }
+
+        const bodyIds = world.select([RigibBody, VisualForm]);
+
+        // eslint-disable-next-line @typescript-eslint/prefer-for-of
+        for (let i = 0; i < bodyIds.length; i++) {
+            const id = bodyIds[i]!;
+
+            const { body } = world.getComponent(RigibBody, id);
+            const { object3d } = world.getComponent(VisualForm, id);
+
+            object3d.position.set(body.position.x, body.position.y, 0);
+            object3d.rotation.z = body.angle;
+        }
+    }
 }

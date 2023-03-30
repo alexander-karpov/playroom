@@ -1,5 +1,5 @@
 import { type Body } from 'matter-js';
 
-export class PhysicalBody {
+export class RigibBody {
     public body!: Body;
 }
