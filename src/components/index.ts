@@ -9,3 +9,4 @@ export * from './GameObject';
 export * from './Scene';
 export * from './Sound';
 export * from './RigibBody';
+export * from './Active';

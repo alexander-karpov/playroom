@@ -4,13 +4,19 @@ import { changeMatterJsRandomSeed } from '@utils/changeMatterJsRandomSeed';
 import { GameSystem } from './systems/GameSystem';
 import { RenderingSystem } from '@systems/RenderingSystem';
 import { PhysicsSystem } from '@systems/PhysicsSystem';
+import { AudioSystem } from '@systems/AudioSystem';
 
 Ticker.shared.autoStart = false;
 Ticker.shared.stop();
 
 changeMatterJsRandomSeed();
 
-const systemsRuntime = new Runtime([new GameSystem(), new PhysicsSystem(), new RenderingSystem()]);
+const systemsRuntime = new Runtime([
+    new GameSystem(),
+    new PhysicsSystem(),
+    new RenderingSystem(),
+    new AudioSystem(),
+]);
 
 let lastTime = performance.now();
 

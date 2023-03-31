@@ -1,5 +1,5 @@
 import { Runtime } from '@ecs';
-import type { FollowingCameraSystemOptions, AudioSystemOptions } from './systems';
+import type { FollowingCameraSystemOptions } from './systems';
 import { changeMatterJsRandomSeed } from '@utils/changeMatterJsRandomSeed';
 import {
     AudioSystem,
@@ -7,7 +7,6 @@ import {
     SceneSystem,
     FollowingCameraSystem,
     HintsSystem,
-    PuzzleSystem,
     LilSystem,
     DustSystem,
 } from './systems';
@@ -22,15 +21,9 @@ const camera: FollowingCameraSystemOptions = {
     followingSpeed: 7,
 };
 
-const audio: AudioSystemOptions = {
-    soundsOn: true,
-    soundsVolume: 70,
-};
-
 const game = new Runtime([
-    new LilSystem(camera, audio),
-    new AudioSystem(audio),
-    new PuzzleSystem(),
+    new LilSystem(),
+    new AudioSystem(),
     new HintsSystem(),
     new UserInputSystem(),
     new FollowingCameraSystem(camera),
