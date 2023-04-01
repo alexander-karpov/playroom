@@ -1,9 +1,9 @@
-import { Runtime } from '@ecs';
+import { Runtime } from '~/ecs';
 import { Ticker } from 'pixi.js';
-import { changeMatterJsRandomSeed } from '@utils/changeMatterJsRandomSeed';
+import { changeMatterJsRandomSeed } from '~/utils/changeMatterJsRandomSeed';
 import { SceneSystem } from './SceneSystem';
-import { PhysicsSystem } from '@systems/PhysicsSystem';
-import { AudioSystem } from '@systems/AudioSystem';
+import { PhysicsSystem } from '~/systems/PhysicsSystem';
+import { AudioSystem } from '~/systems/AudioSystem';
 import { PuzzleSystem } from './PuzzleSystem';
 import { StarsManagerSystem } from './StarsManagerSystem';
 

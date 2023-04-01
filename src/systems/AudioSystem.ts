@@ -1,5 +1,5 @@
-import { System, type World } from '@ecs';
-import { Sound } from '../games/stranger/components';
+import { System, type World } from '~/ecs';
+import { Sound } from '~/components';
 
 export enum SoundTracks {
     XylophoneC = 'xylophone-c.ogg',

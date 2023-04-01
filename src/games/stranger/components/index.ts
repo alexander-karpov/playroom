@@ -7,4 +7,3 @@ export * from './Player';
 export * from './Hint';
 export * from './Rock';
 export * from './Dust';
-export * from '@components/Sound';

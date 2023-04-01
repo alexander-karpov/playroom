@@ -1,4 +1,4 @@
-import { System, type World } from '@ecs';
+import { System, type World } from '~/ecs';
 import { Actor, Camera, Hint, Player, Application } from '../components';
 import { Vector } from 'matter-js';
 

@@ -1,5 +1,5 @@
-import { System, type World } from '@ecs';
-import { Application, Actor, Controller, Player, Camera, Goal, Hint, Sound } from '../components';
+import { System, type World } from '~/ecs';
+import { Application, Actor, Controller, Player, Camera, Goal, Hint } from '../components';
 import { Graphics } from 'pixi.js';
 import { Events, Bodies, Composite, Body, Vector } from 'matter-js';
 import { CollisionCategories } from './CollisionCategories';

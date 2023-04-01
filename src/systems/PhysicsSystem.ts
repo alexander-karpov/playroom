@@ -1,7 +1,7 @@
 import { Body, Composite, Engine, Vector } from 'matter-js';
-import { System, type World } from '@ecs';
-import { RigibBody } from '@components/RigibBody';
-import { GameObject } from '@components/GameObject';
+import { System, type World } from '~/ecs';
+import { RigibBody } from '~/components/RigibBody';
+import { GameObject } from '~/components/GameObject';
 
 export class PhysicsSystem extends System {
     public readonly engine: Engine;

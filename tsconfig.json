@@ -14,24 +14,6 @@
         "paths": {
             "~/*": [
                 "./src/*"
-            ],
-            "@ecs/*": [
-                "./src/ecs/*"
-            ],
-            "@ecs": [
-                "./src/ecs/index.ts"
-            ],
-            "@components/*": [
-                "./src/components/*"
-            ],
-            "@components": [
-                "./src/components/index.ts"
-            ],
-            "@systems/*": [
-                "./src/systems/*"
-            ],
-            "@utils/*": [
-                "./src/utils/*"
             ]
         }
     }

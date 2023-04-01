@@ -1,8 +1,8 @@
-import { System } from '@ecs/System';
-import type { World } from '@ecs/World';
+import { System } from '~/ecs/System';
+import type { World } from '~/ecs/World';
 import { Star } from './Star';
-import { SoundTracks } from '@systems/AudioSystem';
-import { Active } from '@components';
+import { SoundTracks } from '~/systems/AudioSystem';
+import { Active } from '~/components';
 
 export class PuzzleSystem extends System {
     @System.on([Star, Active])

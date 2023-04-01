@@ -1,5 +1,5 @@
-import { Runtime } from '@ecs';
-import { changeMatterJsRandomSeed } from '@utils/changeMatterJsRandomSeed';
+import { Runtime } from '~/ecs';
+import { changeMatterJsRandomSeed } from '~/utils/changeMatterJsRandomSeed';
 import {
     UserInputSystem,
     SceneSystem,

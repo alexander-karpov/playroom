@@ -31,10 +31,6 @@ module.exports = (env) => {
             extensions: ['.ts', '.js'],
             alias: {
                 '~': path.resolve(__dirname, 'src'),
-                '@ecs': path.resolve(__dirname, 'src/ecs'),
-                '@systems': path.resolve(__dirname, 'src/systems'),
-                '@components': path.resolve(__dirname, 'src/components'),
-                '@utils': path.resolve(__dirname, 'src/utils'),
             },
         },
         plugins: [

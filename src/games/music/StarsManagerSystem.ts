@@ -1,5 +1,5 @@
-import { System } from '@ecs/System';
-import type { World } from '@ecs/World';
+import { System } from '~/ecs/System';
+import type { World } from '~/ecs/World';
 import { Star } from './Star';
 import { Active, GameObject, RigibBody, Sound, Touched } from '~/components';
 import * as THREE from 'three';
