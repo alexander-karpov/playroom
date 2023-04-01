@@ -1,14 +1,10 @@
 import { Runtime } from '~/ecs';
-import { Ticker } from 'pixi.js';
 import { changeMatterJsRandomSeed } from '~/utils/changeMatterJsRandomSeed';
 import { SceneSystem } from './SceneSystem';
 import { PhysicsSystem } from '~/systems/PhysicsSystem';
 import { AudioSystem } from '~/systems/AudioSystem';
 import { PuzzleSystem } from './PuzzleSystem';
 import { StarsManagerSystem } from './StarsManagerSystem';
-
-Ticker.shared.autoStart = false;
-Ticker.shared.stop();
 
 changeMatterJsRandomSeed();
 
@@ -37,6 +33,3 @@ function animate(time: number): void {
 }
 
 animate(performance.now());
-
-// @ts-ignore
-window.game = systemsRuntime;

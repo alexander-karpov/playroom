@@ -1,5 +1,4 @@
 import { System, type World } from '~/ecs';
-import { Actor, Camera, Player } from '../components';
 import { lerp } from '~/utils/lerp';
 
 export interface FollowingCameraSystemOptions {

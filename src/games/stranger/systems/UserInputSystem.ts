@@ -1,5 +1,4 @@
 import { System, type World } from '~/ecs';
-import { Controller } from '../components';
 import { Vector } from 'matter-js';
 
 export class UserInputSystem extends System {

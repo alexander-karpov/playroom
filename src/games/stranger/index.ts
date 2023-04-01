@@ -8,10 +8,6 @@ import {
     LilSystem,
     DustSystem,
 } from './systems';
-import { Ticker } from 'pixi.js';
-
-Ticker.shared.autoStart = false;
-Ticker.shared.stop();
 
 changeMatterJsRandomSeed();
 

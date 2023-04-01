@@ -1,7 +1,5 @@
 import { Common } from 'matter-js';
 import { System, type World } from '~/ecs';
-import { Application, Camera, Dust } from '../components';
-import { ParticleContainer, Sprite, Texture } from 'pixi.js';
 
 export class DustSystem extends System {
     // public override onCreate(world: World): void {
