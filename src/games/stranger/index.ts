@@ -1,8 +1,6 @@
 import { Runtime } from '@ecs';
-import type { FollowingCameraSystemOptions } from './systems';
 import { changeMatterJsRandomSeed } from '@utils/changeMatterJsRandomSeed';
 import {
-    AudioSystem,
     UserInputSystem,
     SceneSystem,
     FollowingCameraSystem,
@@ -17,16 +15,11 @@ Ticker.shared.stop();
 
 changeMatterJsRandomSeed();
 
-const camera: FollowingCameraSystemOptions = {
-    followingSpeed: 7,
-};
-
 const game = new Runtime([
     new LilSystem(),
-    new AudioSystem(),
     new HintsSystem(),
     new UserInputSystem(),
-    new FollowingCameraSystem(camera),
+    new FollowingCameraSystem(),
     new SceneSystem(),
     new DustSystem(),
 ]);

@@ -15,6 +15,14 @@ export enum SoundTracks {
 export class AudioSystem extends System {
     private readonly HTMLAudioElems = new Map<string, HTMLAudioElement>();
 
+    @System.on([Sound])
+    private onSound(world: World, entity: number): void {
+        const sound = world.getComponent(Sound, entity);
+
+        this.playSound(sound);
+        world.deleteComponent(Sound, entity);
+    }
+
     public override onCreate(world: World): void {
         /**
          * Create audio elements, load sounds
@@ -24,31 +32,17 @@ export class AudioSystem extends System {
         }
     }
 
-    public override onOutput(world: World): void {
-        /**
-         * Play sounds
-         */
+    private playSound(sound: Sound): void {
+        const audio = this.HTMLAudioElems.get(sound.name);
 
-        const withSound = world.select([Sound]);
-
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of
-        for (let i = 0; i < withSound.length; i++) {
-            const entity = withSound[i]!;
-
-            const sound = world.getComponent(Sound, entity);
-            const audio = this.HTMLAudioElems.get(sound.name);
-
-            if (
-                audio &&
-                // Чтобы избежать трели одного и того же звука
-                (audio.paused || audio.currentTime > sound.throttleMs / 1000)
-            ) {
-                audio.currentTime = 0;
-                audio.volume = 0.7;
-                void audio.play();
-            }
-
-            world.deleteComponent(Sound, entity);
+        if (
+            audio &&
+            // Чтобы избежать трели одного и того же звука
+            (audio.paused || audio.currentTime > sound.throttleMs / 1000)
+        ) {
+            audio.currentTime = 0;
+            audio.volume = 0.7;
+            void audio.play();
         }
     }
 }

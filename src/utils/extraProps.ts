@@ -5,10 +5,10 @@
  * Методы для типизированного хранения полей
  */
 
-export function setEntityId(data: any, entityId: number): void {
+export function writeEntityId(data: any, entityId: number): void {
     data.entityId = entityId;
 }
 
-export function entityId(data: any): number | undefined {
+export function readEntityId(data: any): number | undefined {
     return data.entityId;
 }

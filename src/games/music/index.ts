@@ -1,10 +1,11 @@
 import { Runtime } from '@ecs';
 import { Ticker } from 'pixi.js';
 import { changeMatterJsRandomSeed } from '@utils/changeMatterJsRandomSeed';
-import { GameSystem } from './systems/GameSystem';
-import { RenderingSystem } from '@systems/RenderingSystem';
+import { SceneSystem } from './SceneSystem';
 import { PhysicsSystem } from '@systems/PhysicsSystem';
 import { AudioSystem } from '@systems/AudioSystem';
+import { PuzzleSystem } from './PuzzleSystem';
+import { StarsManagerSystem } from './StarsManagerSystem';
 
 Ticker.shared.autoStart = false;
 Ticker.shared.stop();
@@ -12,10 +13,11 @@ Ticker.shared.stop();
 changeMatterJsRandomSeed();
 
 const systemsRuntime = new Runtime([
-    new GameSystem(),
+    new SceneSystem(),
     new PhysicsSystem(),
-    new RenderingSystem(),
     new AudioSystem(),
+    new PuzzleSystem(),
+    new StarsManagerSystem(),
 ]);
 
 let lastTime = performance.now();
@@ -35,3 +37,6 @@ function animate(time: number): void {
 }
 
 animate(performance.now());
+
+// @ts-ignore
+window.game = systemsRuntime;
