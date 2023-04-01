@@ -1,11 +1,12 @@
 import type { ComponentClass } from './ComponentClass';
+import type { EntityChangeHandler } from './EntityChangeHandler';
 import { Pool } from './Pool';
 
 /**
  * Порядковый номер сущности в массиве.
  * Может быть переиспользовал
  */
-type EntityId = number;
+export type EntityId = number;
 
 /**
  * Кодирует перечисление нескольких компонентов в виде bitmap.
@@ -26,9 +27,30 @@ export class World {
      * Индекс в этом массиве – это id сущности
      * Значение - это битовая маска прикрепленных компонентов
      * где номер включенного бита – это индекс в массиве components
-     * 0n – это свободный id
+     * 0 – это свободный id
      */
     private readonly entities: number[] = [];
+
+    /**
+     * Эти два массива организованы так же, как entities
+     * Они хранят добавленные и удаленные компоненты сущности
+     * на данной итерации. После очередного цикла работы,
+     * изменения переносятся в entities и массивы очищаются
+     */
+    private readonly added: number[] = [];
+    private readonly deleted: number[] = [];
+
+    /**
+     * Индекс в этом массиве – это id подписки
+     * Значение - маска подписки
+     */
+    private readonly subscriptions: number[] = [];
+
+    /**
+     * Индекс в этом массиве – это id подписки
+     * Значение - обработчик подписки
+     */
+    private readonly changeHandlers: EntityChangeHandler[] = [];
 
     private readonly componentClasses: ComponentClass[] = [];
 
@@ -51,20 +73,17 @@ export class World {
     public addEntity<T>(componentClass: ComponentClass<T>): [entityId: number, component: T] {
         // 0 - отсутствие компонентов
         const entityId = Pool.alloc(this.entities, 0);
+
+        while (this.added.length < this.entities.length) this.added.push(0);
+        while (this.deleted.length < this.entities.length) this.deleted.push(0);
+
         const component = this.addComponent(componentClass, entityId);
 
         return [entityId, component];
     }
 
     /**
-     * Удаляет сущность (id переиспользуются)
-     */
-    public deleteEntity(entityId: number): void {
-        this.entities[entityId] = 0;
-    }
-
-    /**
-     * Добавляет компонент к сущности
+     * Планирует добавление компонента к сущности
      * @param entity
      */
     public addComponent<T>(componentClass: ComponentClass<T>, entityId: number): T {
@@ -78,7 +97,7 @@ export class World {
             );
         }
 
-        this.entities[entityId] |= 1 << componentClassId;
+        this.added[entityId] |= 1 << componentClassId;
 
         const component = new componentClass();
         this.components.set(componentId, component);
@@ -107,27 +126,7 @@ export class World {
     public deleteComponent(componentClass: ComponentClass, entityId: number): void {
         const componentClassId = this.componentClassId(componentClass);
 
-        this.entities[entityId] ^= 1 << componentClassId;
-    }
-
-    public first(query: readonly ComponentClass[]): EntityId {
-        const queryMask = this.queryMask(query);
-
-        for (let entityId = 0; entityId < this.entities.length; entityId++) {
-            if ((this.entities[entityId]! & queryMask) === queryMask) {
-                return entityId;
-            }
-        }
-
-        // TODO: добавить проверку id в dev-mode
-        throw new Error('Entity not found');
-    }
-
-    /**
-     * @deprecated Неправильно идейно
-     */
-    public firstComponent<T>(componentClass: ComponentClass<T>): T {
-        return this.getComponent(componentClass, this.first([componentClass]));
+        this.deleted[entityId] |= 1 << componentClassId;
     }
 
     public select(query: readonly ComponentClass[]): readonly EntityId[] {
@@ -143,13 +142,35 @@ export class World {
         return selectResult;
     }
 
-    /**
-     * @deprecated Хрень какая-то
-     */
-    public getComponents<TComponent>(
-        componentClass: ComponentClass<TComponent>
-    ): readonly TComponent[] {
-        return this.select([componentClass]).map((id) => this.getComponent(componentClass, id));
+    public subscribe(query: readonly ComponentClass[], handler: EntityChangeHandler): void {
+        const queryMask = this.queryMask(query);
+
+        this.subscriptions.push(queryMask);
+        this.changeHandlers.push(handler);
+    }
+
+    public applyChanges(): void {
+        // eslint-disable-next-line @typescript-eslint/prefer-for-of
+        for (let eid = 0; eid < this.entities.length; eid++) {
+            if (this.added[eid] !== 0) {
+                this.entities[eid] |= this.added[eid]!;
+                this.added[eid] = 0;
+
+                // eslint-disable-next-line @typescript-eslint/prefer-for-of
+                for (let si = 0; si < this.subscriptions.length; si++) {
+                    const subsMask = this.subscriptions[si]!;
+
+                    if ((this.entities[eid]! & subsMask) === subsMask) {
+                        this.changeHandlers[si]!(this, eid);
+                    }
+                }
+            }
+
+            if (this.deleted[eid] !== 0) {
+                this.entities[eid] ^= this.deleted[eid]!;
+                this.deleted[eid] = 0;
+            }
+        }
     }
 
     /**
@@ -199,9 +220,3 @@ export class World {
         return (this.entities[entityId]! & componentClassMask) === componentClassMask;
     }
 }
-
-console.warn(`
-Нужна оптимизация. Помнить сущности, которых есть только 1 штука
-или сделать метод selectOne. Такие сущности двигать наверх списка
-От будет искать только первый элемент
-`);

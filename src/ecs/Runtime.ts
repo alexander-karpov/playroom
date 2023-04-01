@@ -16,11 +16,16 @@ export class Runtime {
     public constructor(private readonly systems: System[]) {
         this.separateSystemsByHandlers();
         this.callStartupHandlers();
+
+        for (const system of this.systems) {
+            system.uploadSubscriptionToWorld(this.world);
+        }
     }
 
     public update(deltaS: number): void {
         this.callRuntimeHandlers(deltaS);
         this.callSometimesHandlers(deltaS);
+        this.world.applyChanges();
     }
 
     private callRuntimeHandlers(deltaS: number): void {
@@ -94,8 +99,3 @@ export class Runtime {
         return system[methodName] !== System.prototype[methodName];
     }
 }
-
-console.warn(`
-Очищать из списка системы только onCreate и onLink чтобы не держать память
-
-`);
