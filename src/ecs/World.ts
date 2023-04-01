@@ -40,24 +40,18 @@ export class World {
     private readonly deleted: number[] = [];
 
     /**
-     * Для отслеживания первого попадания сущности в индекс
-     * для срабатывания подписки на маску
-     * Ключ – маска запроса
-     * Значение - массив сущностей, соответствующих маске
-     */
-    // private readonly indices = new Map<number, number[]>();
-
-    /**
      * Индекс в этом массиве – это id подписки
      * Значение - маска подписки
      */
-    private readonly subscriptions: number[] = [];
+    private readonly onAddQueries: number[] = [];
+    private readonly onDeleteQueries: number[] = [];
 
     /**
      * Индекс в этом массиве – это id подписки
      * Значение - обработчик подписки
      */
-    private readonly changeHandlers: EntityChangeHandler[] = [];
+    private readonly onAddHandlers: EntityChangeHandler[] = [];
+    private readonly onDeleteHandlers: EntityChangeHandler[] = [];
 
     private readonly componentClasses: ComponentClass[] = [];
 
@@ -163,11 +157,18 @@ export class World {
         return counder;
     }
 
-    public subscribe(query: readonly ComponentClass[], handler: EntityChangeHandler): void {
+    public onAdd(query: readonly ComponentClass[], handler: EntityChangeHandler): void {
         const queryMask = this.queryMask(query);
 
-        this.subscriptions.push(queryMask);
-        this.changeHandlers.push(handler);
+        this.onAddQueries.push(queryMask);
+        this.onAddHandlers.push(handler);
+    }
+
+    public onDelete(query: readonly ComponentClass[], handler: EntityChangeHandler): void {
+        const queryMask = this.queryMask(query);
+
+        this.onDeleteQueries.push(queryMask);
+        this.onDeleteHandlers.push(handler);
     }
 
     public applyChanges(): void {
@@ -195,8 +196,8 @@ export class World {
                  */
 
                 // eslint-disable-next-line @typescript-eslint/prefer-for-of
-                for (let si = 0; si < this.subscriptions.length; si++) {
-                    const subsMask = this.subscriptions[si]!;
+                for (let si = 0; si < this.onAddQueries.length; si++) {
+                    const subsMask = this.onAddQueries[si]!;
 
                     if (
                         /**
@@ -206,7 +207,7 @@ export class World {
                         (subsMask & addedMask) !== 0 &&
                         (this.entities[eid]! & subsMask) === subsMask
                     ) {
-                        this.changeHandlers[si]!(this, eid);
+                        this.onAddHandlers[si]!(this, eid);
                         entityTriggersHandler = true;
                     }
                 }
@@ -216,8 +217,31 @@ export class World {
              * Удаленные компоненты
              */
             if (this.deleted[eid] !== 0) {
-                this.entities[eid] ^= this.deleted[eid]!;
+                const deletedMask = this.deleted[eid]!;
                 this.deleted[eid] = 0;
+
+                /**
+                 * Вызов подписок
+                 */
+
+                // eslint-disable-next-line @typescript-eslint/prefer-for-of
+                for (let si = 0; si < this.onDeleteQueries.length; si++) {
+                    const subsMask = this.onDeleteQueries[si]!;
+
+                    if (
+                        /**
+                         * Важно проверить, что интересующие подписчика компоненты
+                         * были изменены именно в этой итерации
+                         */
+                        (subsMask & deletedMask) !== 0 &&
+                        (this.entities[eid]! & subsMask) === subsMask
+                    ) {
+                        this.onDeleteHandlers[si]!(this, eid);
+                        entityTriggersHandler = true;
+                    }
+                }
+
+                this.entities[eid] ^= deletedMask;
             }
 
             /**

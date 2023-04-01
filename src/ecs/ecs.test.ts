@@ -14,11 +14,11 @@ class TestCompC {
 }
 
 describe('ECS / World', () => {
-    test('Подписка должна срабатывать только один раз', () => {
+    test('Подписка срабатывает один раз при добавлении', () => {
         const world = new World();
         let calledTimes = 0;
 
-        world.subscribe([TestCompA, TestCompB], (w, e) => {
+        world.onAdd([TestCompA, TestCompB], (w, e) => {
             calledTimes++;
         });
 
@@ -38,6 +38,33 @@ describe('ECS / World', () => {
         expect(calledTimes).toBe(1);
     });
 
+    test('Подписка срабатывает один раз при удалении', () => {
+        const world = new World();
+        let calledTimes = 0;
+
+        world.onDelete([TestCompA, TestCompB], (w, e) => {
+            calledTimes++;
+        });
+
+        const [entity] = world.addEntity(TestCompA);
+        world.addComponent(TestCompB, entity);
+        world.addComponent(TestCompC, entity);
+
+        world.applyChanges();
+
+        expect(calledTimes).toBe(0);
+
+        world.deleteComponent(TestCompC, entity);
+        world.applyChanges();
+
+        expect(calledTimes).toBe(0);
+
+        world.deleteComponent(TestCompB, entity);
+        world.applyChanges();
+
+        expect(calledTimes).toBe(1);
+    });
+
     test('Цепочка обновлений на одной сущности должна выполняться в одном кадре', () => {
         /**
          * Если откладывать цепучку собыний на одной сущности
@@ -48,13 +75,13 @@ describe('ECS / World', () => {
         let abCalled = false;
         let acCalled = false;
 
-        world.subscribe([TestCompA, TestCompB], (w, e) => {
+        world.onAdd([TestCompA, TestCompB], (w, e) => {
             abCalled = true;
 
             w.addComponent(TestCompC, e);
         });
 
-        world.subscribe([TestCompA, TestCompC], (w, e) => {
+        world.onAdd([TestCompA, TestCompC], (w, e) => {
             acCalled = true;
         });
 

@@ -2,20 +2,7 @@ import type { ComponentClass } from './ComponentClass';
 import type { EntityChangeHandler } from './EntityChangeHandler';
 import type { World } from './index';
 
-export function subscribe(
-    originalMethod: EntityChangeHandler,
-    context: ClassMethodDecoratorContext<System>
-): EntityChangeHandler {
-    console.log(context);
-
-    context.addInitializer(function () {
-        console.log(this, context.access.get(this));
-    });
-
-    return originalMethod;
-}
-
-type Subscription = [readonly ComponentClass[], EntityChangeHandler];
+type Subscription = [readonly ComponentClass[], EntityChangeHandler, boolean];
 
 export abstract class System {
     private subscriptionList: Subscription[] | undefined = [];
@@ -23,17 +10,24 @@ export abstract class System {
     /**
      * Подписывает метод на появление сущностей с указанными компонентами
      */
-    public static on(query: readonly ComponentClass[]) {
+    public static on(query: readonly ComponentClass[], onAdd: boolean = true) {
         return function subscribe(
             originalMethod: EntityChangeHandler,
             context: ClassMethodDecoratorContext<System>
         ): EntityChangeHandler {
             context.addInitializer(function () {
-                this.registerSubscription(query, originalMethod.bind(this));
+                this.registerSubscription(query, originalMethod.bind(this), onAdd);
             });
 
             return originalMethod;
         };
+    }
+
+    /**
+     * Подписывает метод на появление сущностей с указанными компонентами
+     */
+    public static onNot(query: readonly ComponentClass[]) {
+        return System.on(query, false);
     }
 
     /**
@@ -78,7 +72,11 @@ export abstract class System {
         }
 
         for (const sub of this.subscriptionList) {
-            world.subscribe(...sub);
+            if (sub[2]) {
+                world.onAdd(sub[0], sub[1]);
+            } else {
+                world.onDelete(sub[0], sub[1]);
+            }
         }
 
         this.subscriptionList = undefined;
