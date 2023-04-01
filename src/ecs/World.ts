@@ -1,6 +1,5 @@
 import type { ComponentClass } from './ComponentClass';
 import type { EntityChangeHandler } from './EntityChangeHandler';
-import { Pool } from './Pool';
 
 /**
  * Порядковый номер сущности в массиве.
@@ -41,6 +40,14 @@ export class World {
     private readonly deleted: number[] = [];
 
     /**
+     * Для отслеживания первого попадания сущности в индекс
+     * для срабатывания подписки на маску
+     * Ключ – маска запроса
+     * Значение - массив сущностей, соответствующих маске
+     */
+    // private readonly indices = new Map<number, number[]>();
+
+    /**
      * Индекс в этом массиве – это id подписки
      * Значение - маска подписки
      */
@@ -61,25 +68,25 @@ export class World {
     private readonly components = new Map<EntityComponentId, Component>();
 
     /**
-     * Ключ - componentClassesId
-     * Значение - entityId
-     */
-    // private readonly selectOneCache: Map<QueryMask, EntityId[]> = new Map();
-
-    /**
      * Регистрирует новую сущность (id переиспользуются)
      * @param componentClass Первый компонент новой сущности
      */
     public addEntity<T>(componentClass: ComponentClass<T>): [entityId: number, component: T] {
         // 0 - отсутствие компонентов
-        const entityId = Pool.alloc(this.entities, 0);
+        const freeEntityValue = 0;
+        let freeEntityId = this.entities.indexOf(freeEntityValue);
 
-        while (this.added.length < this.entities.length) this.added.push(0);
-        while (this.deleted.length < this.entities.length) this.deleted.push(0);
+        if (freeEntityId === -1 || this.added[freeEntityId] !== 0) {
+            this.entities.push(0);
+            this.added.push(0);
+            this.deleted.push(0);
 
-        const component = this.addComponent(componentClass, entityId);
+            freeEntityId = this.entities.length - 1;
+        }
 
-        return [entityId, component];
+        const component = this.addComponent(componentClass, freeEntityId);
+
+        return [freeEntityId, component];
     }
 
     /**
@@ -142,6 +149,20 @@ export class World {
         return selectResult;
     }
 
+    public cound(query: readonly ComponentClass[]): number {
+        let counder = 0;
+        const queryMask = this.queryMask(query);
+
+        // eslint-disable-next-line @typescript-eslint/prefer-for-of
+        for (let entityId = 0; entityId < this.entities.length; entityId++) {
+            if ((this.entities[entityId]! & queryMask) === queryMask) {
+                counder++;
+            }
+        }
+
+        return counder;
+    }
+
     public subscribe(query: readonly ComponentClass[], handler: EntityChangeHandler): void {
         const queryMask = this.queryMask(query);
 
@@ -151,21 +172,41 @@ export class World {
 
     public applyChanges(): void {
         // eslint-disable-next-line @typescript-eslint/prefer-for-of
+
         for (let eid = 0; eid < this.entities.length; eid++) {
+            /**
+             * Добавленные компоненты
+             */
             if (this.added[eid] !== 0) {
-                this.entities[eid] |= this.added[eid]!;
+                const addedMask = this.added[eid]!;
                 this.added[eid] = 0;
+
+                this.entities[eid] |= addedMask;
+
+                /**
+                 * Вызов подписок
+                 */
 
                 // eslint-disable-next-line @typescript-eslint/prefer-for-of
                 for (let si = 0; si < this.subscriptions.length; si++) {
                     const subsMask = this.subscriptions[si]!;
 
-                    if ((this.entities[eid]! & subsMask) === subsMask) {
+                    if (
+                        /**
+                         * Важно проверить, что интересующие подписчика компоненты
+                         * были изменены именно в этой итерации
+                         */
+                        (subsMask & addedMask) !== 0 &&
+                        (this.entities[eid]! & subsMask) === subsMask
+                    ) {
                         this.changeHandlers[si]!(this, eid);
                     }
                 }
             }
 
+            /**
+             * Удаленные компоненты
+             */
             if (this.deleted[eid] !== 0) {
                 this.entities[eid] ^= this.deleted[eid]!;
                 this.deleted[eid] = 0;

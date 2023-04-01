@@ -23,7 +23,7 @@ export abstract class System {
     /**
      * Подписывает метод на появление сущностей с указанными компонентами
      */
-    public static trigger(query: readonly ComponentClass[]) {
+    public static on(query: readonly ComponentClass[]) {
         return function subscribe(
             originalMethod: EntityChangeHandler,
             context: ClassMethodDecoratorContext<System>
