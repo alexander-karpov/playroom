@@ -175,6 +175,13 @@ export class World {
 
         for (let eid = 0; eid < this.entities.length; eid++) {
             /**
+             * Эта сущность могла быть изменена. Тогда обновления
+             * нужно применить сразу, в этой же итерации, чтобы не было
+             * ощущения задержки реакции
+             */
+            let entityTriggersHandler = false;
+
+            /**
              * Добавленные компоненты
              */
             if (this.added[eid] !== 0) {
@@ -200,6 +207,7 @@ export class World {
                         (this.entities[eid]! & subsMask) === subsMask
                     ) {
                         this.changeHandlers[si]!(this, eid);
+                        entityTriggersHandler = true;
                     }
                 }
             }
@@ -210,6 +218,15 @@ export class World {
             if (this.deleted[eid] !== 0) {
                 this.entities[eid] ^= this.deleted[eid]!;
                 this.deleted[eid] = 0;
+            }
+
+            /**
+             * Повторная обработка
+             */
+
+            if (entityTriggersHandler) {
+                // TODO Тут правильнее было бы пройти снова по всем сущностям
+                eid--;
             }
         }
     }

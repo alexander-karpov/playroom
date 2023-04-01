@@ -24,8 +24,11 @@ export class Runtime {
 
     public update(deltaS: number): void {
         this.callRuntimeHandlers(deltaS);
+        console.log('systems runtime done');
         this.callSometimesHandlers(deltaS);
+        console.log('systems sometimes done');
         this.world.applyChanges();
+        console.log('apply Changes done');
     }
 
     private callRuntimeHandlers(deltaS: number): void {
