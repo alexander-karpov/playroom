@@ -135,7 +135,9 @@ export class World {
         const queryMask = this.queryMask(query);
 
         for (let entityId = 0; entityId < this.entities.length; entityId++) {
-            if ((this.entities[entityId]! & queryMask) === queryMask) {
+            const existsAndAddedMask = this.entities[entityId]! | this.added[entityId]!;
+
+            if ((existsAndAddedMask & queryMask) === queryMask) {
                 selectResult.push(entityId);
             }
         }
@@ -149,7 +151,9 @@ export class World {
 
         // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let entityId = 0; entityId < this.entities.length; entityId++) {
-            if ((this.entities[entityId]! & queryMask) === queryMask) {
+            const existsAndAddedMask = this.entities[entityId]! | this.added[entityId]!;
+
+            if ((existsAndAddedMask & queryMask) === queryMask) {
                 counder++;
             }
         }
@@ -298,7 +302,8 @@ export class World {
 
     private hasComponentClassId(componentClassId: number, entityId: number): boolean {
         const componentClassMask = 1 << componentClassId;
+        const existsAndAddedMask = this.entities[entityId]! | this.added[entityId]!;
 
-        return (this.entities[entityId]! & componentClassMask) === componentClassMask;
+        return (existsAndAddedMask & componentClassMask) === componentClassMask;
     }
 }

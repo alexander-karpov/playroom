@@ -15,6 +15,7 @@
         "jest": "29.5.0",
         "lil-gui": "0.18.1",
         "matter-js": "0.19.0",
+        "popmotion": "11.0.5",
         "three": "0.151.2",
         "ts-jest": "29.0.5",
         "ts-loader": "9.4.2",

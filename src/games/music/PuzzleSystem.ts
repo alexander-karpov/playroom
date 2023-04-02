@@ -2,7 +2,9 @@ import { System } from '~/ecs/System';
 import type { World } from '~/ecs/World';
 import { Star } from './Star';
 import { SoundTracks } from '~/systems/AudioSystem';
-import { Active } from '~/components';
+import { Active, Sound } from '~/components';
+import { delay } from '~/utils/delay';
+import { Hint } from './Hint';
 
 export class PuzzleSystem extends System {
     @System.on([Star, Active])
@@ -14,7 +16,7 @@ export class PuzzleSystem extends System {
         for (let i = 0; i < starsNo.length; i++) {
             if (starsNo[i] !== i) {
                 this.deactivateAllStars(activeStars, world);
-
+                this.playHints(world, 1000);
                 return;
             }
         }
@@ -26,12 +28,8 @@ export class PuzzleSystem extends System {
             // 🎉 Ураа!!1 🎉
             this.deactivateAllStars(activeStars, world);
             this.addStar(world, totalStars, SoundTracks.XylophoneD1, 2);
-        }
-    }
 
-    private deactivateAllStars(activeStars: readonly number[], world: World) {
-        for (const star of activeStars) {
-            world.deleteComponent(Active, star);
+            this.playHints(world, 1000);
         }
     }
 
@@ -44,6 +42,32 @@ export class PuzzleSystem extends System {
 
         for (const { no, track, size } of puzzle) {
             this.addStar(world, no, track, size);
+        }
+
+        this.playHints(world, 1000);
+    }
+
+    private playHints(world: World, afterMs: number): void {
+        const stars = world
+            .select([Star])
+            .map((en) => ({ entity: en, star: world.getComponent(Star, en) }));
+
+        stars.sort((a, b) => a.star.numberInOrder - b.star.numberInOrder);
+
+        void (async () => {
+            await delay(afterMs);
+
+            for (const { entity } of stars) {
+                world.addComponent(Hint, entity);
+
+                await delay(500);
+            }
+        })();
+    }
+
+    private deactivateAllStars(activeStars: readonly number[], world: World) {
+        for (const star of activeStars) {
+            world.deleteComponent(Active, star);
         }
     }
 
