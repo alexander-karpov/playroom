@@ -6,44 +6,13 @@ import { RigibBody, GameObject, Touched } from '~/components';
 
 export class SceneSystem extends System {
     private readonly raycaster = new THREE.Raycaster();
-    private readonly renderer: THREE.WebGLRenderer;
-    private readonly scene: THREE.Scene;
-    private readonly camera: THREE.PerspectiveCamera;
 
-    public constructor() {
+    public constructor(
+        private readonly renderer: THREE.WebGLRenderer,
+        private readonly scene: THREE.Scene,
+        private readonly camera: THREE.Camera
+    ) {
         super();
-
-        /**
-         * Renderer
-         */
-        this.renderer = new THREE.WebGLRenderer();
-
-        document.body.style.margin = '0';
-        document.body.style.overflow = 'hidden';
-
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(this.renderer.domElement);
-
-        /**
-         * Scene
-         */
-        this.scene = new THREE.Scene();
-
-        /**
-         * Camera
-         */
-        this.camera = new THREE.PerspectiveCamera(
-            50,
-            window.innerWidth / window.innerHeight,
-            0.1,
-            1000
-        );
-
-        this.camera.position.z = 50;
-
-        // MatterJs плохо работает с очень маленькими цифрами
-        // по-этому делаем все объекты больших размеров
-        this.camera.scale.z = 0.05;
     }
 
     @System.on([GameObject])
@@ -54,22 +23,10 @@ export class SceneSystem extends System {
     }
 
     public override onCreate(world: World): void {
-        this.createWalls(world);
-
         window.addEventListener('pointerdown', this.onPointerDown.bind(this, world));
     }
 
-    public override onOutput(world: World, deltaS: number): void {
-        this.renderer.render(this.scene, this.camera);
-    }
-
-    private createWalls(world: World): void {
-        const [, bottom] = world.addEntity(RigibBody);
-        bottom.body = Bodies.rectangle(0, -600, 3000, 300, { isStatic: true });
-
-        const [, top] = world.addEntity(RigibBody);
-        top.body = Bodies.rectangle(0, 600, 3000, 300, { isStatic: true });
-    }
+    public override onOutput(world: World, deltaS: number): void {}
 
     private onPointerDown(world: World, event: MouseEvent): void {
         const pointer = new THREE.Vector2();

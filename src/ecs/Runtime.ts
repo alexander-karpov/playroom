@@ -13,7 +13,9 @@ export class Runtime {
     private nextSometimesHandlerIndex = 0;
     private timeSinceLastSometimesCallS = 0;
 
-    public constructor(private readonly systems: System[]) {
+    public constructor(private readonly systems: System[]) {}
+
+    public initialize() {
         this.separateSystemsByHandlers();
         this.callStartupHandlers();
 

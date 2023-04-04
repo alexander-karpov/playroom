@@ -52,7 +52,9 @@ export class PuzzleSystem extends System {
     }
 
     public override onCreate(world: World): void {
-        this.addStar(world, 0, STARS[3]!.track, STARS[3]!.size);
+        for (let i = 0; i < 64; i++) {
+            this.addStar(world, 0, STARS[4]!.track, STARS[4]!.size);
+        }
     }
 
     private playHints(world: World, afterMs: number): void {
