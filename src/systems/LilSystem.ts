@@ -2,15 +2,12 @@ import { System, type World } from '~/ecs';
 import GUI from 'lil-gui';
 import { nameof } from '~/utils/nameof';
 
+/**
+ * Отладочный GUI
+ * @see https://lil-gui.georgealways.com
+ */
 export class LilSystem extends System {
     private readonly gui = new GUI({ title: 'Настройки' });
-
-    // public constructor(
-    //     private readonly camera: FollowingCameraSystemOptions,
-    //     private readonly audio: AudioSystemOptions,
-    // ) {
-    //     super();
-    // }
 
     // public override onCreate(world: World): void {
     //     // gui.add(this.camera, nameof<FollowingCameraSystemOptions>('followingSpeed'), 0, 20, 0.1);
