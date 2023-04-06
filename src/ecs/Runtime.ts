@@ -5,7 +5,6 @@ export class Runtime {
 
     private inputSystems!: System[];
     private simulateSystems!: System[];
-    private syncSystems!: System[];
     private outputSystems!: System[];
     private sometimesSystems!: System[];
 
@@ -37,10 +36,6 @@ export class Runtime {
 
         for (const system of this.simulateSystems) {
             system.onSimulate(this.world, deltaS);
-        }
-
-        for (const system of this.syncSystems) {
-            system.onSync(this.world, deltaS);
         }
 
         for (const system of this.outputSystems) {
@@ -85,8 +80,6 @@ export class Runtime {
         this.simulateSystems = this.systems.filter((s) =>
             this.isSystemOverridesHandler(s, 'onSimulate')
         );
-
-        this.syncSystems = this.systems.filter((s) => this.isSystemOverridesHandler(s, 'onSync'));
 
         this.outputSystems = this.systems.filter((s) =>
             this.isSystemOverridesHandler(s, 'onOutput')

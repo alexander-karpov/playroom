@@ -1,13 +1,13 @@
 import { Runtime } from '~/ecs';
 import { changeMatterJsRandomSeed } from '~/utils/changeMatterJsRandomSeed';
 import { SceneSystem } from './SceneSystem';
-import { PhysicsSystem } from '~/systems/PhysicsSystem';
+import { SyncPhysicsSystem } from '~/systems/SyncPhysicsSystem';
 import { AudioSystem } from '~/systems/AudioSystem';
 import { PuzzleSystem } from './PuzzleSystem';
 import { StarsManagerSystem } from './StarsManagerSystem';
-import { EnvironmentSystem } from './EnvironmentSystem';
 import * as THREE from 'three';
 import { ProjectionHelper } from '~/utils/ProjectionHelper';
+import { Engine } from 'matter-js';
 
 changeMatterJsRandomSeed();
 
@@ -48,20 +48,36 @@ renderer.render(scene, camera);
 /**
  * ProjectionHelper
  */
-const projectionHelper = new ProjectionHelper(renderer, camera);
+const projectionHelper = new ProjectionHelper(
+    renderer.domElement.width,
+    renderer.domElement.height,
+    camera
+);
+
+/**
+ * Physics
+ */
+const engine = Engine.create({
+    gravity: { x: 0, y: 0 },
+    // TODO: не работает засыпание, предметы просто зависают
+    enableSleeping: false,
+});
 
 /**
  * Systems
  */
 
 const systemsRuntime = new Runtime([
-    new SceneSystem(renderer, scene, camera),
-    new PhysicsSystem(),
+    new SceneSystem(projectionHelper, scene, camera, engine),
+    new SyncPhysicsSystem(engine),
     new AudioSystem(),
     new PuzzleSystem(),
-    new StarsManagerSystem(),
-    new EnvironmentSystem(projectionHelper),
+    new StarsManagerSystem(scene, engine),
 ]);
+
+/**
+ * Game loop
+ */
 
 systemsRuntime.initialize();
 

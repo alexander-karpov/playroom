@@ -1,16 +1,40 @@
 import * as THREE from 'three';
 
+/**
+ * Screen
+ * ------
+ * (0,0) ------------- (640,0)
+ *   |                   |
+ *   |                   |
+ *   |                   |
+ *   |                   |
+ * (0,480) ----------- (640,480)
+ *
+ * View
+ * -----
+ * (-1,1) ------------ (1,1)
+ *   |                   |
+ *   |                   |
+ *   |       (0,0)       |
+ *   |                   |
+ *   |                   |
+ * (-1,-1) ----------- (1,-1)
+ *
+ * World
+ * -----
+ * Это расположение 3D объектов на сцене
+ * относительно друг друга
+ */
 export class ProjectionHelper {
     private readonly raycaster = new THREE.Raycaster();
     private readonly worldPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1));
     private readonly tempVec2 = new THREE.Vector2();
-    private readonly screenHeight: number;
-    private readonly screenWidth: number;
 
-    public constructor(renderer: THREE.WebGLRenderer, private readonly camera: THREE.Camera) {
-        this.screenWidth = renderer.domElement.width;
-        this.screenHeight = renderer.domElement.height;
-    }
+    public constructor(
+        private readonly screenWidth: number,
+        private readonly screenHeight: number,
+        private readonly camera: THREE.Camera
+    ) {}
 
     public viewToWorld(x: number, y: number, target: THREE.Vector3): void {
         this.tempVec2.set(x, y);

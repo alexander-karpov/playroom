@@ -7,7 +7,7 @@ import * as THREE from 'three';
 import { StarGeometry } from '~/geometries/StarGeometry';
 import { fib } from '~/utils/fib';
 import { writeEntityId } from '~/utils/extraProps';
-import { Bodies, Body } from 'matter-js';
+import { Bodies, Body, Composite, type Engine } from 'matter-js';
 import { isMesh } from '~/utils/isMesh';
 import { Hint } from './Hint';
 import { isMeshBasicMaterial } from '~/utils/isMeshBasicMaterial';
@@ -16,6 +16,10 @@ export class StarsManagerSystem extends System {
     private readonly starGeom = new StarGeometry(1);
     private readonly starColor = new THREE.Color(0x00ff00);
     private readonly activeStarColor = new THREE.Color(0xff0000);
+
+    public constructor(private readonly scene: THREE.Scene, private readonly engine: Engine) {
+        super();
+    }
 
     @System.on([Star])
     private onStar(world: World, entity: number): void {
@@ -30,26 +34,30 @@ export class StarsManagerSystem extends System {
          */
         const go = world.addComponent(GameObject, entity);
 
-        go.object = new THREE.Mesh(
+        go.object3d = new THREE.Mesh(
             this.starGeom,
             new THREE.MeshBasicMaterial({ color: this.starColor.clone() })
         );
 
-        go.object.position.set(position.x, position.y, 0);
-        go.object.matrixAutoUpdate = false;
-        go.object.rotation.z = angle;
-        go.object.scale.multiplyScalar(size);
-        writeEntityId(go.object.userData, entity);
+        go.object3d.position.set(position.x, position.y, 0);
+        go.object3d.matrixAutoUpdate = false;
+        go.object3d.rotation.z = angle;
+        go.object3d.scale.multiplyScalar(size);
+        writeEntityId(go.object3d.userData, entity);
+
+        this.scene.add(go.object3d);
 
         /**
          * Body
          */
-        const body = world.addComponent(RigibBody, entity);
-        body.body = Bodies.fromVertices(position.x, position.y, [this.starGeom.shape.getPoints()], {
+        const rb = world.addComponent(RigibBody, entity);
+        rb.body = Bodies.fromVertices(position.x, position.y, [this.starGeom.shape.getPoints()], {
             angle: angle,
         });
-        writeEntityId(body.body.plugin, entity);
-        Body.scale(body.body, size, size);
+        writeEntityId(rb.body.plugin, entity);
+        Body.scale(rb.body, size, size);
+
+        Composite.add(this.engine.world, rb.body);
     }
 
     @System.on([Star, Touched])
@@ -67,7 +75,7 @@ export class StarsManagerSystem extends System {
 
     @System.on([Star, Active])
     private onStarActive(world: World, entity: number): void {
-        const { object } = world.getComponent(GameObject, entity);
+        const { object3d: object } = world.getComponent(GameObject, entity);
 
         if (
             isMesh(object) &&
@@ -80,7 +88,7 @@ export class StarsManagerSystem extends System {
 
     @System.onNot([Star, Active])
     private onNotStarActive(world: World, entity: number): void {
-        const { object } = world.getComponent(GameObject, entity);
+        const { object3d: object } = world.getComponent(GameObject, entity);
 
         if (
             isMesh(object) &&
@@ -93,7 +101,7 @@ export class StarsManagerSystem extends System {
 
     @System.on([Star, Hint])
     private onStarHint(world: World, entity: number) {
-        const { object } = world.getComponent(GameObject, entity);
+        const { object3d: object } = world.getComponent(GameObject, entity);
 
         const star = world.getComponent(Star, entity);
 

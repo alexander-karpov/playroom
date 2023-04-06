@@ -54,10 +54,6 @@ export abstract class System {
         throw new Error('Not implemented');
     }
 
-    public onSync(world: World, deltaS: number): void {
-        throw new Error('Not implemented');
-    }
-
     public onOutput(world: World, deltaS: number): void {
         throw new Error('Not implemented');
     }

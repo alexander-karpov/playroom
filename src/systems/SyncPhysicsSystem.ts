@@ -1,29 +1,14 @@
-import { Body, Composite, Engine, Vector } from 'matter-js';
+import { Engine } from 'matter-js';
 import { System, type World } from '~/ecs';
 import { RigibBody } from '~/components/RigibBody';
 import { GameObject } from '~/components/GameObject';
 
-export class PhysicsSystem extends System {
-    public readonly engine: Engine;
-
-    public constructor() {
+export class SyncPhysicsSystem extends System {
+    public constructor(private readonly engine: Engine) {
         super();
-
-        this.engine = Engine.create({
-            gravity: { x: 0, y: 0 },
-            // TODO: не работает засыпание, предметы просто зависают
-            enableSleeping: false,
-        });
     }
 
-    @System.on([RigibBody])
-    private onRigibBody(world: World, entity: number): void {
-        const rb = world.getComponent(RigibBody, entity);
-
-        Composite.add(this.engine.world, rb.body);
-    }
-
-    public override onSync(world: World, deltaS: number): void {
+    public override onOutput(world: World, deltaS: number): void {
         const deltaMs = deltaS * 1000;
 
         Engine.update(this.engine, deltaMs);
@@ -35,7 +20,7 @@ export class PhysicsSystem extends System {
             const id = bodyIds[i]!;
 
             const { body } = world.getComponent(RigibBody, id);
-            const { object } = world.getComponent(GameObject, id);
+            const { object3d: object } = world.getComponent(GameObject, id);
 
             if (!body.isSleeping && !body.isStatic) {
                 object.position.set(body.position.x, body.position.y, 0);

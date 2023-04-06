@@ -44,7 +44,7 @@ export class PuzzleSystem extends System {
         if (activeStars.length === totalStars) {
             // 🎉 Ураа!!1 🎉
             this.deactivateAllStars(activeStars, world);
-            const randomStar = STARS[choose([0, 1, 2, 3, 4, 5, 6, 7])]!;
+            const randomStar = STARS[choose([1, 2, 3, 4, 5])]!;
             this.addStar(world, totalStars, randomStar.track, randomStar.size);
 
             this.playHints(world, 1000);
@@ -52,8 +52,9 @@ export class PuzzleSystem extends System {
     }
 
     public override onCreate(world: World): void {
-        for (let i = 0; i < 64; i++) {
-            this.addStar(world, 0, STARS[4]!.track, STARS[4]!.size);
+        for (let i = 0; i < 7; i++) {
+            const randomStar = STARS[choose([1, 2, 3, 4, 5])]!;
+            this.addStar(world, i, randomStar.track, randomStar.size);
         }
     }
 

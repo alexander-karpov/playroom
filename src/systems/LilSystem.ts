@@ -1,6 +1,5 @@
-import { System, type World } from '~/ecs';
+import { System } from '~/ecs';
 import GUI from 'lil-gui';
-import { nameof } from '~/utils/nameof';
 
 /**
  * Отладочный GUI
