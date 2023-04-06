@@ -14,7 +14,6 @@ import { isMeshBasicMaterial } from '~/utils/isMeshBasicMaterial';
 
 export class StarsManagerSystem extends System {
     private readonly starGeom = new StarGeometry(1);
-    private readonly starColor = new THREE.Color(0x00ff00);
     private readonly activeStarColor = new THREE.Color(0xff0000);
 
     public constructor(private readonly scene: THREE.Scene, private readonly engine: Engine) {
@@ -36,7 +35,7 @@ export class StarsManagerSystem extends System {
 
         go.object3d = new THREE.Mesh(
             this.starGeom,
-            new THREE.MeshBasicMaterial({ color: this.starColor.clone() })
+            new THREE.MeshBasicMaterial({ color: star.color })
         );
 
         go.object3d.position.set(position.x, position.y, 0);
@@ -88,41 +87,45 @@ export class StarsManagerSystem extends System {
 
     @System.onNot([Star, Active])
     private onNotStarActive(world: World, entity: number): void {
-        const { object3d: object } = world.getComponent(GameObject, entity);
+        const { object3d } = world.getComponent(GameObject, entity);
+        const { color } = world.getComponent(Star, entity);
 
         if (
-            isMesh(object) &&
-            !Array.isArray(object.material) &&
-            isMeshBasicMaterial(object.material)
+            isMesh(object3d) &&
+            !Array.isArray(object3d.material) &&
+            isMeshBasicMaterial(object3d.material)
         ) {
-            object.material.color.set(this.starColor);
+            object3d.material.color.set(color);
         }
     }
 
     @System.on([Star, Hint])
     private onStarHint(world: World, entity: number) {
-        const { object3d: object } = world.getComponent(GameObject, entity);
+        world.deleteComponent(Hint, entity);
 
+        const { object3d } = world.getComponent(GameObject, entity);
         const star = world.getComponent(Star, entity);
 
+        // TODO: Нужна фунция для каждого компонента
+        // которая делает это заполнение полей, хорошо если она
+        // будет называться так же как класс
         const sound = world.addComponent(Sound, entity);
         sound.name = star.soundtrack;
         sound.throttleMs = 0;
 
         if (
-            isMesh(object) &&
-            !Array.isArray(object.material) &&
-            isMeshBasicMaterial(object.material)
+            isMesh(object3d) &&
+            !Array.isArray(object3d.material) &&
+            isMeshBasicMaterial(object3d.material)
         ) {
-            const color: THREE.Color = object.material.color;
+            const starColor = new THREE.Color(star.color);
+            const color = object3d.material.color;
 
             animate({
                 to: [1, 0],
                 duration: 500,
-                onUpdate: (t) => color.lerpColors(this.starColor, this.activeStarColor, t),
+                onUpdate: (t) => color.lerpColors(starColor, this.activeStarColor, t),
             });
         }
-
-        world.deleteComponent(Hint, entity);
     }
 }

@@ -3,4 +3,5 @@ export class Star {
     public soundtrack!: string;
     public size!: number;
     public activated!: boolean;
+    public color!: number;
 }

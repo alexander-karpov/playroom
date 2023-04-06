@@ -125,6 +125,9 @@ export class World {
     }
 
     public deleteComponent(componentClass: ComponentClass, entityId: number): void {
+        // TODO: Подумать над механизмом очистки памяти при удалении
+        // компонентов. Некоторые К. ссылкаются на сложные структуры
+        // и не хорошо держать ссылки на них
         const componentClassId = this.componentClassId(componentClass);
 
         this.deleted[entityId] |= 1 << componentClassId;

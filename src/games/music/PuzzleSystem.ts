@@ -2,11 +2,12 @@ import { System } from '~/ecs/System';
 import type { World } from '~/ecs/World';
 import { Star } from './Star';
 import { SoundTracks } from '~/systems/AudioSystem';
-import { Active, Sound } from '~/components';
+import { Active } from '~/components';
 import { delay } from '~/utils/delay';
 import { Hint } from './Hint';
 import { choose } from '~/utils/choose';
 import { type CancellationSource, coroutine } from '~/utils/coroutine';
+import * as THREE from 'three';
 
 const STARS = [
     { track: SoundTracks.XylophoneC, size: 8 },
@@ -21,6 +22,13 @@ const STARS = [
 
 export class PuzzleSystem extends System {
     private hintCancellation?: CancellationSource;
+    private readonly colors: readonly number[];
+
+    public constructor() {
+        super();
+
+        this.colors = this.decideСolors();
+    }
 
     @System.on([Star, Active])
     private onStarActive(world: World, entity: number): void {
@@ -92,5 +100,26 @@ export class PuzzleSystem extends System {
         star.numberInOrder = no;
         star.soundtrack = track;
         star.size = size;
+        star.color = this.colors[no % this.colors.length]!;
+    }
+
+    private decideСolors(): number[] {
+        const baseColor = Math.random();
+
+        const step = 1 / 14;
+        const s = 1;
+        const l = 0.69;
+
+        const tempColor = new THREE.Color();
+
+        const hs = [
+            baseColor,
+            baseColor + step,
+            baseColor + step + step,
+            baseColor - step,
+            baseColor - step - step,
+        ];
+
+        return hs.map((h) => tempColor.setHSL(h, s, l).getHex());
     }
 }
