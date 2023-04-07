@@ -14,6 +14,65 @@ class CompC {
 }
 
 describe('ECS / World', () => {
+    describe('deleteComponent', () => {
+        test('Добавляет и удаляет компонент', () => {
+            /**
+             * Проверяет в т.ч. список добавляемых компонентов.
+             * Иначе новые сущности не могут участвовать в логике
+             * до применения изменений
+             */
+
+            const world = new World();
+
+            const [e] = world.addEntity(CompA);
+
+            expect(world.hasComponent(CompA, e)).toBe(true);
+            expect(world.hasComponent(CompB, e)).toBe(false);
+
+            world.applyChanges();
+
+            expect(world.hasComponent(CompA, e)).toBe(true);
+            expect(world.hasComponent(CompB, e)).toBe(false);
+
+            world.addComponent(CompB, e);
+
+            expect(world.hasComponent(CompB, e)).toBe(true);
+
+            world.applyChanges();
+
+            expect(world.hasComponent(CompB, e)).toBe(true);
+
+            world.deleteComponent(CompB, e);
+
+            expect(world.hasComponent(CompB, e)).toBe(true);
+
+            world.applyChanges();
+
+            expect(world.hasComponent(CompB, e)).toBe(false);
+        });
+
+        test('Добавляет и удаляет компонент из обработчика', () => {
+            /**
+             * Проверяет в т.ч. список добавляемых компонентов.
+             * Иначе новые сущности не могут участвовать в логике
+             * до применения изменений
+             */
+
+            const world = new World();
+
+            world.onAdd([CompA], (w, e) => {
+                world.addComponent(CompB, e);
+                world.deleteComponent(CompB, e);
+            });
+
+            const [e] = world.addEntity(CompA);
+
+            world.applyChanges();
+
+            expect(world.hasComponent(CompB, e)).toBe(false);
+        });
+    });
+
     describe('getComponent', () => {
         test('Находит компонент сразу после добавления', () => {
             /**

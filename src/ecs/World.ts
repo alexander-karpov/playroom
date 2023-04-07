@@ -202,6 +202,8 @@ export class World {
                  * Вызов подписок
                  */
 
+                entityTriggersHandler = false;
+
                 // eslint-disable-next-line @typescript-eslint/prefer-for-of
                 for (let si = 0; si < this.onAddQueries.length; si++) {
                     const subsMask = this.onAddQueries[si]!;
@@ -218,6 +220,17 @@ export class World {
                         entityTriggersHandler = true;
                     }
                 }
+
+                /**
+                 * Повторная обработка
+                 */
+
+                if (entityTriggersHandler) {
+                    // TODO Тут правильнее было бы пройти снова по всем сущностям
+                    eid--;
+
+                    continue;
+                }
             }
 
             /**
@@ -230,6 +243,8 @@ export class World {
                 /**
                  * Вызов подписок
                  */
+
+                entityTriggersHandler = false;
 
                 // eslint-disable-next-line @typescript-eslint/prefer-for-of
                 for (let si = 0; si < this.onDeleteQueries.length; si++) {
@@ -248,16 +263,18 @@ export class World {
                     }
                 }
 
-                this.entities[eid] ^= deletedMask;
-            }
+                this.entities[eid] &= ~deletedMask;
 
-            /**
-             * Повторная обработка
-             */
+                /**
+                 * Повторная обработка
+                 */
 
-            if (entityTriggersHandler) {
-                // TODO Тут правильнее было бы пройти снова по всем сущностям
-                eid--;
+                if (entityTriggersHandler) {
+                    // TODO Тут правильнее было бы пройти снова по всем сущностям
+                    eid--;
+
+                    continue;
+                }
             }
         }
     }

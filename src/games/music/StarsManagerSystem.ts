@@ -9,7 +9,7 @@ import { fib } from '~/utils/fib';
 import { writeEntityId } from '~/utils/extraProps';
 import { Bodies, Body, Composite, type Engine } from 'matter-js';
 import { isMesh } from '~/utils/isMesh';
-import { Hint } from './Hint';
+import { Shine } from './Shine';
 import { isMeshBasicMaterial } from '~/utils/isMeshBasicMaterial';
 
 export class StarsManagerSystem extends System {
@@ -61,49 +61,19 @@ export class StarsManagerSystem extends System {
 
     @System.on([Star, Touched])
     private onStarTouched(world: World, entity: number): void {
-        const { soundtrack, numberInOrder } = world.getComponent(Star, entity);
-
-        const sound = world.addComponent(Sound, entity);
-        sound.name = soundtrack;
-        sound.throttleMs = 0;
-
-        if (!world.hasComponent(Active, entity)) {
-            world.addComponent(Active, entity);
+        if (!world.hasComponent(Shine, entity)) {
+            world.addComponent(Shine, entity);
+            world.deleteComponent(Shine, entity);
         }
     }
 
-    @System.on([Star, Active])
-    private onStarActive(world: World, entity: number): void {
-        const { object3d: object } = world.getComponent(GameObject, entity);
-
-        if (
-            isMesh(object) &&
-            !Array.isArray(object.material) &&
-            isMeshBasicMaterial(object.material)
-        ) {
-            object.material.color.set(this.activeStarColor);
-        }
-    }
-
-    @System.onNot([Star, Active])
-    private onNotStarActive(world: World, entity: number): void {
-        const { object3d } = world.getComponent(GameObject, entity);
-        const { color } = world.getComponent(Star, entity);
-
-        if (
-            isMesh(object3d) &&
-            !Array.isArray(object3d.material) &&
-            isMeshBasicMaterial(object3d.material)
-        ) {
-            object3d.material.color.set(color);
-        }
-    }
-
-    @System.on([Star, Hint])
+    @System.on([Star, Shine])
     private onStarHint(world: World, entity: number) {
-        world.deleteComponent(Hint, entity);
+        this.playSound(world, entity);
+        this.playShineEffect(world, entity);
+    }
 
-        const { object3d } = world.getComponent(GameObject, entity);
+    private playSound(world: World, entity: number) {
         const star = world.getComponent(Star, entity);
 
         // TODO: Нужна фунция для каждого компонента
@@ -112,6 +82,11 @@ export class StarsManagerSystem extends System {
         const sound = world.addComponent(Sound, entity);
         sound.name = star.soundtrack;
         sound.throttleMs = 0;
+    }
+
+    private playShineEffect(world: World, entity: number) {
+        const { object3d } = world.getComponent(GameObject, entity);
+        const star = world.getComponent(Star, entity);
 
         if (
             isMesh(object3d) &&
@@ -123,7 +98,7 @@ export class StarsManagerSystem extends System {
 
             animate({
                 to: [1, 0],
-                duration: 500,
+                duration: fib(14),
                 onUpdate: (t) => color.lerpColors(starColor, this.activeStarColor, t),
             });
         }

@@ -1,5 +1,6 @@
 import { Ref } from './Ref';
 
+// TODO: заменить на popmotion
 export function coroutine(
     task: (cancellationToken: CancellationToken) => Promise<void>
 ): CancellationSource {
@@ -17,7 +18,7 @@ export class CancellationToken {
         this.requestedRef = requestedRef;
     }
 
-    public get requested() {
+    public get cancellationRequested() {
         return this.requestedRef.current;
     }
 }
