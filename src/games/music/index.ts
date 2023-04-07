@@ -8,6 +8,7 @@ import { StarsManagerSystem } from './StarsManagerSystem';
 import * as THREE from 'three';
 import { ProjectionHelper } from '~/utils/ProjectionHelper';
 import { Engine } from 'matter-js';
+import { JunkManagerSystem } from './JunkManagerSystem';
 
 changeMatterJsRandomSeed();
 
@@ -22,6 +23,9 @@ document.body.style.overflow = 'hidden';
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+const width = renderer.domElement.width;
+const height = renderer.domElement.height;
+
 /**
  * Scene
  */
@@ -30,13 +34,16 @@ const scene = new THREE.Scene();
 /**
  * Camera
  */
-const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.OrthographicCamera(
+    width / -2,
+    width / 2,
+    height / 2,
+    height / -2,
+    1,
+    1000
+);
 
-camera.position.z = 50;
-
-// MatterJs плохо работает с очень маленькими цифрами
-// по-этому делаем все объекты больших размеров
-camera.scale.z = 0.05;
+camera.position.z = 100;
 
 /**
  * Предварительный пустой рендер обновляет что-то в камере,
@@ -73,6 +80,7 @@ const systemsRuntime = new Runtime([
     new AudioSystem(),
     new PuzzleSystem(),
     new StarsManagerSystem(scene, engine),
+    new JunkManagerSystem(scene, engine),
 ]);
 
 /**

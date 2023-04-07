@@ -158,12 +158,6 @@ export class PuzzleSystem extends System {
         });
     }
 
-    private deactivateAllStars(activeStars: readonly number[], world: World) {
-        for (const star of activeStars) {
-            world.deleteComponent(Active, star);
-        }
-    }
-
     private addStar(world: World, no: number, track: SoundTracks, size: number) {
         const [, star] = world.addEntity(Star);
 
@@ -173,6 +167,7 @@ export class PuzzleSystem extends System {
         star.color = this.colors[no % this.colors.length]!;
     }
 
+    // Перенести цвет в StarsManager
     private decideСolors(): number[] {
         const baseColor = Math.random();
 

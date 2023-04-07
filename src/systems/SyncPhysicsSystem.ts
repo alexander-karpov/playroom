@@ -8,6 +8,18 @@ export class SyncPhysicsSystem extends System {
         super();
     }
 
+    @System.on([RigibBody, GameObject])
+    private onRigibBodyGameObject(world: World, entity: number) {
+        const { object3d } = world.getComponent(GameObject, entity);
+        object3d.matrixAutoUpdate = false;
+    }
+
+    @System.onNot([RigibBody, GameObject])
+    private onNotRigibBodyGameObject(world: World, entity: number) {
+        const { object3d } = world.getComponent(GameObject, entity);
+        object3d.matrixAutoUpdate = true;
+    }
+
     public override onOutput(world: World, deltaS: number): void {
         const deltaMs = deltaS * 1000;
 
