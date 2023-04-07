@@ -36,15 +36,16 @@ const STARS_DESC = [
 export class PuzzleSystem extends System {
     private playPuzzleCancellation?: CancellationSource;
     private readonly colors: readonly number[];
-    private readonly puzzleTune: readonly number[];
+    private puzzleTune: readonly number[];
     private touchedStarNo: number = 0;
     private numShouldBeRepeated: number = 1;
+    private readonly puzzleLength = 7;
 
     public constructor() {
         super();
 
         this.colors = this.decideСolors();
-        this.puzzleTune = this.composeTune(7);
+        this.puzzleTune = this.composeTune(3);
     }
 
     @System.on([Star, Touched])
@@ -58,7 +59,17 @@ export class PuzzleSystem extends System {
             this.touchedStarNo++;
 
             if (this.touchedStarNo == this.puzzleTune.length) {
-                setTimeout(() => alert('🎉 Ураа!!1 🎉'), 500);
+                // setTimeout(() => alert('🎉 Ураа!!1 🎉'), 500);
+
+                coroutine(async () => {
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, no-constant-condition
+                    while (true) {
+                        this.failEffect(world);
+                        await delay(200);
+                    }
+                });
+
+                this.playPuzzleTune(world, 1000, true);
             }
 
             if (this.touchedStarNo === this.numShouldBeRepeated) {
@@ -69,9 +80,15 @@ export class PuzzleSystem extends System {
             }
         } else {
             // Ошибка
+
+            if (this.touchedStarNo > 0) {
+                this.failEffect(world);
+            }
+
             this.touchedStarNo = 0;
             this.numShouldBeRepeated = 1;
-            this.failEffect(world);
+
+            this.puzzleTune = this.composeTune(this.puzzleLength);
             this.playPuzzleTune(world, 1000);
         }
     }
@@ -107,13 +124,14 @@ export class PuzzleSystem extends System {
 
     public override onCreate(world: World): void {
         this.numShouldBeRepeated = 1;
+        this.puzzleTune = this.composeTune(this.puzzleLength);
 
         for (const desc of STARS_DESC) {
             this.addStar(world, desc.tone, desc.track, desc.size);
         }
     }
 
-    private playPuzzleTune(world: World, afterMs: number): void {
+    private playPuzzleTune(world: World, afterMs: number, repeat: boolean = false): void {
         const starsByTone = new Map(
             world.select([Star]).map((entity) => [world.getComponent(Star, entity).tone, entity])
         );
@@ -132,6 +150,10 @@ export class PuzzleSystem extends System {
                 world.deleteComponent(Shine, starEntity);
 
                 await delay(500);
+            }
+
+            if (repeat) {
+                setTimeout(() => this.playPuzzleTune(world, 500, true));
             }
         });
     }
