@@ -2,13 +2,14 @@ import { System } from '~/ecs/System';
 import type { World } from '~/ecs/World';
 import { Star } from './Star';
 import { SoundTracks } from '~/systems/AudioSystem';
-import { Active, Touched } from '~/components';
+import { Active, RigibBody, Touched } from '~/components';
 import { delay } from '~/utils/delay';
 import { Shine } from './Shine';
 import { choose } from '~/utils/choose';
 import { type CancellationSource, coroutine } from '~/utils/coroutine';
 import * as THREE from 'three';
-import { Common } from 'matter-js';
+import { Bodies, Body, Common } from 'matter-js';
+import { Vector } from 'matter-js';
 
 const TRACKS = [
     SoundTracks.XylophoneC,
@@ -37,12 +38,13 @@ export class PuzzleSystem extends System {
     private readonly colors: readonly number[];
     private readonly puzzleTune: readonly number[];
     private touchedStarNo: number = 0;
+    private numShouldBeRepeated: number = 1;
 
     public constructor() {
         super();
 
         this.colors = this.decideСolors();
-        this.puzzleTune = this.composeTune(8);
+        this.puzzleTune = this.composeTune(7);
     }
 
     @System.on([Star, Touched])
@@ -58,9 +60,18 @@ export class PuzzleSystem extends System {
             if (this.touchedStarNo == this.puzzleTune.length) {
                 setTimeout(() => alert('🎉 Ураа!!1 🎉'), 500);
             }
+
+            if (this.touchedStarNo === this.numShouldBeRepeated) {
+                this.numShouldBeRepeated++;
+                this.touchedStarNo = 0;
+
+                this.playPuzzleTune(world, 1000);
+            }
         } else {
             // Ошибка
             this.touchedStarNo = 0;
+            this.numShouldBeRepeated = 1;
+            this.failEffect(world);
             this.playPuzzleTune(world, 1000);
         }
     }
@@ -95,6 +106,8 @@ export class PuzzleSystem extends System {
     // }
 
     public override onCreate(world: World): void {
+        this.numShouldBeRepeated = 1;
+
         for (const desc of STARS_DESC) {
             this.addStar(world, desc.tone, desc.track, desc.size);
         }
@@ -108,7 +121,7 @@ export class PuzzleSystem extends System {
         this.playPuzzleCancellation = coroutine(async (token) => {
             await delay(afterMs);
 
-            for (const tone of this.puzzleTune) {
+            for (const tone of this.puzzleTune.slice(0, this.numShouldBeRepeated)) {
                 const starEntity = starsByTone.get(tone)!;
 
                 if (token.cancellationRequested) {
@@ -185,5 +198,24 @@ export class PuzzleSystem extends System {
         tune.length = length;
 
         return tune;
+    }
+
+    // TODO перенести отсюда
+    private failEffect(world: World) {
+        for (const entity of world.select([Star, RigibBody])) {
+            const rb = world.getComponent(RigibBody, entity);
+            // const force = Vector.create(0, 0.001 * rb.body.mass);
+            const force = Vector.mult(
+                Vector.normalise(Vector.neg(rb.body.position)),
+                0.001 * rb.body.mass
+            );
+            Vector.rotate(
+                force,
+                Common.random(0, Math.PI / 2),
+                // @ts-expect-error
+                force
+            );
+            Body.applyForce(rb.body, rb.body.position, force);
+        }
     }
 }
