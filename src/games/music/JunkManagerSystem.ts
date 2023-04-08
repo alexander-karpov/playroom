@@ -1,22 +1,15 @@
-import { animate } from 'popmotion';
 import { System } from '~/ecs/System';
 import type { World } from '~/ecs/World';
-import { Star } from './Star';
-import { Active, GameObject, RigibBody, Sound, Touched } from '~/components';
+import { GameObject, RigibBody } from '~/components';
 import * as THREE from 'three';
-import { StarGeometry } from '~/geometries/StarGeometry';
 import { fib } from '~/utils/fib';
 import { writeEntityId } from '~/utils/extraProps';
 import { Bodies, Body, Composite, Vector, type Engine, Common } from 'matter-js';
-import { isMesh } from '~/utils/isMesh';
-import { Shine } from './Shine';
-import { isMeshBasicMaterial } from '~/utils/isMeshBasicMaterial';
 import { Junk } from './Junk';
+import { Bits as Bits } from '~/utils/Bits';
+import { CollisionCategories } from './CollisionCategories';
 
 export class JunkManagerSystem extends System {
-    private readonly starGeom = new StarGeometry(1);
-    private readonly activeStarColor = new THREE.Color(0xff0000);
-
     public constructor(private readonly scene: THREE.Scene, private readonly engine: Engine) {
         super();
     }
@@ -25,7 +18,18 @@ export class JunkManagerSystem extends System {
     private onJunk(world: World, entity: number): void {
         const angle = Math.random() * Math.PI * 2;
         const size = fib(9);
-        const position = new THREE.Vector2(0, 0);
+        const position = new THREE.Vector2(Common.random(-200, 200), Common.random(-200, 200));
+
+        /**
+         * Junk
+         */
+        const junk = world.getComponent(Junk, entity);
+
+        junk.rotationImitationFactor = new THREE.Vector3(
+            Common.random(-1.3, 1.3),
+            Common.random(-1.3, 1.3),
+            0
+        );
 
         /**
          * GameObject
@@ -37,7 +41,7 @@ export class JunkManagerSystem extends System {
             new THREE.MeshBasicMaterial({ color: 0xf0f000 })
         );
 
-        go.object3d.position.set(position.x, position.y, 0);
+        go.object3d.position.set(position.x, position.y, -50);
         go.object3d.rotation.z = angle;
         go.object3d.scale.multiplyScalar(size);
         writeEntityId(go.object3d.userData, entity);
@@ -51,6 +55,10 @@ export class JunkManagerSystem extends System {
 
         rb.body = Bodies.rectangle(position.x, position.y, 1, 1, {
             angle: angle,
+            collisionFilter: {
+                category: Bits.bit(CollisionCategories.Junk),
+                mask: Bits.bit(CollisionCategories.Junk),
+            },
         });
         writeEntityId(rb.body.plugin, entity);
         Body.scale(rb.body, size, size);
@@ -59,14 +67,9 @@ export class JunkManagerSystem extends System {
     }
 
     public override onCreate(world: World): void {
-        let i = 10;
+        let i = 20;
         while (i--) {
-            const [e, junk] = world.addEntity(Junk);
-            junk.rotationImitationFactor = new THREE.Vector3(
-                Common.random(-1.3, 1.3),
-                Common.random(-1.3, 1.3),
-                0
-            );
+            world.addEntity(Junk);
         }
     }
 
@@ -79,10 +82,9 @@ export class JunkManagerSystem extends System {
             object3d.rotation.x = object3d.rotation.z * rotationImitationFactor.x;
             object3d.rotation.y = object3d.rotation.z * rotationImitationFactor.y;
 
-            // const force = Vector.create(0, 0.001 * rb.body.mass);
             const force = Vector.mult(
                 Vector.normalise(Vector.neg(rb.body.position)),
-                0.01 * deltaS * rb.body.mass
+                0.005 * deltaS * rb.body.mass
             );
 
             Vector.rotate(

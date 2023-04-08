@@ -7,10 +7,13 @@ import * as THREE from 'three';
 import { StarGeometry } from '~/geometries/StarGeometry';
 import { fib } from '~/utils/fib';
 import { writeEntityId } from '~/utils/extraProps';
-import { Bodies, Body, Composite, type Engine } from 'matter-js';
+import { Bodies, Body, Composite, Vector, type Engine, Common } from 'matter-js';
 import { isMesh } from '~/utils/isMesh';
 import { Shine } from './Shine';
 import { isMeshBasicMaterial } from '~/utils/isMeshBasicMaterial';
+import { Junk } from './Junk';
+import { CollisionCategories } from './CollisionCategories';
+import { Bits } from '~/utils/Bits';
 
 export class StarsManagerSystem extends System {
     private readonly starGeom = new StarGeometry(1);
@@ -52,6 +55,10 @@ export class StarsManagerSystem extends System {
         const rb = world.addComponent(RigibBody, entity);
         rb.body = Bodies.fromVertices(position.x, position.y, [this.starGeom.shape.getPoints()], {
             angle: angle,
+            collisionFilter: {
+                category: Bits.bit(CollisionCategories.Star),
+                mask: Bits.bit2(CollisionCategories.Star, CollisionCategories.Wall),
+            },
         });
         writeEntityId(rb.body.plugin, entity);
         Body.scale(rb.body, size, size);

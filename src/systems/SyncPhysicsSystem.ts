@@ -35,7 +35,7 @@ export class SyncPhysicsSystem extends System {
             const { object3d: object } = world.getComponent(GameObject, id);
 
             if (!body.isSleeping && !body.isStatic) {
-                object.position.set(body.position.x, body.position.y, 0);
+                object.position.set(body.position.x, body.position.y, object.position.z);
                 object.rotation.z = body.angle;
                 object.updateMatrix();
             }

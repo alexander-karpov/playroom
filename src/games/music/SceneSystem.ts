@@ -4,6 +4,8 @@ import { Bodies, Composite, type Engine } from 'matter-js';
 import * as extraProps from '~/utils/extraProps';
 import { Touched } from '~/components';
 import type { ProjectionHelper } from '~/utils/ProjectionHelper';
+import { Bits } from '~/utils/Bits';
+import { CollisionCategories } from './CollisionCategories';
 
 export class SceneSystem extends System {
     private readonly raycaster = new THREE.Raycaster();
@@ -52,18 +54,27 @@ export class SceneSystem extends System {
         this.projectionHelper.viewToWorld(-1, -1, bottomLeft);
         this.projectionHelper.viewToWorld(1, 1, topRight);
 
+        const collisionFilter = {
+            category: Bits.bit(CollisionCategories.Wall),
+            mask: Bits.bit(CollisionCategories.Star),
+        };
+
         Composite.add(this.engine.world, [
             Bodies.rectangle(0, topRight.y + wallWidth / 2, wallLength, wallWidth, {
                 isStatic: true,
+                collisionFilter,
             }),
             Bodies.rectangle(topRight.x + wallWidth / 2, 0, wallWidth, wallLength, {
                 isStatic: true,
+                collisionFilter,
             }),
             Bodies.rectangle(0, bottomLeft.y - wallWidth / 2, wallLength, wallWidth, {
                 isStatic: true,
+                collisionFilter,
             }),
             Bodies.rectangle(bottomLeft.x - wallWidth / 2, 0, wallWidth, wallLength, {
                 isStatic: true,
+                collisionFilter,
             }),
         ]);
     }
