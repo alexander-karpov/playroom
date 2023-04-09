@@ -38,7 +38,8 @@ export class JunkManagerSystem extends System {
 
         go.object3d = new THREE.Mesh(
             new THREE.BoxGeometry(1, 1, 1),
-            new THREE.MeshBasicMaterial({ color: 0xf0f000 })
+            new THREE.MeshLambertMaterial({ color: 0xf0f000 })
+            // new THREE.MeshStandardMaterial({ color: 0xf0f000, roughness: 0.5, metalness: 1 })
         );
 
         go.object3d.position.set(position.x, position.y, -50);
@@ -58,19 +59,13 @@ export class JunkManagerSystem extends System {
             collisionFilter: {
                 category: Bits.bit(CollisionCategories.Junk),
                 mask: Bits.bit(CollisionCategories.Junk),
+                // group: -1,
             },
         });
         writeEntityId(rb.body.plugin, entity);
-        Body.scale(rb.body, size, size);
+        Body.scale(rb.body, size * 1.1, size * 1.1);
 
         Composite.add(this.engine.world, rb.body);
-    }
-
-    public override onCreate(world: World): void {
-        let i = 20;
-        while (i--) {
-            world.addEntity(Junk);
-        }
     }
 
     public override onSimulate(world: World, deltaS: number): void {

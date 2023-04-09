@@ -50,6 +50,15 @@ camera.position.z = 100;
 renderer.render(scene, camera);
 
 /**
+ * Light
+ */
+const ambientLight = new THREE.AmbientLight(0x404040); // soft white light
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+scene.add(directionalLight);
+
+/**
  * ProjectionHelper
  */
 const projectionHelper = new ProjectionHelper(
@@ -87,6 +96,7 @@ const systemsRuntime = new Runtime([
 systemsRuntime.initialize();
 
 let lastTime = performance.now();
+let framesCount = 0;
 
 function animate(time: number): void {
     requestAnimationFrame(animate);
@@ -102,6 +112,16 @@ function animate(time: number): void {
     );
 
     renderer.render(scene, camera);
+
+    framesCount++;
 }
+
+const elem = document.querySelector('.Fps')!;
+
+setInterval(() => {
+    elem.textContent = String((framesCount / 3).toFixed(1));
+
+    framesCount = 0;
+}, 3000);
 
 animate(performance.now());

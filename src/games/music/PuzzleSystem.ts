@@ -11,6 +11,7 @@ import * as THREE from 'three';
 import { Bodies, Body, Common } from 'matter-js';
 import { Vector } from 'matter-js';
 import { animate } from 'popmotion';
+import { Junk } from './Junk';
 
 const TRACKS = [
     SoundTracks.XylophoneC,
@@ -61,7 +62,7 @@ export class PuzzleSystem extends System {
             // Нажато правильно. Едем дальше
             this.touchedStarNo++;
 
-            this.increaseScore();
+            this.increaseScore(world);
 
             if (this.touchedStarNo === this.numShouldBeRepeated) {
                 this.numShouldBeRepeated++;
@@ -91,6 +92,40 @@ export class PuzzleSystem extends System {
         for (const desc of STARS_DESC) {
             this.addStar(world, desc.tone, desc.track, desc.size);
         }
+
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+        world.addEntity(Junk);
+
+        // coroutine(async () => {
+        //     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, no-constant-condition
+        //     let i = 3000;
+        //     while (i--) {
+        //         world.addEntity(Junk);
+        //         this.increaseScore();
+
+        //         if (i % 10 === 0) {
+        //             await delay(1);
+        //         }
+        //     }
+        // });
     }
 
     private playPuzzleTune(world: World, afterMs: number, repeat: boolean = false): void {
@@ -135,7 +170,7 @@ export class PuzzleSystem extends System {
 
         const step = 1 / 14;
         const s = 1;
-        const l = 0.69;
+        const l = 0.66;
 
         const tempColor = new THREE.Color();
 
@@ -198,10 +233,14 @@ export class PuzzleSystem extends System {
         }
     }
 
-    private increaseScore() {
-        const inc = 100 * this.touchedStarNo;
+    private increaseScore(world: World) {
+        const inc = 1 * this.touchedStarNo;
 
         this.score += inc;
+
+        for (let i = 0; i < inc; i++) {
+            world.addEntity(Junk);
+        }
 
         const increaseElem =
             this.scoreElem.querySelector('.Score-Increase:not(.Score-Increase_active)') ??

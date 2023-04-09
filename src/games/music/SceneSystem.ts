@@ -6,9 +6,13 @@ import { Touched } from '~/components';
 import type { ProjectionHelper } from '~/utils/ProjectionHelper';
 import { Bits } from '~/utils/Bits';
 import { CollisionCategories } from './CollisionCategories';
+import { isOrthographicCamera } from '~/utils/typeGuards';
+import { animate, easeIn, easeOut } from 'popmotion';
+import { Star } from './Star';
 
 export class SceneSystem extends System {
     private readonly raycaster = new THREE.Raycaster();
+    private stopZoom?: () => void;
 
     public constructor(
         private readonly projectionHelper: ProjectionHelper,
@@ -23,6 +27,7 @@ export class SceneSystem extends System {
         this.createWalls();
 
         window.addEventListener('pointerdown', this.onPointerDown.bind(this, world));
+        window.addEventListener('pointerup', this.onPointerUp.bind(this, world));
     }
 
     private onPointerDown(world: World, event: MouseEvent): void {
@@ -32,17 +37,25 @@ export class SceneSystem extends System {
 
         this.raycaster.setFromCamera(pointer, this.camera);
 
+        // TODO: Добавить маску для проверки колизий чтобы не проверять мусор по мусору
         const intersects = this.raycaster.intersectObjects(this.scene.children);
         for (const { object } of intersects) {
             const entity = extraProps.readEntityId(object.userData);
 
-            if (entity == null) {
-                continue;
-            }
+            if (entity != null && world.hasComponent(Star, entity)) {
+                // Добавить компонент отвечающий за приём рейтрейса объект
+                world.addComponent(Touched, entity);
+                world.deleteComponent(Touched, entity);
 
-            world.addComponent(Touched, entity);
-            world.deleteComponent(Touched, entity);
+                return;
+            }
         }
+
+        this.zoom(1 / 2);
+    }
+
+    private onPointerUp(world: World, event: MouseEvent): void {
+        this.zoom(1);
     }
 
     private createWalls(): void {
@@ -77,5 +90,29 @@ export class SceneSystem extends System {
                 collisionFilter,
             }),
         ]);
+    }
+
+    private zoom(to: number) {
+        const camera = this.camera;
+
+        if (!isOrthographicCamera(camera)) {
+            return;
+        }
+
+        if (camera.zoom === to) {
+            return;
+        }
+
+        this.stopZoom?.();
+
+        this.stopZoom = animate({
+            from: camera.zoom,
+            to: to,
+            onUpdate: (v) => {
+                camera.zoom = v;
+                camera.updateProjectionMatrix();
+            },
+            ease: [easeOut],
+        }).stop;
     }
 }

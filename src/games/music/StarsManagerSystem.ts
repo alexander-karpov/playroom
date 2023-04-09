@@ -8,7 +8,7 @@ import { StarGeometry } from '~/geometries/StarGeometry';
 import { fib } from '~/utils/fib';
 import { writeEntityId } from '~/utils/extraProps';
 import { Bodies, Body, Composite, Vector, type Engine, Common } from 'matter-js';
-import { isMesh } from '~/utils/isMesh';
+import { isMesh } from '~/utils/typeGuards';
 import { Shine } from './Shine';
 import { isMeshBasicMaterial } from '~/utils/isMeshBasicMaterial';
 import { Junk } from './Junk';
