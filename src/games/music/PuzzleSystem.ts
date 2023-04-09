@@ -10,6 +10,7 @@ import { type CancellationSource, coroutine } from '~/utils/coroutine';
 import * as THREE from 'three';
 import { Bodies, Body, Common } from 'matter-js';
 import { Vector } from 'matter-js';
+import { animate } from 'popmotion';
 
 const TRACKS = [
     SoundTracks.XylophoneC,
@@ -41,6 +42,7 @@ export class PuzzleSystem extends System {
     private numShouldBeRepeated: number = 1;
     private readonly puzzleLength = 256; // Недостижимый количество
     private score = 0;
+    private readonly scoreElem = document.querySelector('.Score')!;
 
     public constructor() {
         super();
@@ -59,19 +61,7 @@ export class PuzzleSystem extends System {
             // Нажато правильно. Едем дальше
             this.touchedStarNo++;
 
-            if (this.touchedStarNo == this.puzzleTune.length) {
-                // setTimeout(() => alert('🎉 Ураа!!1 🎉'), 500);
-
-                coroutine(async () => {
-                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, no-constant-condition
-                    while (true) {
-                        this.failEffect(world);
-                        await delay(200);
-                    }
-                });
-
-                this.playPuzzleTune(world, 1000, true);
-            }
+            this.increaseScore();
 
             if (this.touchedStarNo === this.numShouldBeRepeated) {
                 this.numShouldBeRepeated++;
@@ -206,5 +196,31 @@ export class PuzzleSystem extends System {
             );
             Body.applyForce(rb.body, rb.body.position, force);
         }
+    }
+
+    private increaseScore() {
+        const inc = 100 * this.touchedStarNo;
+
+        this.score += inc;
+
+        const increaseElem =
+            this.scoreElem.querySelector('.Score-Increase:not(.Score-Increase_active)') ??
+            this.scoreElem.querySelector('.Score-Increase')!;
+
+        const valueElem = this.scoreElem.querySelector('.Score-Value')!;
+
+        valueElem.textContent = this.score.toLocaleString('ru-RU', {
+            maximumFractionDigits: 2,
+        });
+
+        increaseElem.textContent = `+${inc.toLocaleString('ru-RU', {
+            maximumFractionDigits: 2,
+        })}`;
+
+        animate({
+            duration: 500,
+            onPlay: () => increaseElem.classList.add('Score-Increase_active'),
+            onComplete: () => increaseElem.classList.remove('Score-Increase_active'),
+        });
     }
 }

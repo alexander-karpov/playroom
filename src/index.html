@@ -13,20 +13,57 @@
             background-color: black;
         }
 
-        #info {
+        .Score {
             position: absolute;
-            top: 10px;
+            top: 10vh;
+            font: 4vh sans-serif;
             width: 100%;
             text-align: center;
             z-index: 100;
-            display: block;
             color: white;
+        }
+
+        .Score-Increase {
+            display: none;
+            position: absolute;
+            width: 100%;
+            color: lawngreen;
+        }
+
+        .Score-Value {
+            display: inline-block;
+            padding: 5px;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .Score-Increase_active {
+            display: block;
+            animation: ScoreIncrease .5s ease-in forwards;
+        }
+
+        @keyframes ScoreIncrease {
+            from {
+                top: -3vh;
+                opacity: 1;
+            }
+
+            to {
+                top: -10vh;
+                opacity: 0;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div id="info">Description</div>
+    <div class="Score">
+        <div class="Score-Value">👉 ⭐ 👈</div>
+        <div class="Score-Increase"></div>
+        <div class="Score-Increase"></div>
+        <div class="Score-Increase"></div>
+        <div class="Score-Increase"></div>
+    </div>
+
 </body>
 
 </html>
