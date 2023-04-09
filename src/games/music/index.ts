@@ -17,9 +17,6 @@ changeMatterJsRandomSeed();
  */
 const renderer = new THREE.WebGLRenderer();
 
-document.body.style.margin = '0';
-document.body.style.overflow = 'hidden';
-
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 

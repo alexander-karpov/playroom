@@ -39,7 +39,8 @@ export class PuzzleSystem extends System {
     private puzzleTune: readonly number[];
     private touchedStarNo: number = 0;
     private numShouldBeRepeated: number = 1;
-    private readonly puzzleLength = 7;
+    private readonly puzzleLength = 256; // Недостижимый количество
+    private score = 0;
 
     public constructor() {
         super();
@@ -92,35 +93,6 @@ export class PuzzleSystem extends System {
             this.playPuzzleTune(world, 1000);
         }
     }
-
-    // @System.on([Star, Active])
-    // private onStarActive(world: World, entity: number): void {
-    //     this.playPuzzleCancellation?.cancel();
-
-    //     const activeStars = world.select([Star, Active]);
-    //     const starsNo = activeStars.map((id) => world.getComponent(Star, id).tone).sort();
-
-    //     // Активированные звёзды должны идти по порядку
-    //     for (let i = 0; i < starsNo.length; i++) {
-    //         if (starsNo[i] !== i) {
-    //             this.deactivateAllStars(activeStars, world);
-    //             this.playPuzzleTune(world, 1000);
-    //             return;
-    //         }
-    //     }
-
-    //     const totalStars = world.cound([Star]);
-
-    //     console.log({ totalStars, activeStars: activeStars.length });
-    //     if (activeStars.length === totalStars) {
-    //         // 🎉 Ураа!!1 🎉
-    //         this.deactivateAllStars(activeStars, world);
-    //         const randomStar = STARS_DESC[choose([1, 2, 3, 4, 5])]!;
-    //         this.addStar(world, totalStars, randomStar.track, randomStar.size);
-
-    //         this.playPuzzleTune(world, 1000);
-    //     }
-    // }
 
     public override onCreate(world: World): void {
         this.numShouldBeRepeated = 1;
