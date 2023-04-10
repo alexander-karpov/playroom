@@ -6,6 +6,7 @@ import { AudioSystem } from '~/systems/AudioSystem';
 import { PuzzleSystem } from './PuzzleSystem';
 import { StarsManagerSystem } from './StarsManagerSystem';
 import * as THREE from 'three';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { ProjectionHelper } from '~/utils/ProjectionHelper';
 import { Engine } from 'matter-js';
 import { JunkManagerSystem } from './JunkManagerSystem';
@@ -41,6 +42,12 @@ const camera = new THREE.OrthographicCamera(
 );
 
 camera.position.z = 100;
+
+/**
+ * EffectComposer
+ */
+
+const composer = new EffectComposer(renderer);
 
 /**
  * Предварительный пустой рендер обновляет что-то в камере,
@@ -81,7 +88,7 @@ const engine = Engine.create({
  */
 
 const systemsRuntime = new Runtime([
-    new SceneSystem(projectionHelper, scene, camera, engine),
+    new SceneSystem(projectionHelper, scene, camera, renderer, composer, engine),
     new SyncPhysicsSystem(engine),
     new AudioSystem(),
     new PuzzleSystem(),
@@ -101,7 +108,8 @@ let framesCount = 0;
 function animate(time: number): void {
     requestAnimationFrame(animate);
 
-    const deltaS = (time - lastTime) / 1000;
+    const deltaMs = time - lastTime;
+    const deltaS = deltaMs / 1000;
     lastTime = time;
 
     systemsRuntime.update(
@@ -111,7 +119,7 @@ function animate(time: number): void {
         deltaS > 0.1 ? 0.1 : deltaS
     );
 
-    renderer.render(scene, camera);
+    composer.render(deltaMs);
 
     framesCount++;
 }

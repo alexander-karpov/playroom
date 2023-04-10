@@ -2,16 +2,16 @@ import { System } from '~/ecs/System';
 import type { World } from '~/ecs/World';
 import { Star } from './Star';
 import { SoundTracks } from '~/systems/AudioSystem';
-import { Active, RigibBody, Touched } from '~/components';
+import { RigibBody, Touched } from '~/components';
 import { delay } from '~/utils/delay';
 import { Shine } from './Shine';
 import { choose } from '~/utils/choose';
 import { type CancellationSource, coroutine } from '~/utils/coroutine';
-import * as THREE from 'three';
-import { Bodies, Body, Common } from 'matter-js';
+import { Body, Common } from 'matter-js';
 import { Vector } from 'matter-js';
 import { animate } from 'popmotion';
 import { Junk } from './Junk';
+import { hslToRgb } from '~/utils/hslToRgb';
 
 const TRACKS = [
     SoundTracks.XylophoneC,
@@ -37,7 +37,6 @@ const STARS_DESC = [
 
 export class PuzzleSystem extends System {
     private playPuzzleCancellation?: CancellationSource;
-    private readonly colors: readonly number[];
     private puzzleTune: readonly number[];
     private touchedStarNo: number = 0;
     private numShouldBeRepeated: number = 1;
@@ -48,7 +47,6 @@ export class PuzzleSystem extends System {
     public constructor() {
         super();
 
-        this.colors = this.decideСolors();
         this.puzzleTune = this.composeTune(3);
     }
 
@@ -92,40 +90,6 @@ export class PuzzleSystem extends System {
         for (const desc of STARS_DESC) {
             this.addStar(world, desc.tone, desc.track, desc.size);
         }
-
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-        world.addEntity(Junk);
-
-        // coroutine(async () => {
-        //     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, no-constant-condition
-        //     let i = 3000;
-        //     while (i--) {
-        //         world.addEntity(Junk);
-        //         this.increaseScore();
-
-        //         if (i % 10 === 0) {
-        //             await delay(1);
-        //         }
-        //     }
-        // });
     }
 
     private playPuzzleTune(world: World, afterMs: number, repeat: boolean = false): void {
@@ -161,28 +125,7 @@ export class PuzzleSystem extends System {
         star.tone = no;
         star.soundtrack = track;
         star.size = size;
-        star.color = this.colors[no % this.colors.length]!;
-    }
-
-    // Перенести цвет в StarsManager
-    private decideСolors(): number[] {
-        const baseColor = Math.random();
-
-        const step = 1 / 14;
-        const s = 1;
-        const l = 0.66;
-
-        const tempColor = new THREE.Color();
-
-        const hs = [
-            baseColor,
-            baseColor + step,
-            baseColor + step + step,
-            baseColor - step,
-            baseColor - step - step,
-        ];
-
-        return hs.map((h) => tempColor.setHSL(h, s, l).getHex());
+        star.color = hslToRgb(0.133, 1, 0.6);
     }
 
     private composeTune(length: number): number[] {

@@ -7,8 +7,11 @@ import type { ProjectionHelper } from '~/utils/ProjectionHelper';
 import { Bits } from '~/utils/Bits';
 import { CollisionCategories } from './CollisionCategories';
 import { isOrthographicCamera } from '~/utils/typeGuards';
-import { animate, easeIn, easeOut } from 'popmotion';
+import { animate, easeOut } from 'popmotion';
 import { Star } from './Star';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import { type EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 
 export class SceneSystem extends System {
     private readonly raycaster = new THREE.Raycaster();
@@ -18,9 +21,37 @@ export class SceneSystem extends System {
         private readonly projectionHelper: ProjectionHelper,
         private readonly scene: THREE.Scene,
         private readonly camera: THREE.Camera,
+        private readonly renderer: THREE.WebGLRenderer,
+        private readonly composer: EffectComposer,
         private readonly engine: Engine
     ) {
         super();
+        const params = {
+            exposure: 1,
+            bloomStrength: 1.5,
+            bloomThreshold: 0,
+            bloomRadius: 0,
+        };
+
+        this.renderer.toneMapping = THREE.ReinhardToneMapping;
+        THREE.LinearSRGBColorSpace;
+        this.renderer.toneMappingExposure = params.exposure;
+
+        this.composer.addPass(new RenderPass(this.scene, this.camera));
+
+        // @see https://github.com/mrdoob/three.js/blob/dev/examples/webgl_postprocessing_unreal_bloom.html
+        const bloomPass = new UnrealBloomPass(
+            new THREE.Vector2(renderer.domElement.width, renderer.domElement.height),
+            params.bloomStrength,
+            params.bloomRadius,
+            params.bloomThreshold
+        );
+
+        this.composer.addPass(bloomPass);
+    }
+
+    public override onOutput(world: World, deltaS: number): void {
+        this.composer.render();
     }
 
     public override onCreate(world: World): void {
