@@ -33,7 +33,7 @@ export class SceneSystem extends System {
             bloomRadius: 0,
         };
 
-        this.renderer.toneMapping = THREE.ReinhardToneMapping;
+        // this.renderer.toneMapping = THREE.ReinhardToneMapping;
         THREE.LinearSRGBColorSpace;
         this.renderer.toneMappingExposure = params.exposure;
 
@@ -47,7 +47,8 @@ export class SceneSystem extends System {
             params.bloomThreshold
         );
 
-        this.composer.addPass(bloomPass);
+        // this.composer.addPass(bloomPass);
+        this.scene.background = new THREE.Color(0x071f2a);
     }
 
     public override onOutput(world: World, deltaS: number): void {

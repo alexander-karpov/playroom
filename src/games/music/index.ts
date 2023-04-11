@@ -10,7 +10,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { ProjectionHelper } from '~/utils/ProjectionHelper';
 import { Engine } from 'matter-js';
 import { JunkManagerSystem } from './JunkManagerSystem';
-// import { StarrySkySystem } from './StarrySkySystem';
+import { StarrySkySystem } from './StarrySkySystem';
 
 changeMatterJsRandomSeed();
 
@@ -91,7 +91,7 @@ const engine = Engine.create({
 
 const systemsRuntime = new Runtime([
     new SceneSystem(projectionHelper, scene, camera, renderer, composer, engine),
-    // new StarrySkySystem(scene),
+    new StarrySkySystem(scene),
     new SyncPhysicsSystem(engine),
     new AudioSystem(),
     new PuzzleSystem(),
@@ -125,8 +125,6 @@ function animate(time: number): void {
     composer.render(deltaMs);
 
     framesCount++;
-
-    // camera.position.z += deltaMs/2;
 }
 
 const elem = document.querySelector('.Fps')!;
