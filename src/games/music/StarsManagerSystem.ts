@@ -28,7 +28,7 @@ export class StarsManagerSystem extends System {
         const star = world.getComponent(Star, entity);
 
         const angle = Math.random() * Math.PI * 2;
-        const size = fib(star.size + 6);
+        const size = fib(star.size + 8);
         const position = new THREE.Vector2(0, 0);
 
         /**
