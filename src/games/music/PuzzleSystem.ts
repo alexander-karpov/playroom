@@ -37,7 +37,7 @@ const STARS_DESC = [
 
 export class PuzzleSystem extends System {
     private playPuzzleCancellation?: CancellationSource;
-    private puzzleTune: readonly number[];
+    private puzzleTune: number[];
     private touchedStarNo: number = 0;
     private numShouldBeRepeated: number = 1;
     private readonly puzzleLength = 256; // Недостижимый количество
@@ -75,16 +75,20 @@ export class PuzzleSystem extends System {
                 this.failEffect(world);
             }
 
-            this.touchedStarNo = 0;
-            this.numShouldBeRepeated = 1;
-
             this.puzzleTune = this.composeTune(this.puzzleLength);
+
+            // При первом нажатии двигаем мелодию к первой такой ноте
+            const indexOfThisTone = this.puzzleTune.indexOf(star.tone);
+            this.puzzleTune.splice(0, indexOfThisTone);
+
+            this.touchedStarNo = 0;
+            this.numShouldBeRepeated = 2;
+
             this.playPuzzleTune(world, 1000);
         }
     }
 
     public override onCreate(world: World): void {
-        this.numShouldBeRepeated = 1;
         this.puzzleTune = this.composeTune(this.puzzleLength);
 
         for (const desc of STARS_DESC) {
