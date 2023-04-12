@@ -58,7 +58,7 @@ export class SceneSystem extends System {
         /**
          * Lil
          */
-        this.addPropsToLil(bloomPass);
+        this.setupLil(bloomPass);
     }
 
     public override onOutput(world: World, deltaS: number): void {
@@ -162,7 +162,7 @@ export class SceneSystem extends System {
         }).stop;
     }
 
-    private addPropsToLil(bloomPass: UnrealBloomPass) {
+    private setupLil(bloomPass: UnrealBloomPass) {
         /**
          * Background
          */
@@ -178,25 +178,27 @@ export class SceneSystem extends System {
                 (this.scene.background as THREE.Color).setHex(backgroundHex)
             );
 
+        const bloomConfig = this.lil.addFolder('Свечение');
+
         /**
          * UnrealBloomPass
          */
-        this.lil
+        bloomConfig
             .add(bloomPass, nameof<UnrealBloomPass>('enabled'), 0, 2)
             .name('Свечение')
             .onChange((enabled: boolean) => (bloomPass.enabled = enabled));
 
-        this.lil
+        bloomConfig
             .add(bloomPass, nameof<UnrealBloomPass>('strength'), 0, 2)
             .name('Сила свечения')
             .onChange((strength: number) => (bloomPass.strength = strength));
 
-        this.lil
+        bloomConfig
             .add(bloomPass, nameof<UnrealBloomPass>('radius'), 0, 3)
             .name('Радиус свечения')
             .onChange((radius: number) => (bloomPass.radius = radius));
 
-        this.lil
+        bloomConfig
             .add(bloomPass, nameof<UnrealBloomPass>('threshold'), 0, 1)
             .name('Порог свечения')
             .onChange((threshold: number) => (bloomPass.threshold = threshold));

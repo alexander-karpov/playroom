@@ -102,7 +102,7 @@ const systemsRuntime = new Runtime([
     new SyncPhysicsSystem(engine),
     new AudioSystem(),
     new PuzzleSystem(),
-    new StarsManagerSystem(scene, engine),
+    new StarsManagerSystem(scene, engine, lil),
     new JunkManagerSystem(scene, engine),
 ]);
 

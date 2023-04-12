@@ -125,7 +125,6 @@ export class PuzzleSystem extends System {
         star.tone = no;
         star.soundtrack = track;
         star.size = size;
-        star.color = hslToRgb(0.13, 1, 0.5);
     }
 
     private composeTune(length: number): number[] {

@@ -11,15 +11,22 @@ import { Bodies, Body, Composite, Vector, type Engine, Common } from 'matter-js'
 import { isMesh } from '~/utils/typeGuards';
 import { Shine } from './Shine';
 import { isMeshBasicMaterial } from '~/utils/isMeshBasicMaterial';
-import { Junk } from './Junk';
 import { CollisionCategories } from './CollisionCategories';
 import { Bits } from '~/utils/Bits';
+import type GUI from 'lil-gui';
+import { hslToRgb } from '~/utils/hslToRgb';
+import { nameof } from '~/utils/nameof';
 
 export class StarsManagerSystem extends System {
     private readonly starGeom = new StarGeometry(1);
+    private readonly starColor = hslToRgb(0.13, 1, 0.5);
     private readonly activeStarColor = new THREE.Color(0xff0000);
 
-    public constructor(private readonly scene: THREE.Scene, private readonly engine: Engine) {
+    public constructor(
+        private readonly scene: THREE.Scene,
+        private readonly engine: Engine,
+        private readonly lil: GUI
+    ) {
         super();
     }
 
@@ -38,7 +45,7 @@ export class StarsManagerSystem extends System {
 
         go.object3d = new THREE.Mesh(
             this.starGeom,
-            new THREE.MeshBasicMaterial({ color: star.color })
+            new THREE.MeshBasicMaterial({ color: this.starColor })
         );
 
         go.object3d.position.set(position.x, position.y, 0);
@@ -80,6 +87,10 @@ export class StarsManagerSystem extends System {
         this.playShineEffect(world, entity);
     }
 
+    public override onCreate(world: World): void {
+        this.setupLil(world);
+    }
+
     private playSound(world: World, entity: number) {
         const star = world.getComponent(Star, entity);
 
@@ -100,7 +111,7 @@ export class StarsManagerSystem extends System {
             !Array.isArray(object3d.material) &&
             isMeshBasicMaterial(object3d.material)
         ) {
-            const starColor = new THREE.Color(star.color);
+            const starColor = new THREE.Color(this.starColor);
             const color = object3d.material.color;
 
             animate({
@@ -109,5 +120,32 @@ export class StarsManagerSystem extends System {
                 onUpdate: (t) => color.lerpColors(starColor, this.activeStarColor, t),
             });
         }
+    }
+
+    private setupLil(world: World) {
+        /**
+         * Stars
+         */
+
+        const starsConfig = {
+            color: this.starColor,
+        };
+
+        this.lil
+            .addColor(starsConfig, nameof<typeof starsConfig>('color'))
+            .name('Цвет звёзд')
+            .onChange((colorHex: number) => {
+                for (const id of world.select([Star, GameObject])) {
+                    const { object3d } = world.getComponent(GameObject, id);
+
+                    if (
+                        isMesh(object3d) &&
+                        !Array.isArray(object3d.material) &&
+                        isMeshBasicMaterial(object3d.material)
+                    ) {
+                        object3d.material.color.setHex(colorHex);
+                    }
+                }
+            });
     }
 }
