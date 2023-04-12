@@ -92,6 +92,10 @@ const engine = Engine.create({
 
 const lil = new GUI({ title: 'Настройки' });
 
+if (!window.location.search.includes('debug')) {
+    lil.hide();
+}
+
 /**
  * Systems
  */
