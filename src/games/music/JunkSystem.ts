@@ -15,7 +15,7 @@ import { SizedPointsMaterial } from './materials/SizedPointsMaterial';
 export class JunkSystem extends System {
     private readonly particleSystem;
     private readonly geometry;
-    private readonly particles = 2048; // Недостижимое количество я надеюсь
+    private readonly particles = 1024; // Недостижимое количество я надеюсь
     private readonly positionAttr: THREE.Float32BufferAttribute;
     private readonly pointsMaterial: THREE.PointsMaterial;
     private readonly pointsSize = 16;
@@ -61,6 +61,10 @@ export class JunkSystem extends System {
 
     @System.on([Junk])
     private onJunk(world: World, entity: number): void {
+        if (world.cound([Junk]) >= this.particles) {
+            return;
+        }
+
         const angle = Math.random() * Math.PI * 2;
         const size = fib(10);
         const position = new THREE.Vector2(Common.random(-200, 200), Common.random(-200, 200));
@@ -103,13 +107,13 @@ export class JunkSystem extends System {
 
     public override onSimulate(world: World, deltaS: number): void {
         const entities = world.select([Junk, RigibBody]);
+        const particlesCountLimited = Math.min(entities.length, this.particles);
 
-        this.positionAttr.count = entities.length;
+        this.positionAttr.count = particlesCountLimited;
 
         this.pointsMaterial.size = this.pointsSize * this.camera.zoom;
 
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of
-        for (let i = 0; i < entities.length; i++) {
+        for (let i = 0; i < particlesCountLimited; i++) {
             const entity = entities[i]!;
 
             const rb = world.getComponent(RigibBody, entity);
