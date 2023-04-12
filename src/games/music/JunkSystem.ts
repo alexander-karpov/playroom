@@ -10,7 +10,6 @@ import { Bits as Bits } from '~/utils/Bits';
 import { CollisionCategories } from './CollisionCategories';
 import type GUI from 'lil-gui';
 import { nameof } from '~/utils/nameof';
-import { SizedPointsMaterial } from './materials/SizedPointsMaterial';
 
 export class JunkSystem extends System {
     private readonly particleSystem;
@@ -18,7 +17,7 @@ export class JunkSystem extends System {
     private readonly particles = 1024; // Недостижимое количество я надеюсь
     private readonly positionAttr: THREE.Float32BufferAttribute;
     private readonly pointsMaterial: THREE.PointsMaterial;
-    private readonly pointsSize = 16;
+    private readonly pointsSize = 12;
 
     public constructor(
         private readonly scene: THREE.Scene,
@@ -36,16 +35,24 @@ export class JunkSystem extends System {
             map: sprite,
             alphaTest: 0.5,
             transparent: true,
+            vertexColors: true,
         });
 
-        this.pointsMaterial.color.setHSL(0.13, 1, 0.5);
+        // this.pointsMaterial.color.setHSL(0.13, 1, 0.5);
 
         this.geometry = new THREE.BufferGeometry();
 
         const positions = [];
+        const colors = [];
+        const tempColor = new THREE.Color();
 
         for (let i = 0; i < this.particles; i++) {
             positions.push(0, 0);
+
+            const hd = i % 10 === 0 && i !== 0 ? -0.1 : 0;
+
+            tempColor.setHSL(0.13 + hd, 1, 0.5);
+            colors.push(tempColor.r, tempColor.g, tempColor.b);
         }
 
         this.positionAttr = new THREE.Float32BufferAttribute(positions, 2);
@@ -53,6 +60,7 @@ export class JunkSystem extends System {
         this.positionAttr.setUsage(THREE.DynamicDrawUsage);
 
         this.geometry.setAttribute('position', this.positionAttr);
+        this.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
         this.particleSystem = new THREE.Points(this.geometry, this.pointsMaterial);
         this.particleSystem.position.setZ(-500);

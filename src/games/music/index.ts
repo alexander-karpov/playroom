@@ -107,13 +107,29 @@ const systemsRuntime = new Runtime([
 ]);
 
 /**
+ * FPS
+ */
+let framesCount = 0;
+
+const fpsConfig = {
+    fps: 0,
+};
+const fpsLilField = lil.add(fpsConfig, 'fps');
+const fpsIntervalS = 3;
+
+setInterval(() => {
+    fpsLilField.setValue((framesCount / fpsIntervalS).toFixed(0));
+
+    framesCount = 0;
+}, fpsIntervalS * 1000);
+
+/**
  * Game loop
  */
 
 systemsRuntime.initialize();
 
 let lastTime = performance.now();
-let framesCount = 0;
 
 function animate(time: number): void {
     requestAnimationFrame(animate);
@@ -133,13 +149,5 @@ function animate(time: number): void {
 
     framesCount++;
 }
-
-const elem = document.querySelector('.Fps')!;
-
-setInterval(() => {
-    elem.textContent = String((framesCount / 3).toFixed(1));
-
-    framesCount = 0;
-}, 3000);
 
 animate(performance.now());
