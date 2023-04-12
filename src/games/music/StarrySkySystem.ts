@@ -1,24 +1,19 @@
 import { System } from '~/ecs/System';
 import type { World } from '~/ecs/World';
-import { GameObject, RigibBody } from '~/components';
 import * as THREE from 'three';
-import { fib } from '~/utils/fib';
-import { writeEntityId } from '~/utils/extraProps';
-import { Bodies, Body, Composite, Vector, type Engine, Common } from 'matter-js';
-import { Junk } from './Junk';
-import { Bits as Bits } from '~/utils/Bits';
-import { CollisionCategories } from './CollisionCategories';
 import { SizedPointsMaterial } from './materials/SizedPointsMaterial';
-import { choose } from '~/utils/choose';
+import type { ProjectionHelper } from '~/utils/ProjectionHelper';
 
 export class StarrySkySystem extends System {
     private readonly particleSystem;
-
     private readonly geometry;
 
-    private readonly particles = 10_000;
+    private readonly particles;
 
-    public constructor(private readonly scene: THREE.Scene) {
+    public constructor(
+        private readonly projectionHelper: ProjectionHelper,
+        private readonly scene: THREE.Scene
+    ) {
         super();
 
         const shaderMaterial = new SizedPointsMaterial(
@@ -28,15 +23,15 @@ export class StarrySkySystem extends System {
             true
         );
 
-        const radius = 3200;
+        const radius = this.screenDiameterInWorld() / 2;
+
+        this.particles = radius * 5;
 
         this.geometry = new THREE.BufferGeometry();
 
         const positions = [];
         const colors = [];
         const sizes = [];
-
-        const color = new THREE.Color();
 
         const point = new THREE.Vector2(0, 0);
         const center = new THREE.Vector2(0, 0);
@@ -47,27 +42,25 @@ export class StarrySkySystem extends System {
          */
 
         for (let i = 0; i < this.particles; i++) {
-            // point.setX((Math.sqrt(Math.random()) * 0.7 + Math.random() * 0.3) * radius);
-            point.setX(Math.pow(Math.random(), 0.7) * radius);
-            // point.setX((1 - Math.random() * Math.random()) * radius);
+            /**
+             * Сложение двух random даёт более-менее ровное
+             * распределение в центре с сильным убыванием по краям
+             * При этом radius умножается он 0 до 2, что захватывает
+             * и область зума тоже
+             *  0.95 чтобы видно было контур круга при зуме
+             */
+            point.setX((Math.random() + Math.random()) * radius * 0.95);
             point.setY(0);
 
             point.rotateAround(center, Math.random() * Math.PI * 2);
 
-            // positions.push(THREE.MathUtils.randFloatSpread(radius) * Math.cos(Math.random()));
-            // // positions.push(THREE.MathUtils.randFloatSpread(radius) * Math.random());
-            // positions.push(THREE.MathUtils.randFloatSpread(radius) * Math.cos(Math.random()));
-
             positions.push(point.x);
             positions.push(point.y);
 
-            // color.setHSL(i / this.particles, 1.0, 0.5);
-
-            // colors.push(color.r, color.g, color.b);
             const l = THREE.MathUtils.randFloat(0.3, 0.8);
             colors.push(l, l, l);
 
-            sizes.push(6 + 12 * Math.random() * Math.random() * Math.random());
+            sizes.push(4 + 32 * Math.random() * Math.random() * Math.random());
         }
 
         this.geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 2));
@@ -81,6 +74,15 @@ export class StarrySkySystem extends System {
         this.particleSystem.position.setZ(-1000);
 
         this.scene.add(this.particleSystem);
+    }
+
+    private screenDiameterInWorld(): number {
+        const a = new THREE.Vector3();
+        const b = new THREE.Vector3();
+        this.projectionHelper.viewToWorld(-1, -1, a);
+        this.projectionHelper.viewToWorld(1, 1, b);
+
+        return b.distanceTo(a);
     }
 
     public override onSimulate(world: World, deltaS: number): void {

@@ -91,7 +91,7 @@ const engine = Engine.create({
 
 const systemsRuntime = new Runtime([
     new SceneSystem(projectionHelper, scene, camera, renderer, composer, engine),
-    new StarrySkySystem(scene),
+    new StarrySkySystem(projectionHelper, scene),
     new SyncPhysicsSystem(engine),
     new AudioSystem(),
     new PuzzleSystem(),
