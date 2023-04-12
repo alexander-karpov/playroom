@@ -4,10 +4,9 @@ import * as THREE from 'three';
 import { SizedPointsMaterial } from './materials/SizedPointsMaterial';
 import type { ProjectionHelper } from '~/utils/ProjectionHelper';
 
-export class StarrySkySystem extends System {
+export class SkySystem extends System {
     private readonly particleSystem;
     private readonly geometry;
-
     private readonly particles;
 
     public constructor(
@@ -41,6 +40,8 @@ export class StarrySkySystem extends System {
          * point.setX(Math.pow(Math.random(), -2) * radius);
          */
 
+        const color = new THREE.Color();
+
         for (let i = 0; i < this.particles; i++) {
             /**
              * Сложение двух random даёт более-менее ровное
@@ -58,22 +59,25 @@ export class StarrySkySystem extends System {
             positions.push(point.y);
 
             const l = THREE.MathUtils.randFloat(0.3, 0.8);
-            colors.push(l, l, l);
+            color.setHSL(0.63, 0.3, l);
+            colors.push(color.r, color.g, color.b);
 
             sizes.push(4 + 32 * Math.random() * Math.random() * Math.random());
         }
 
         this.geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 2));
         this.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-        this.geometry.setAttribute(
-            'size',
-            new THREE.Float32BufferAttribute(sizes, 1).setUsage(THREE.DynamicDrawUsage)
-        );
+        this.geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
 
         this.particleSystem = new THREE.Points(this.geometry, shaderMaterial);
         this.particleSystem.position.setZ(-1000);
 
         this.scene.add(this.particleSystem);
+    }
+
+    public override onSimulate(world: World, deltaS: number): void {
+        const time = Date.now() * 0.0017;
+        this.particleSystem.rotation.z = 0.01 * time;
     }
 
     private screenDiameterInWorld(): number {
@@ -83,22 +87,5 @@ export class StarrySkySystem extends System {
         this.projectionHelper.viewToWorld(1, 1, b);
 
         return b.distanceTo(a);
-    }
-
-    public override onSimulate(world: World, deltaS: number): void {
-        const time = Date.now() * 0.0017;
-
-        this.particleSystem.rotation.z = 0.01 * time;
-        return;
-        const sizeAttr = this.geometry.attributes['size'] as THREE.Float32BufferAttribute;
-        const sizes = sizeAttr.array;
-
-        for (let i = 0; i < this.particles; i++) {
-            // @ts-expect-error
-            sizes[i] = 10 * (1 + Math.sin(0.1 * i + time));
-        }
-
-        // @ts-expect-error
-        this.geometry.attributes['size'].needsUpdate = true;
     }
 }

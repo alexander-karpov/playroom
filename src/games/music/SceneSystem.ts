@@ -17,12 +17,13 @@ import { nameof } from '~/utils/nameof';
 
 export class SceneSystem extends System {
     private readonly raycaster = new THREE.Raycaster();
+    private readonly bloomPass: UnrealBloomPass;
     private stopZoom?: () => void;
 
     public constructor(
         private readonly projectionHelper: ProjectionHelper,
         private readonly scene: THREE.Scene,
-        private readonly camera: THREE.Camera,
+        private readonly camera: THREE.OrthographicCamera,
         private readonly renderer: THREE.WebGLRenderer,
         private readonly composer: EffectComposer,
         private readonly engine: Engine,
@@ -30,7 +31,7 @@ export class SceneSystem extends System {
     ) {
         super();
 
-        // this.renderer.toneMapping = THREE.ReinhardToneMapping;
+        // this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         // THREE.LinearSRGBColorSpace;
         // this.renderer.toneMappingExposure = 1;
 
@@ -40,15 +41,16 @@ export class SceneSystem extends System {
          * Bloom
          */
         // @see https://github.com/mrdoob/three.js/blob/dev/examples/webgl_postprocessing_unreal_bloom.html
-        const bloomPass = new UnrealBloomPass(
+        this.bloomPass = new UnrealBloomPass(
             new THREE.Vector2(renderer.domElement.width, renderer.domElement.height),
             0.5,
             0,
             0.4
         );
 
-        bloomPass.enabled = false;
-        this.composer.addPass(bloomPass);
+        this.bloomPass.enabled = false;
+        this.bloomPass.strength = 0;
+        this.composer.addPass(this.bloomPass);
 
         /**
          * Background
@@ -58,10 +60,17 @@ export class SceneSystem extends System {
         /**
          * Lil
          */
-        this.setupLil(bloomPass);
+        this.setupLil(this.bloomPass);
     }
 
     public override onOutput(world: World, deltaS: number): void {
+        if (this.camera.zoom !== 1) {
+            this.bloomPass.enabled = true;
+            this.bloomPass.strength = (1 - this.camera.zoom) * 2;
+        } else {
+            this.bloomPass.enabled = false;
+        }
+
         this.composer.render();
     }
 

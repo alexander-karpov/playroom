@@ -17,7 +17,7 @@ import type GUI from 'lil-gui';
 import { hslToRgb } from '~/utils/hslToRgb';
 import { nameof } from '~/utils/nameof';
 
-export class StarsManagerSystem extends System {
+export class StarsSystem extends System {
     private readonly starGeom = new StarGeometry(1);
     private readonly starColor = hslToRgb(0.13, 1, 0.5);
     private readonly activeStarColor = new THREE.Color(0xff0000);

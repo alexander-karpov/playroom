@@ -1,3 +1,5 @@
+import type { Vector } from 'matter-js';
+
 export class Junk {
-    public rotationImitationFactor!: THREE.Vector3;
+    public flyDirection!: Vector;
 }

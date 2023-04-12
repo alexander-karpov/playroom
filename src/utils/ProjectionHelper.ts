@@ -51,9 +51,6 @@ export class ProjectionHelper {
     public screenToWorld(x: number, y: number, target: THREE.Vector3): void {
         this.screenToView(x, y, this.tempVec2);
 
-        console.log(x, y);
-        console.log(this.tempVec2);
-
         this.viewToWorld(this.tempVec2.x, this.tempVec2.y, target);
     }
 }

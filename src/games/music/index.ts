@@ -4,13 +4,13 @@ import { SceneSystem } from './SceneSystem';
 import { SyncPhysicsSystem } from '~/systems/SyncPhysicsSystem';
 import { AudioSystem } from '~/systems/AudioSystem';
 import { PuzzleSystem } from './PuzzleSystem';
-import { StarsManagerSystem } from './StarsManagerSystem';
+import { StarsSystem } from './StarsSystem';
 import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { ProjectionHelper } from '~/utils/ProjectionHelper';
 import { Engine } from 'matter-js';
-import { JunkManagerSystem } from './JunkManagerSystem';
-import { StarrySkySystem } from './StarrySkySystem';
+import { JunkSystem } from './JunkSystem';
+import { SkySystem } from './SkySystem';
 import GUI from 'lil-gui';
 
 changeMatterJsRandomSeed();
@@ -98,12 +98,12 @@ const lil = new GUI({ title: 'Настройки' });
 
 const systemsRuntime = new Runtime([
     new SceneSystem(projectionHelper, scene, camera, renderer, composer, engine, lil),
-    new StarrySkySystem(projectionHelper, scene),
+    new SkySystem(projectionHelper, scene),
     new SyncPhysicsSystem(engine),
     new AudioSystem(),
     new PuzzleSystem(),
-    new StarsManagerSystem(scene, engine, lil),
-    new JunkManagerSystem(scene, engine, lil),
+    new StarsSystem(scene, engine, lil),
+    new JunkSystem(scene, camera, engine, lil),
 ]);
 
 /**
