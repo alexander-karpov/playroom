@@ -11,6 +11,7 @@ import { ProjectionHelper } from '~/utils/ProjectionHelper';
 import { Engine } from 'matter-js';
 import { JunkManagerSystem } from './JunkManagerSystem';
 import { StarrySkySystem } from './StarrySkySystem';
+import GUI from 'lil-gui';
 
 changeMatterJsRandomSeed();
 
@@ -86,11 +87,17 @@ const engine = Engine.create({
 });
 
 /**
+ * Lil
+ */
+
+const lil = new GUI({ title: 'Настройки' });
+
+/**
  * Systems
  */
 
 const systemsRuntime = new Runtime([
-    new SceneSystem(projectionHelper, scene, camera, renderer, composer, engine),
+    new SceneSystem(projectionHelper, scene, camera, renderer, composer, engine, lil),
     new StarrySkySystem(projectionHelper, scene),
     new SyncPhysicsSystem(engine),
     new AudioSystem(),

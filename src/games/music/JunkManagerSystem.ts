@@ -17,7 +17,7 @@ export class JunkManagerSystem extends System {
     @System.on([Junk])
     private onJunk(world: World, entity: number): void {
         const angle = Math.random() * Math.PI * 2;
-        const size = fib(9);
+        const size = fib(10);
         const position = new THREE.Vector2(Common.random(-200, 200), Common.random(-200, 200));
 
         /**

@@ -12,6 +12,8 @@ import { Star } from './Star';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { type EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import type GUI from 'lil-gui';
+import { nameof } from '~/utils/nameof';
 
 export class SceneSystem extends System {
     private readonly raycaster = new THREE.Raycaster();
@@ -23,32 +25,40 @@ export class SceneSystem extends System {
         private readonly camera: THREE.Camera,
         private readonly renderer: THREE.WebGLRenderer,
         private readonly composer: EffectComposer,
-        private readonly engine: Engine
+        private readonly engine: Engine,
+        private readonly lil: GUI
     ) {
         super();
-        const params = {
-            exposure: 1,
-            bloomStrength: 1.5,
-            bloomThreshold: 0,
-            bloomRadius: 0,
-        };
 
         // this.renderer.toneMapping = THREE.ReinhardToneMapping;
-        THREE.LinearSRGBColorSpace;
-        this.renderer.toneMappingExposure = params.exposure;
+        // THREE.LinearSRGBColorSpace;
+        // this.renderer.toneMappingExposure = 1;
 
         this.composer.addPass(new RenderPass(this.scene, this.camera));
 
+        /**
+         * Bloom
+         */
         // @see https://github.com/mrdoob/three.js/blob/dev/examples/webgl_postprocessing_unreal_bloom.html
         const bloomPass = new UnrealBloomPass(
             new THREE.Vector2(renderer.domElement.width, renderer.domElement.height),
-            params.bloomStrength,
-            params.bloomRadius,
-            params.bloomThreshold
+            0.5,
+            0,
+            0.4
         );
 
-        // this.composer.addPass(bloomPass);
-        this.scene.background = new THREE.Color(0x071f2a);
+        bloomPass.enabled = false;
+        this.composer.addPass(bloomPass);
+
+        /**
+         * Background
+         */
+        this.scene.background = new THREE.Color().setHSL(0.63, 0.3, 0.14);
+
+        /**
+         * Lil
+         */
+        this.addPropsToLil(bloomPass);
     }
 
     public override onOutput(world: World, deltaS: number): void {
@@ -58,8 +68,12 @@ export class SceneSystem extends System {
     public override onCreate(world: World): void {
         this.createWalls();
 
-        window.addEventListener('pointerdown', this.onPointerDown.bind(this, world));
-        window.addEventListener('pointerup', this.onPointerUp.bind(this, world));
+        this.renderer.domElement.addEventListener(
+            'pointerdown',
+            this.onPointerDown.bind(this, world)
+        );
+
+        this.renderer.domElement.addEventListener('pointerup', this.onPointerUp.bind(this, world));
     }
 
     private onPointerDown(world: World, event: MouseEvent): void {
@@ -146,5 +160,45 @@ export class SceneSystem extends System {
             },
             ease: [easeOut],
         }).stop;
+    }
+
+    private addPropsToLil(bloomPass: UnrealBloomPass) {
+        /**
+         * Background
+         */
+
+        const sceneConfig = {
+            background: (this.scene.background as THREE.Color).getHex(),
+        };
+
+        this.lil
+            .addColor(sceneConfig, nameof<THREE.Scene>('background'))
+            .name('Цвет фона')
+            .onChange((backgroundHex: number) =>
+                (this.scene.background as THREE.Color).setHex(backgroundHex)
+            );
+
+        /**
+         * UnrealBloomPass
+         */
+        this.lil
+            .add(bloomPass, nameof<UnrealBloomPass>('enabled'), 0, 2)
+            .name('Свечение')
+            .onChange((enabled: boolean) => (bloomPass.enabled = enabled));
+
+        this.lil
+            .add(bloomPass, nameof<UnrealBloomPass>('strength'), 0, 2)
+            .name('Сила свечения')
+            .onChange((strength: number) => (bloomPass.strength = strength));
+
+        this.lil
+            .add(bloomPass, nameof<UnrealBloomPass>('radius'), 0, 3)
+            .name('Радиус свечения')
+            .onChange((radius: number) => (bloomPass.radius = radius));
+
+        this.lil
+            .add(bloomPass, nameof<UnrealBloomPass>('threshold'), 0, 1)
+            .name('Порог свечения')
+            .onChange((threshold: number) => (bloomPass.threshold = threshold));
     }
 }
