@@ -103,7 +103,7 @@ const systemsRuntime = new Runtime([
     new AudioSystem(),
     new PuzzleSystem(),
     new StarsManagerSystem(scene, engine, lil),
-    new JunkManagerSystem(scene, engine),
+    new JunkManagerSystem(scene, engine, lil),
 ]);
 
 /**

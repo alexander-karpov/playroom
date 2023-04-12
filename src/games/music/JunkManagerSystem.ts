@@ -8,9 +8,16 @@ import { Bodies, Body, Composite, Vector, type Engine, Common } from 'matter-js'
 import { Junk } from './Junk';
 import { Bits as Bits } from '~/utils/Bits';
 import { CollisionCategories } from './CollisionCategories';
+import type GUI from 'lil-gui';
+import { hslToRgb } from '~/utils/hslToRgb';
+import { nameof } from '~/utils/nameof';
 
 export class JunkManagerSystem extends System {
-    public constructor(private readonly scene: THREE.Scene, private readonly engine: Engine) {
+    public constructor(
+        private readonly scene: THREE.Scene,
+        private readonly engine: Engine,
+        private readonly lil: GUI
+    ) {
         super();
     }
 
@@ -68,6 +75,10 @@ export class JunkManagerSystem extends System {
         Composite.add(this.engine.world, rb.body);
     }
 
+    public override onCreate(world: World): void {
+        this.setupLil(world);
+    }
+
     public override onSimulate(world: World, deltaS: number): void {
         for (const entity of world.select([Junk, GameObject, RigibBody])) {
             const { object3d } = world.getComponent(GameObject, entity);
@@ -90,5 +101,20 @@ export class JunkManagerSystem extends System {
             );
             Body.applyForce(rb.body, rb.body.position, force);
         }
+    }
+
+    private setupLil(world: World) {
+        this.lil;
+
+        const config = {
+            addJunk: () => {
+                let i = 10;
+                while (i--) {
+                    world.addEntity(Junk);
+                }
+            },
+        };
+
+        this.lil.add(config, nameof<typeof config>('addJunk')).name('Добавить хлама');
     }
 }
