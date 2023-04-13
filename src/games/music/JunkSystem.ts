@@ -17,7 +17,7 @@ export class JunkSystem extends System {
     private readonly particles = 1024; // Недостижимое количество я надеюсь
     private readonly positionAttr: THREE.Float32BufferAttribute;
     private readonly pointsMaterial: THREE.PointsMaterial;
-    private readonly pointsSize = 12;
+    private readonly pointsSize = 16;
 
     public constructor(
         private readonly scene: THREE.Scene,
@@ -96,14 +96,14 @@ export class JunkSystem extends System {
             angle: angle,
             collisionFilter: {
                 category: Bits.bit(CollisionCategories.Junk),
-                mask: Bits.bit(CollisionCategories.Junk),
+                mask: Bits.bit2(CollisionCategories.Junk, CollisionCategories.Star),
             },
         });
         writeEntityId(rb.body.plugin, entity);
         Body.scale(
             rb.body,
-            this.pointsSize * THREE.MathUtils.randFloat(2, 6),
-            this.pointsSize * THREE.MathUtils.randFloat(2, 6)
+            this.pointsSize * THREE.MathUtils.randFloat(2, 5),
+            this.pointsSize * THREE.MathUtils.randFloat(2, 5)
         );
 
         Composite.add(this.engine.world, rb.body);

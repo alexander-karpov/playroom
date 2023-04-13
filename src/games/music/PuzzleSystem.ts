@@ -43,6 +43,7 @@ export class PuzzleSystem extends System {
     private readonly puzzleLength = 256; // Недостижимый количество
     private score = 0;
     private readonly scoreElem = document.querySelector('.Score')!;
+    private lastTonePlayed = 0;
 
     public constructor() {
         super();
@@ -53,6 +54,7 @@ export class PuzzleSystem extends System {
     @System.on([Star, Touched])
     private onStarTouched(world: World, entity: number): void {
         this.playPuzzleCancellation?.cancel();
+        this.lastTonePlayed = Date.now();
 
         const star = world.getComponent(Star, entity);
 
@@ -98,29 +100,49 @@ export class PuzzleSystem extends System {
         }
     }
 
+    public override onSometimes(world: World): void {
+        if (this.lastTonePlayed !== 0 && Date.now() - this.lastTonePlayed > 2000) {
+            this.playPuzzleCancellation?.cancel();
+            this.playPuzzleTune(world, 0, true);
+        }
+    }
+
     private playPuzzleTune(world: World, afterMs: number, repeat: boolean = false): void {
         const starsByTone = new Map(
             world.select([Star]).map((entity) => [world.getComponent(Star, entity).tone, entity])
         );
 
+        this.playPuzzleCancellation?.cancel();
         this.playPuzzleCancellation = coroutine(async (token) => {
             await delay(afterMs);
+
+            if (token.cancellationRequested) {
+                return;
+            }
 
             for (const tone of this.puzzleTune.slice(0, this.numShouldBeRepeated)) {
                 const starEntity = starsByTone.get(tone)!;
 
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 if (token.cancellationRequested) {
                     return;
                 }
 
                 world.addComponent(Shine, starEntity);
                 world.deleteComponent(Shine, starEntity);
+                this.lastTonePlayed = Date.now();
 
                 await delay(500);
             }
 
             if (repeat) {
-                setTimeout(() => this.playPuzzleTune(world, 500, true));
+                setTimeout(() => {
+                    if (token.cancellationRequested) {
+                        return;
+                    }
+
+                    this.playPuzzleTune(world, 1000, true);
+                });
             }
         });
     }

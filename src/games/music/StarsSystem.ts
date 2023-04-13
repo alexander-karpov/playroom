@@ -34,9 +34,11 @@ export class StarsSystem extends System {
     private onStar(world: World, entity: number): void {
         const star = world.getComponent(Star, entity);
 
-        const angle = Math.random() * Math.PI * 2;
-        const size = fib(star.size + 10);
-        const position = new THREE.Vector2(0, 0);
+        const size = 1.2 * fib(star.size + 10);
+        const position = new THREE.Vector2(
+            THREE.MathUtils.randFloatSpread(10),
+            THREE.MathUtils.randFloatSpread(10)
+        );
 
         /**
          * GameObject
@@ -50,7 +52,6 @@ export class StarsSystem extends System {
 
         go.object3d.position.set(position.x, position.y, 0);
         go.object3d.matrixAutoUpdate = false;
-        go.object3d.rotation.z = angle;
         go.object3d.scale.multiplyScalar(size);
         writeEntityId(go.object3d.userData, entity);
 
@@ -60,15 +61,19 @@ export class StarsSystem extends System {
          * Body
          */
         const rb = world.addComponent(RigibBody, entity);
-        rb.body = Bodies.fromVertices(position.x, position.y, [this.starGeom.shape.getPoints()], {
-            angle: angle,
+        rb.body = Bodies.circle(position.x, position.y, 1, {
             collisionFilter: {
                 category: Bits.bit(CollisionCategories.Star),
-                mask: Bits.bit2(CollisionCategories.Star, CollisionCategories.Wall),
+                mask: Bits.bit3(
+                    CollisionCategories.Star,
+                    CollisionCategories.Wall,
+                    CollisionCategories.Junk
+                ),
             },
         });
         writeEntityId(rb.body.plugin, entity);
         Body.scale(rb.body, size, size);
+        Body.setMass(rb.body, rb.body.mass * 10);
 
         Composite.add(this.engine.world, rb.body);
     }
