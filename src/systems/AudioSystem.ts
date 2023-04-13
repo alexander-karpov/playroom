@@ -10,6 +10,8 @@ export enum SoundTracks {
     XylophoneA = 'xylophone-a.ogg',
     XylophoneB = 'xylophone-b.ogg',
     XylophoneC2 = 'xylophone-c2.ogg',
+    Loss = 'loss.mp3',
+    Win = 'win.mp3',
 }
 
 export class AudioSystem extends System {

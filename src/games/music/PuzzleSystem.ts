@@ -2,7 +2,7 @@ import { System } from '~/ecs/System';
 import type { World } from '~/ecs/World';
 import { Star } from './Star';
 import { SoundTracks } from '~/systems/AudioSystem';
-import { RigibBody, Touched } from '~/components';
+import { RigibBody, Sound, Touched } from '~/components';
 import { delay } from '~/utils/delay';
 import { Shine } from './Shine';
 import { choose } from '~/utils/choose';
@@ -44,6 +44,7 @@ export class PuzzleSystem extends System {
     private score = 0;
     private readonly scoreElem = document.querySelector('.Score')!;
     private lastTonePlayed = 0;
+    private gameStarted = false;
 
     public constructor() {
         super();
@@ -62,7 +63,7 @@ export class PuzzleSystem extends System {
             // Нажато правильно. Едем дальше
             this.touchedStarNo++;
 
-            this.increaseScore(world);
+            this.updateScore(world);
 
             if (this.touchedStarNo === this.numShouldBeRepeated) {
                 this.numShouldBeRepeated++;
@@ -73,21 +74,28 @@ export class PuzzleSystem extends System {
         } else {
             // Ошибка
 
-            if (this.touchedStarNo > 0) {
+            if (this.numShouldBeRepeated > 1) {
                 this.failEffect(world);
             }
 
             this.puzzleTune = this.composeTune(this.puzzleLength);
 
-            // При первом нажатии двигаем мелодию к первой такой ноте
-            const indexOfThisTone = this.puzzleTune.indexOf(star.tone);
-            this.puzzleTune.splice(0, indexOfThisTone);
+            if (this.gameStarted) {
+                this.touchedStarNo = 0;
+                this.numShouldBeRepeated = 1;
+            } else {
+                // При первом нажатии двигаем мелодию к первой такой ноте
+                const indexOfThisTone = this.puzzleTune.indexOf(star.tone);
+                this.puzzleTune.splice(0, indexOfThisTone);
 
-            this.touchedStarNo = 0;
-            this.numShouldBeRepeated = 2;
+                this.touchedStarNo = 0;
+                this.numShouldBeRepeated = 2;
+            }
 
-            this.playPuzzleTune(world, 1000);
+            this.playPuzzleTune(world, this.gameStarted ? 2000 : 1000);
         }
+
+        this.gameStarted = true;
     }
 
     public override onCreate(world: World): void {
@@ -141,7 +149,7 @@ export class PuzzleSystem extends System {
                         return;
                     }
 
-                    this.playPuzzleTune(world, 1000, true);
+                    this.playPuzzleTune(world, 1000);
                 });
             }
         });
@@ -191,7 +199,7 @@ export class PuzzleSystem extends System {
             // const force = Vector.create(0, 0.001 * rb.body.mass);
             const force = Vector.mult(
                 Vector.normalise(Vector.neg(rb.body.position)),
-                0.001 * rb.body.mass
+                0.03 * rb.body.mass
             );
             Vector.rotate(
                 force,
@@ -201,14 +209,18 @@ export class PuzzleSystem extends System {
             );
             Body.applyForce(rb.body, rb.body.position, force);
         }
+
+        const [, sound] = world.addEntity(Sound);
+        sound.name = SoundTracks.Loss;
+        sound.throttleMs = 0;
     }
 
-    private increaseScore(world: World) {
-        const inc = 1 * this.touchedStarNo;
+    private updateScore(world: World) {
+        const inc = 1;
 
-        this.score += inc;
+        this.score = this.touchedStarNo;
 
-        for (let i = 0; i < inc; i++) {
+        for (let i = 0; i < this.touchedStarNo; i++) {
             world.addEntity(Junk);
         }
 
