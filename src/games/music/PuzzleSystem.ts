@@ -238,24 +238,10 @@ export class PuzzleSystem extends System {
             world.addEntity(Junk);
         }
 
-        const increaseElem =
-            this.scoreElem.querySelector('.Score-Increase:not(.Score-Increase_active)') ??
-            this.scoreElem.querySelector('.Score-Increase')!;
-
         const valueElem = this.scoreElem.querySelector('.Score-Value')!;
 
         valueElem.textContent = this.score.toLocaleString('ru-RU', {
             maximumFractionDigits: 2,
-        });
-
-        increaseElem.textContent = `+${inc.toLocaleString('ru-RU', {
-            maximumFractionDigits: 2,
-        })}`;
-
-        animate({
-            duration: 500,
-            onPlay: () => increaseElem.classList.add('Score-Increase_active'),
-            onComplete: () => increaseElem.classList.remove('Score-Increase_active'),
         });
     }
 
