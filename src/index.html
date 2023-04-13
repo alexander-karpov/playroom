@@ -7,14 +7,23 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
     <title>Hello</title>
     <style>
+        html {
+            height: 100%;
+        }
+
         * {
             user-select: none;
         }
 
         body {
+            height: 100%;
             margin: 0;
             overflow: hidden;
             background-color: black;
+            background-image: url('./assets/sprites/start_bg.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
         }
 
         .Score {
@@ -31,35 +40,10 @@
             color: white;
         }
 
-
-        .Score-Increase {
-            display: none;
-            position: absolute;
-            width: 100%;
-            color: lawngreen;
-        }
-
         .Score-Value {
             display: inline-block;
             padding: 5px;
             background: rgba(0, 0, 0, 0.1);
-        }
-
-        .Score-Increase_active {
-            display: block;
-            animation: ScoreIncrease .5s ease-in forwards;
-        }
-
-        @keyframes ScoreIncrease {
-            from {
-                top: -3vh;
-                opacity: 1;
-            }
-
-            to {
-                top: -10vh;
-                opacity: 0;
-            }
         }
     </style>
 </head>
@@ -67,10 +51,6 @@
 <body>
     <div class="Score">
         <div class="Score-Value">👉 ⭐</div>
-        <div class="Score-Increase"></div>
-        <div class="Score-Increase"></div>
-        <div class="Score-Increase"></div>
-        <div class="Score-Increase"></div>
     </div>
 </body>
 
