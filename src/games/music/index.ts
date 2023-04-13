@@ -12,8 +12,11 @@ import { Engine } from 'matter-js';
 import { JunkSystem } from './JunkSystem';
 import { SkySystem } from './SkySystem';
 import GUI from 'lil-gui';
+import { initYandexSdk } from '~/yandexSdk';
 
 changeMatterJsRandomSeed();
+
+const yandexSdk = initYandexSdk();
 
 /**
  * Renderer
@@ -155,3 +158,4 @@ function animate(time: number): void {
 }
 
 animate(performance.now());
+void yandexSdk.then((sdk) => sdk.features.LoadingAPI?.ready());
