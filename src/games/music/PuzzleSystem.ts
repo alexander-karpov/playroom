@@ -11,18 +11,6 @@ import { Body, Common } from 'matter-js';
 import { Vector } from 'matter-js';
 import { animate } from 'popmotion';
 import { Junk } from './Junk';
-import { hslToRgb } from '~/utils/hslToRgb';
-
-const TRACKS = [
-    SoundTracks.XylophoneC,
-    SoundTracks.XylophoneD1,
-    SoundTracks.XylophoneE1,
-    SoundTracks.XylophoneF,
-    SoundTracks.XylophoneG,
-    SoundTracks.XylophoneA,
-    SoundTracks.XylophoneB,
-    SoundTracks.XylophoneC2,
-];
 
 const STARS_DESC = [
     { tone: 1, track: SoundTracks.XylophoneC, size: 4 },
@@ -45,6 +33,10 @@ export class PuzzleSystem extends System {
     private readonly scoreElem = document.querySelector('.Score')!;
     private lastTonePlayed = 0;
     private gameStarted = false;
+    private level = 1;
+    private readonly levels = [
+        5, 9, 12, 15, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 50, 100,
+    ];
 
     public constructor() {
         super();
@@ -66,16 +58,27 @@ export class PuzzleSystem extends System {
             this.updateScore(world);
 
             if (this.touchedStarNo === this.numShouldBeRepeated) {
-                this.numShouldBeRepeated++;
-                this.touchedStarNo = 0;
+                let delay = 0;
 
-                this.playPuzzleTune(world, 800);
+                if (this.levels.includes(this.numShouldBeRepeated)) {
+                    delay = 1000;
+                    this.nextLevelEffect(world);
+                    this.updateLevel(this.level + 1);
+                }
+
+                setTimeout(() => {
+                    this.numShouldBeRepeated++;
+                    this.touchedStarNo = 0;
+
+                    this.playPuzzleTune(world, 800);
+                }, delay);
             }
         } else {
             // Ошибка
 
             if (this.numShouldBeRepeated > 1) {
                 this.failEffect(world);
+                this.updateLevel(1);
             }
 
             this.puzzleTune = this.composeTune(this.puzzleLength);
@@ -110,8 +113,9 @@ export class PuzzleSystem extends System {
 
     public override onSometimes(world: World): void {
         if (this.lastTonePlayed !== 0 && Date.now() - this.lastTonePlayed > 2000) {
+            this.lastTonePlayed = Date.now();
             this.playPuzzleCancellation?.cancel();
-            this.playPuzzleTune(world, 0, true);
+            this.playPuzzleTune(world, 0, false);
         }
     }
 
@@ -184,7 +188,6 @@ export class PuzzleSystem extends System {
             const cord = choose(chords)!;
             Common.shuffle(cord);
             tune.push(...cord);
-            // tune.push(...[1, 3, 5, 7]);
         }
 
         tune.length = length;
@@ -192,7 +195,6 @@ export class PuzzleSystem extends System {
         return tune;
     }
 
-    // TODO перенести отсюда
     private failEffect(world: World) {
         for (const entity of world.select([Star, RigibBody])) {
             const rb = world.getComponent(RigibBody, entity);
@@ -212,6 +214,18 @@ export class PuzzleSystem extends System {
 
         const [, sound] = world.addEntity(Sound);
         sound.name = SoundTracks.Loss;
+        sound.throttleMs = 0;
+    }
+
+    private nextLevelEffect(world: World) {
+        for (const entity of world.select([Star, RigibBody])) {
+            const rb = world.getComponent(RigibBody, entity);
+
+            Body.setAngularVelocity(rb.body, 50 / rb.body.mass);
+        }
+
+        const [, sound] = world.addEntity(Sound);
+        sound.name = SoundTracks.Win;
         sound.throttleMs = 0;
     }
 
@@ -243,5 +257,13 @@ export class PuzzleSystem extends System {
             onPlay: () => increaseElem.classList.add('Score-Increase_active'),
             onComplete: () => increaseElem.classList.remove('Score-Increase_active'),
         });
+    }
+
+    private updateLevel(level: number) {
+        this.level = level;
+
+        const valueElem = this.scoreElem.querySelector('.Score-Value')!;
+
+        valueElem.textContent = `Уровень ${this.level}`;
     }
 }
