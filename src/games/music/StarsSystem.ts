@@ -35,7 +35,7 @@ export class StarsSystem extends System {
         const star = world.getComponent(Star, entity);
 
         const angle = Math.random() * Math.PI * 2;
-        const size = fib(star.size + 8);
+        const size = fib(star.size + 10);
         const position = new THREE.Vector2(0, 0);
 
         /**

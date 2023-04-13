@@ -25,14 +25,14 @@ const TRACKS = [
 ];
 
 const STARS_DESC = [
-    { tone: 1, track: SoundTracks.XylophoneC, size: 5 },
-    // { tone: 2, track: SoundTracks.XylophoneD1, size: 7 },
-    { tone: 3, track: SoundTracks.XylophoneE1, size: 4 },
-    // { tone: 4, track: SoundTracks.XylophoneF, size: 5 },
-    { tone: 5, track: SoundTracks.XylophoneG, size: 3 },
-    // { tone: 6, track: SoundTracks.XylophoneA, size: 3 },
-    { tone: 7, track: SoundTracks.XylophoneB, size: 2 },
-    // { tone: 8, track: SoundTracks.XylophoneC2, size: 1 },
+    { tone: 1, track: SoundTracks.XylophoneC, size: 4 },
+    { tone: 2, track: SoundTracks.XylophoneD1, size: 2 },
+    { tone: 3, track: SoundTracks.XylophoneE1, size: 3 },
+    { tone: 4, track: SoundTracks.XylophoneF, size: 4 },
+    { tone: 5, track: SoundTracks.XylophoneG, size: 2 },
+    { tone: 6, track: SoundTracks.XylophoneA, size: 3 },
+    { tone: 7, track: SoundTracks.XylophoneB, size: 1 },
+    { tone: 8, track: SoundTracks.XylophoneC2, size: 1 },
 ];
 
 export class PuzzleSystem extends System {
@@ -66,7 +66,7 @@ export class PuzzleSystem extends System {
                 this.numShouldBeRepeated++;
                 this.touchedStarNo = 0;
 
-                this.playPuzzleTune(world, 1000);
+                this.playPuzzleTune(world, 800);
             }
         } else {
             // Ошибка
@@ -92,7 +92,9 @@ export class PuzzleSystem extends System {
         this.puzzleTune = this.composeTune(this.puzzleLength);
 
         for (const desc of STARS_DESC) {
-            this.addStar(world, desc.tone, desc.track, desc.size);
+            if (this.puzzleTune.includes(desc.tone)) {
+                this.addStar(world, desc.tone, desc.track, desc.size);
+            }
         }
     }
 
@@ -140,7 +142,7 @@ export class PuzzleSystem extends System {
             // [2, 4, 6],
             // Минорные трезвучия
             // Большой мажорный септакорд
-            [1, 3, 5, 7],
+            [3, 5, 7],
             // [3, 5, 7, 8],
             // // с переносом
             // [8, 1, 3, 5],

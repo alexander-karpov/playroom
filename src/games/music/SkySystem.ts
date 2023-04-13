@@ -59,7 +59,7 @@ export class SkySystem extends System {
             positions.push(point.y);
 
             const l = THREE.MathUtils.randFloat(0.3, 0.8);
-            color.setHSL(0.63, 0.3, l);
+            color.setHSL(0.63, 0, l);
             colors.push(color.r, color.g, color.b);
 
             sizes.push(4 + 32 * Math.random() * Math.random() * Math.random());
