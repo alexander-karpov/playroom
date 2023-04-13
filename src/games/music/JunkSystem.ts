@@ -1,6 +1,6 @@
 import { System } from '~/ecs/System';
 import type { World } from '~/ecs/World';
-import { GameObject, RigibBody } from '~/components';
+import { RigibBody } from '~/components';
 import * as THREE from 'three';
 import { fib } from '~/utils/fib';
 import { writeEntityId } from '~/utils/extraProps';
@@ -14,7 +14,7 @@ import { nameof } from '~/utils/nameof';
 export class JunkSystem extends System {
     private readonly particleSystem;
     private readonly geometry;
-    private readonly particles = 1024; // Недостижимое количество я надеюсь
+    private readonly particles = 256; // Недостижимое количество я надеюсь
     private readonly positionAttr: THREE.Float32BufferAttribute;
     private readonly pointsMaterial: THREE.PointsMaterial;
     private readonly pointsSize = 16;
@@ -37,8 +37,6 @@ export class JunkSystem extends System {
             transparent: true,
             vertexColors: true,
         });
-
-        // this.pointsMaterial.color.setHSL(0.13, 1, 0.5);
 
         this.geometry = new THREE.BufferGeometry();
 
@@ -70,11 +68,11 @@ export class JunkSystem extends System {
     @System.on([Junk])
     private onJunk(world: World, entity: number): void {
         if (world.cound([Junk]) >= this.particles) {
+            world.deleteComponent(Junk, entity);
             return;
         }
 
         const angle = Math.random() * Math.PI * 2;
-        const size = fib(10);
         const position = new THREE.Vector2(Common.random(-200, 200), Common.random(-200, 200));
 
         /**
