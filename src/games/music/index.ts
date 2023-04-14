@@ -68,6 +68,13 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
 scene.add(directionalLight);
 
 /**
+ * Предварительный пустой рендер обновляет что-то в камере,
+ * без чего не работает Raycaster и сложно спроецировать
+ * края экрана в мировое пространство
+ */
+renderer.render(scene, camera);
+
+/**
  * ProjectionHelper
  */
 const projectionHelper = new ProjectionHelper(
