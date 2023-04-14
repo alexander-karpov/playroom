@@ -100,8 +100,8 @@ export class JunkSystem extends System {
         writeEntityId(rb.body.plugin, entity);
         Body.scale(
             rb.body,
-            this.pointsSize * THREE.MathUtils.randFloat(2, 5),
-            this.pointsSize * THREE.MathUtils.randFloat(2, 5)
+            this.pointsSize * THREE.MathUtils.randFloat(1, 2),
+            this.pointsSize * THREE.MathUtils.randFloat(1, 2)
         );
 
         Composite.add(this.engine.world, rb.body);
@@ -125,7 +125,7 @@ export class JunkSystem extends System {
             const rb = world.getComponent(RigibBody, entity);
             const junk = world.getComponent(Junk, entity);
 
-            const force2 = Vector.mult(junk.flyDirection, deltaS * rb.body.mass * 0.03);
+            const force2 = Vector.mult(junk.flyDirection, deltaS * rb.body.mass * 0.015);
 
             Body.applyForce(rb.body, rb.body.position, force2);
 

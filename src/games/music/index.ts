@@ -25,8 +25,7 @@ void yandexSdk.then((sdk) => sdk.adv.showFullscreenAdv());
  */
 const renderer = new THREE.WebGLRenderer();
 
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(window.innerWidth, window.innerHeight, false);
 document.body.appendChild(renderer.domElement);
 
 const width = renderer.domElement.width;
@@ -51,18 +50,13 @@ const camera = new THREE.OrthographicCamera(
 
 camera.position.z = 1000;
 
+camera.updateProjectionMatrix();
+
 /**
  * EffectComposer
  */
 
 const composer = new EffectComposer(renderer);
-
-/**
- * Предварительный пустой рендер обновляет что-то в камере,
- * без чего не работает Raycaster и сложно спроецировать
- * края экрана в мировое пространство
- */
-renderer.render(scene, camera);
 
 /**
  * Light

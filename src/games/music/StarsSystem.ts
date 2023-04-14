@@ -34,7 +34,7 @@ export class StarsSystem extends System {
     private onStar(world: World, entity: number): void {
         const star = world.getComponent(Star, entity);
 
-        const size = 1.2 * fib(star.size + 10);
+        const size = 0.5 * fib(star.size + 10);
         const position = new THREE.Vector2(
             THREE.MathUtils.randFloatSpread(10),
             THREE.MathUtils.randFloatSpread(10)

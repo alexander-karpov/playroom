@@ -24,7 +24,7 @@ export class SkySystem extends System {
 
         const radius = this.screenDiameterInWorld() / 2;
 
-        this.particles = radius * 5;
+        this.particles = radius * 10;
 
         this.geometry = new THREE.BufferGeometry();
 
@@ -62,7 +62,8 @@ export class SkySystem extends System {
             color.setHSL(0.63, 0, l);
             colors.push(color.r, color.g, color.b);
 
-            sizes.push(4 + 32 * Math.random() * Math.random() * Math.random());
+            const size = 4 + 32 * Math.random() * Math.random() * Math.random();
+            sizes.push(size / 2);
         }
 
         this.geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 2));

@@ -201,7 +201,7 @@ export class PuzzleSystem extends System {
             // const force = Vector.create(0, 0.001 * rb.body.mass);
             const force = Vector.mult(
                 Vector.normalise(Vector.neg(rb.body.position)),
-                0.03 * rb.body.mass
+                0.015 * rb.body.mass
             );
             Vector.rotate(
                 force,
@@ -221,7 +221,7 @@ export class PuzzleSystem extends System {
         for (const entity of world.select([Star, RigibBody])) {
             const rb = world.getComponent(RigibBody, entity);
 
-            Body.setAngularVelocity(rb.body, 50 / rb.body.mass);
+            Body.setAngularVelocity(rb.body, 20 / rb.body.mass);
         }
 
         const [, sound] = world.addEntity(Sound);
