@@ -62,7 +62,7 @@ export class SkySystem extends System {
             color.setHSL(0.63, 0, l);
             colors.push(color.r, color.g, color.b);
 
-            const size = 4 + 24 * Math.random() * Math.random() * Math.random();
+            const size = 5 + 20 * Math.random() * Math.random() * Math.random();
             sizes.push(size / 2);
         }
 
