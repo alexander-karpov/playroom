@@ -50,7 +50,12 @@ const camera = new THREE.OrthographicCamera(
 
 camera.position.z = 1000;
 
-camera.updateProjectionMatrix();
+/**
+ * Без этого не будет работать Raycaster до первого рендеринга,
+ * а это нужно в конструкторах для определения краёв экрана в
+ * мировом пространстве
+ */
+camera.updateWorldMatrix(false, false);
 
 /**
  * EffectComposer
@@ -66,13 +71,6 @@ scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
 scene.add(directionalLight);
-
-/**
- * Предварительный пустой рендер обновляет что-то в камере,
- * без чего не работает Raycaster и сложно спроецировать
- * края экрана в мировое пространство
- */
-renderer.render(scene, camera);
 
 /**
  * ProjectionHelper
