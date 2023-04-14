@@ -18,6 +18,8 @@ changeMatterJsRandomSeed();
 
 const yandexSdk = initYandexSdk();
 
+void yandexSdk.then((sdk) => sdk.adv.showFullscreenAdv());
+
 /**
  * Renderer
  */

@@ -15,7 +15,7 @@ export interface YandexSDK {
     };
 
     adv: {
-        showFullscreenAdv: (params: ShowFullscreenAdvParams) => void;
+        showFullscreenAdv: (params?: ShowFullscreenAdvParams) => void;
     };
 }
 
