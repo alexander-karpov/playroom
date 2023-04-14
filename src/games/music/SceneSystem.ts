@@ -116,8 +116,8 @@ export class SceneSystem extends System {
     private createWalls(): void {
         const bottomLeft = new THREE.Vector3();
         const topRight = new THREE.Vector3();
-        const wallWidth = 300;
-        const wallLength = 3000;
+        const wallWidth = 1000;
+        const wallLength = 6000;
 
         const collisionFilter = {
             category: Bits.bit(CollisionCategories.Wall),

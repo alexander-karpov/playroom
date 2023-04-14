@@ -23,7 +23,9 @@ void yandexSdk.then((sdk) => sdk.adv.showFullscreenAdv());
 /**
  * Renderer
  */
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({
+    antialias: true,
+});
 
 renderer.setSize(window.innerWidth, window.innerHeight, false);
 document.body.appendChild(renderer.domElement);
