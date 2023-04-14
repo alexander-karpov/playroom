@@ -39,16 +39,30 @@ const scene = new THREE.Scene();
 /**
  * Camera
  */
-const camera = new THREE.OrthographicCamera(
-    width / -2,
-    width / 2,
-    height / 2,
-    height / -2,
-    1,
-    10_000
-);
-
+const camera = new THREE.OrthographicCamera();
+camera.near = 1;
+camera.far = 10_000;
 camera.position.z = 1000;
+
+/**
+ * Resize
+ */
+function onResize() {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    renderer.setSize(width, height, false);
+
+    camera.left = width / -2;
+    camera.right = width / 2;
+    camera.top = height / 2;
+    camera.bottom = height / -2;
+    camera.updateProjectionMatrix();
+}
+
+onResize();
+
+window.addEventListener('resize', onResize);
 
 /**
  * Без этого не будет работать Raycaster до первого рендеринга,

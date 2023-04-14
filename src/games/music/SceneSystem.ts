@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
-import { Bodies, Composite, type Engine } from 'matter-js';
+import { Bodies, Body, Composite, Vector, type Engine } from 'matter-js';
 import * as extraProps from '~/utils/extraProps';
 import { Touched } from '~/components';
 import type { ProjectionHelper } from '~/utils/ProjectionHelper';
@@ -119,32 +119,55 @@ export class SceneSystem extends System {
         const wallWidth = 300;
         const wallLength = 3000;
 
-        this.projectionHelper.viewToWorld(-1, -1, bottomLeft);
-        this.projectionHelper.viewToWorld(1, 1, topRight);
-
         const collisionFilter = {
             category: Bits.bit(CollisionCategories.Wall),
             mask: Bits.bit(CollisionCategories.Star),
         };
 
-        Composite.add(this.engine.world, [
-            Bodies.rectangle(0, topRight.y + wallWidth / 2, wallLength, wallWidth, {
+        const walls = [
+            Bodies.rectangle(0, 0, wallLength, wallWidth, {
                 isStatic: true,
                 collisionFilter,
             }),
-            Bodies.rectangle(topRight.x + wallWidth / 2, 0, wallWidth, wallLength, {
+            Bodies.rectangle(0, 0, wallWidth, wallLength, {
                 isStatic: true,
                 collisionFilter,
             }),
-            Bodies.rectangle(0, bottomLeft.y - wallWidth / 2, wallLength, wallWidth, {
+            Bodies.rectangle(0, 0, wallLength, wallWidth, {
                 isStatic: true,
                 collisionFilter,
             }),
-            Bodies.rectangle(bottomLeft.x - wallWidth / 2, 0, wallWidth, wallLength, {
+            Bodies.rectangle(0, 0, wallWidth, wallLength, {
                 isStatic: true,
                 collisionFilter,
             }),
-        ]);
+        ];
+
+        const setWallsPositions = () => {
+            this.projectionHelper.viewToWorld(-1, -1, bottomLeft);
+            this.projectionHelper.viewToWorld(1, 1, topRight);
+
+            const positions = [
+                [0, topRight.y + wallWidth / 2],
+                [topRight.x + wallWidth / 2, 0],
+                [0, bottomLeft.y - wallWidth / 2],
+                [bottomLeft.x - wallWidth / 2, 0],
+            ];
+
+            const pos = Vector.create(0, 0);
+
+            for (let i = 0; i < 4; i++) {
+                pos.x = positions[i]![0]!;
+                pos.y = positions[i]![1]!;
+                Body.setPosition(walls[i]!, pos);
+            }
+        };
+
+        setWallsPositions();
+
+        window.addEventListener('resize', setWallsPositions);
+
+        Composite.add(this.engine.world, walls);
     }
 
     private zoom(to: number) {
