@@ -18,8 +18,6 @@ changeMatterJsRandomSeed();
 
 const yandexSdk = initYandexSdk();
 
-void yandexSdk.then((sdk) => sdk.adv.showFullscreenAdv());
-
 /**
  * Renderer
  */
@@ -125,7 +123,7 @@ const systemsRuntime = new Runtime([
     new SkySystem(projectionHelper, scene),
     new SyncPhysicsSystem(engine),
     new AudioSystem(),
-    new PuzzleSystem(lil),
+    new PuzzleSystem(lil, yandexSdk),
     new StarsSystem(scene, engine, lil),
     new JunkSystem(scene, camera, engine, lil),
 ]);

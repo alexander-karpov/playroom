@@ -13,6 +13,7 @@ import { animate } from 'popmotion';
 import { Junk } from './Junk';
 import type GUI from 'lil-gui';
 import { nameof } from '~/utils/nameof';
+import { YandexSDK } from '~/yandexSdk';
 
 const STARS_DESC = [
     { tone: 1, track: SoundTracks.XylophoneC, size: 4 },
@@ -41,7 +42,7 @@ export class PuzzleSystem extends System {
         5, 9, 12, 15, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 50, 100,
     ];
 
-    public constructor(private readonly lil: GUI) {
+    public constructor(private readonly lil: GUI, private readonly yandexSdk: Promise<YandexSDK>) {
         super();
 
         this.puzzleTune = this.composeTune(3);
@@ -115,6 +116,7 @@ export class PuzzleSystem extends System {
     public override onSometimes(world: World): void {
         if (
             this.numShouldBeRepeated > 1 &&
+            this.touchedStarNo === 0 &&
             this.lastTonePlayed !== 0 &&
             Date.now() - this.lastTonePlayed > 4000
         ) {
@@ -204,6 +206,12 @@ export class PuzzleSystem extends System {
         if (this.record) {
             const recElem = this.scoreElem.querySelector('.Score-Record')!;
             recElem.innerHTML = `Рекодр&nbsp;${this.record}`;
+        }
+
+        if (this.level > 2) {
+            setTimeout(() => {
+                void this.yandexSdk.then((sdk) => sdk.adv.showFullscreenAdv());
+            }, 500);
         }
 
         for (const entity of world.select([Star, RigibBody])) {
