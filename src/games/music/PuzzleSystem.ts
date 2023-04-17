@@ -34,7 +34,6 @@ export class PuzzleSystem extends System {
     private score = 0;
     private readonly scoreElem = document.querySelector('.Score')!;
     private lastTonePlayed = 0;
-    private gameStarted = false;
     private level = 1;
     private record = 0;
     private readonly recordLocalStorageKey = 'kukuruku_music_record';
@@ -85,26 +84,22 @@ export class PuzzleSystem extends System {
             if (this.numShouldBeRepeated > 1) {
                 this.failEffect(world);
                 this.updateLevel(1);
-            }
 
-            this.puzzleTune = this.composeTune(this.puzzleLength);
-
-            if (this.gameStarted) {
                 this.touchedStarNo = 0;
                 this.numShouldBeRepeated = 1;
             } else {
+                this.puzzleTune = this.composeTune(this.puzzleLength);
+
                 // При первом нажатии двигаем мелодию к первой такой ноте
                 const indexOfThisTone = this.puzzleTune.indexOf(star.tone);
                 this.puzzleTune.splice(0, indexOfThisTone);
 
                 this.touchedStarNo = 0;
                 this.numShouldBeRepeated = 2;
+
+                this.playPuzzleTune(world, 1000);
             }
-
-            this.playPuzzleTune(world, this.gameStarted ? 2000 : 1000);
         }
-
-        this.gameStarted = true;
     }
 
     public override onCreate(world: World): void {
@@ -118,7 +113,11 @@ export class PuzzleSystem extends System {
     }
 
     public override onSometimes(world: World): void {
-        if (this.lastTonePlayed !== 0 && Date.now() - this.lastTonePlayed > 2000) {
+        if (
+            this.numShouldBeRepeated > 1 &&
+            this.lastTonePlayed !== 0 &&
+            Date.now() - this.lastTonePlayed > 4000
+        ) {
             this.lastTonePlayed = Date.now();
             this.playPuzzleCancellation?.cancel();
             this.playPuzzleTune(world, 0, false);
@@ -204,7 +203,7 @@ export class PuzzleSystem extends System {
     private failEffect(world: World) {
         if (this.record) {
             const recElem = this.scoreElem.querySelector('.Score-Record')!;
-            recElem.textContent = `Рекодр ${this.record}`;
+            recElem.innerHTML = `Рекодр&nbsp;${this.record}`;
         }
 
         for (const entity of world.select([Star, RigibBody])) {
@@ -250,7 +249,7 @@ export class PuzzleSystem extends System {
             world.addEntity(Junk);
         }
 
-        if (this.score > this.record && this.score > 1) {
+        if (this.score > this.record) {
             this.record = this.score;
             this.saveRecord();
             isNewRecord = true;
@@ -264,7 +263,7 @@ export class PuzzleSystem extends System {
 
         if (isNewRecord) {
             const recElem = this.scoreElem.querySelector('.Score-Record')!;
-            recElem.textContent = `Новый рекодр ${this.record}`;
+            recElem.innerHTML = `Новый&nbsp;рекодр&nbsp;${this.record}`;
         }
     }
 
@@ -273,15 +272,21 @@ export class PuzzleSystem extends System {
 
         const valueElem = this.scoreElem.querySelector('.Score-Value')!;
 
-        valueElem.textContent = `Уровень ${this.level}`;
+        if (this.level > 1) {
+            valueElem.textContent = `Уровень ${this.level}`;
+        } else {
+            valueElem.textContent = '👉 ⭐';
+        }
     }
 
     private loadRecord() {
         this.record = parseInt(localStorage.getItem(this.recordLocalStorageKey) ?? '0');
+        const recElem = this.scoreElem.querySelector('.Score-Record')!;
 
         if (this.record) {
-            const recElem = this.scoreElem.querySelector('.Score-Record')!;
-            recElem.textContent = `Рекодр ${this.record}`;
+            recElem.innerHTML = `Рекодр&nbsp;${this.record}`;
+        } else {
+            recElem.innerHTML = 'Для начала игры нажмите на&nbsp;звёздочку';
         }
     }
 
