@@ -212,7 +212,7 @@ export class PuzzleSystem extends System {
     private failEffect(world: World) {
         if (this.record) {
             const recElem = this.scoreElem.querySelector('.Score-Record')!;
-            recElem.innerHTML = `Рекодр&nbsp;${this.record}`;
+            recElem.innerHTML = `Рекорд&nbsp;${this.record}`;
         }
 
         if (this.level > 1 && this.record > 8) {
@@ -289,7 +289,7 @@ export class PuzzleSystem extends System {
 
         if (isNewRecord) {
             const recElem = this.scoreElem.querySelector('.Score-Record')!;
-            recElem.innerHTML = `Новый&nbsp;рекодр&nbsp;${this.record}`;
+            recElem.innerHTML = `Новый&nbsp;рекорд&nbsp;${this.record}`;
         }
     }
 
@@ -310,7 +310,7 @@ export class PuzzleSystem extends System {
         const recElem = this.scoreElem.querySelector('.Score-Record')!;
 
         if (this.record) {
-            recElem.innerHTML = `Рекодр&nbsp;${this.record}`;
+            recElem.innerHTML = `Рекорд&nbsp;${this.record}`;
         } else {
             recElem.innerHTML = 'Для начала игры нажмите на&nbsp;звёздочку';
         }
