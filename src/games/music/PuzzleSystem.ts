@@ -11,6 +11,8 @@ import { Body, Common } from 'matter-js';
 import { Vector } from 'matter-js';
 import { animate } from 'popmotion';
 import { Junk } from './Junk';
+import type GUI from 'lil-gui';
+import { nameof } from '~/utils/nameof';
 
 const STARS_DESC = [
     { tone: 1, track: SoundTracks.XylophoneC, size: 4 },
@@ -34,14 +36,18 @@ export class PuzzleSystem extends System {
     private lastTonePlayed = 0;
     private gameStarted = false;
     private level = 1;
+    private record = 0;
+    private readonly recordLocalStorageKey = 'kukuruku_music_record';
     private readonly levels = [
         5, 9, 12, 15, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 50, 100,
     ];
 
-    public constructor() {
+    public constructor(private readonly lil: GUI) {
         super();
 
         this.puzzleTune = this.composeTune(3);
+        this.loadRecord();
+        this.setupLil();
     }
 
     @System.on([Star, Touched])
@@ -196,6 +202,11 @@ export class PuzzleSystem extends System {
     }
 
     private failEffect(world: World) {
+        if (this.record) {
+            const recElem = this.scoreElem.querySelector('.Score-Record')!;
+            recElem.textContent = `Рекодр ${this.record}`;
+        }
+
         for (const entity of world.select([Star, RigibBody])) {
             const rb = world.getComponent(RigibBody, entity);
             // const force = Vector.create(0, 0.001 * rb.body.mass);
@@ -231,6 +242,7 @@ export class PuzzleSystem extends System {
 
     private updateScore(world: World) {
         const inc = 1;
+        let isNewRecord = false;
 
         this.score = this.touchedStarNo;
 
@@ -238,11 +250,22 @@ export class PuzzleSystem extends System {
             world.addEntity(Junk);
         }
 
+        if (this.score > this.record && this.score > 1) {
+            this.record = this.score;
+            this.saveRecord();
+            isNewRecord = true;
+        }
+
         const valueElem = this.scoreElem.querySelector('.Score-Value')!;
 
         valueElem.textContent = this.score.toLocaleString('ru-RU', {
             maximumFractionDigits: 2,
         });
+
+        if (isNewRecord) {
+            const recElem = this.scoreElem.querySelector('.Score-Record')!;
+            recElem.textContent = `Новый рекодр ${this.record}`;
+        }
     }
 
     private updateLevel(level: number) {
@@ -251,5 +274,30 @@ export class PuzzleSystem extends System {
         const valueElem = this.scoreElem.querySelector('.Score-Value')!;
 
         valueElem.textContent = `Уровень ${this.level}`;
+    }
+
+    private loadRecord() {
+        this.record = parseInt(localStorage.getItem(this.recordLocalStorageKey) ?? '0');
+
+        if (this.record) {
+            const recElem = this.scoreElem.querySelector('.Score-Record')!;
+            recElem.textContent = `Рекодр ${this.record}`;
+        }
+    }
+
+    private saveRecord() {
+        localStorage.setItem(this.recordLocalStorageKey, String(this.record));
+    }
+
+    private setupLil() {
+        this.lil;
+
+        const config = {
+            clearRecord: () => {
+                localStorage.removeItem(this.recordLocalStorageKey);
+            },
+        };
+
+        this.lil.add(config, nameof<typeof config>('clearRecord')).name('Сбросить рекорд');
     }
 }

@@ -125,7 +125,7 @@ const systemsRuntime = new Runtime([
     new SkySystem(projectionHelper, scene),
     new SyncPhysicsSystem(engine),
     new AudioSystem(),
-    new PuzzleSystem(),
+    new PuzzleSystem(lil),
     new StarsSystem(scene, engine, lil),
     new JunkSystem(scene, camera, engine, lil),
 ]);

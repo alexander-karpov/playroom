@@ -8,7 +8,7 @@ export class Runtime {
     private outputSystems!: System[];
     private sometimesSystems!: System[];
 
-    private readonly timeBetweenSameSometimesCallsS = 3;
+    private readonly timeBetweenSameSometimesCallsS = 5;
     private nextSometimesHandlerIndex = 0;
     private timeSinceLastSometimesCallS = 0;
 

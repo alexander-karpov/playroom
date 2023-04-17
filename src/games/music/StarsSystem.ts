@@ -96,10 +96,10 @@ export class StarsSystem extends System {
         this.setupLil(world);
 
         window.addEventListener('resize', function (ev) {
-            const center = Vector.create(0, 0);
+            const center = Vector.create(0, 10);
             for (const id of world.select([Star, RigibBody])) {
                 const rb = world.getComponent(RigibBody, id);
-                Body.setPosition(rb.body, center);
+                Body.setPosition(rb.body, Vector.rotate(center, Math.random() * Math.PI));
             }
         });
     }
