@@ -172,5 +172,23 @@ function animate(time: number): void {
     framesCount++;
 }
 
-animate(performance.now());
+void yandexSdk.then((sdk) =>
+    sdk.adv.showFullscreenAdv({
+        callbacks: {
+            onClose: () => {
+                lastTime = performance.now();
+                animate(performance.now());
+            },
+            onError: () => {
+                lastTime = performance.now();
+                animate(performance.now());
+            },
+            onOffline: () => {
+                lastTime = performance.now();
+                animate(performance.now());
+            },
+        },
+    })
+);
+
 void yandexSdk.then((sdk) => sdk.features.LoadingAPI?.ready());

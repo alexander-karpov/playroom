@@ -215,7 +215,8 @@ export class PuzzleSystem extends System {
             recElem.innerHTML = `Рекорд&nbsp;${this.record}`;
         }
 
-        if (this.level > 1 && this.record > 8) {
+        // eslint-disable-next-line no-constant-condition
+        if (false && this.level > 1 && this.record > 8) {
             this.isAdOpen = true;
 
             setTimeout(() => {
