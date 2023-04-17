@@ -215,7 +215,9 @@ export class PuzzleSystem extends System {
             recElem.innerHTML = `Рекодр&nbsp;${this.record}`;
         }
 
-        if (this.level > 2) {
+        if (this.level > 1 && this.record > 8) {
+            this.isAdOpen = true;
+
             setTimeout(() => {
                 void this.yandexSdk.then((sdk) =>
                     sdk.adv.showFullscreenAdv({
