@@ -17,7 +17,7 @@ export class JunkSystem extends System {
     private readonly particles = 256; // Недостижимое количество я надеюсь
     private readonly positionAttr: THREE.Float32BufferAttribute;
     private readonly pointsMaterial: THREE.PointsMaterial;
-    private readonly pointsSize = 16;
+    private readonly pointsSize = 10;
 
     public constructor(
         private readonly scene: THREE.Scene,
