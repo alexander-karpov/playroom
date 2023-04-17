@@ -61,7 +61,7 @@ export class PuzzleSystem extends System {
                 let delay = 0;
 
                 if (this.levels.includes(this.numShouldBeRepeated)) {
-                    delay = 1000;
+                    delay = 3000;
                     this.nextLevelEffect(world);
                     this.updateLevel(this.level + 1);
                 }
@@ -201,7 +201,7 @@ export class PuzzleSystem extends System {
             // const force = Vector.create(0, 0.001 * rb.body.mass);
             const force = Vector.mult(
                 Vector.normalise(Vector.neg(rb.body.position)),
-                0.015 * rb.body.mass
+                0.005 * rb.body.mass
             );
             Vector.rotate(
                 force,
@@ -221,7 +221,7 @@ export class PuzzleSystem extends System {
         for (const entity of world.select([Star, RigibBody])) {
             const rb = world.getComponent(RigibBody, entity);
 
-            Body.setAngularVelocity(rb.body, 20 / rb.body.mass);
+            Body.setAngularVelocity(rb.body, 10 / rb.body.mass);
         }
 
         const [, sound] = world.addEntity(Sound);

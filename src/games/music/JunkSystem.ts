@@ -125,7 +125,7 @@ export class JunkSystem extends System {
             const rb = world.getComponent(RigibBody, entity);
             const junk = world.getComponent(Junk, entity);
 
-            const force2 = Vector.mult(junk.flyDirection, deltaS * rb.body.mass * 0.015);
+            const force2 = Vector.mult(junk.flyDirection, deltaS * rb.body.mass * 0.005);
 
             Body.applyForce(rb.body, rb.body.position, force2);
 
