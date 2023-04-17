@@ -94,6 +94,14 @@ export class StarsSystem extends System {
 
     public override onCreate(world: World): void {
         this.setupLil(world);
+
+        window.addEventListener('resize', function (ev) {
+            const center = Vector.create(0, 0);
+            for (const id of world.select([Star, RigibBody])) {
+                const rb = world.getComponent(RigibBody, id);
+                Body.setPosition(rb.body, center);
+            }
+        });
     }
 
     private playSound(world: World, entity: number) {
