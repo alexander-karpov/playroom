@@ -18,14 +18,17 @@ export class JunkSystem extends System {
     private readonly positionAttr: THREE.Float32BufferAttribute;
     private readonly pointsMaterial: THREE.PointsMaterial;
     private readonly pointsSize = 10;
+    private readonly camera: THREE.OrthographicCamera;
 
     public constructor(
         private readonly scene: THREE.Scene,
-        private readonly camera: THREE.OrthographicCamera,
+        camera: THREE.Camera,
         private readonly engine: Engine,
         private readonly lil: GUI
     ) {
         super();
+
+        this.camera = camera as THREE.OrthographicCamera;
 
         const sprite = new THREE.TextureLoader().load('./assets/sprites/disc.png');
 

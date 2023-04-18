@@ -44,7 +44,7 @@ export class PuzzleSystem extends System {
 
     private isAdOpen = false;
 
-    public constructor(private readonly lil: GUI, private readonly yandexSdk: Promise<YandexSDK>) {
+    public constructor(private readonly lil: GUI) {
         super();
 
         this.puzzleTune = this.composeTune(3);
@@ -213,24 +213,6 @@ export class PuzzleSystem extends System {
         if (this.record) {
             const recElem = this.scoreElem.querySelector('.Score-Record')!;
             recElem.innerHTML = `Рекорд&nbsp;${this.record}`;
-        }
-
-        // eslint-disable-next-line no-constant-condition
-        if (false && this.level > 1 && this.record > 8) {
-            this.isAdOpen = true;
-
-            setTimeout(() => {
-                void this.yandexSdk.then((sdk) =>
-                    sdk.adv.showFullscreenAdv({
-                        callbacks: {
-                            onOpen: () => (this.isAdOpen = true),
-                            onClose: () => (this.isAdOpen = false),
-                            onError: () => (this.isAdOpen = false),
-                            onOffline: () => (this.isAdOpen = false),
-                        },
-                    })
-                );
-            }, 500);
         }
 
         for (const entity of world.select([Star, RigibBody])) {

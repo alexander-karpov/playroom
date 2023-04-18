@@ -18,18 +18,21 @@ import { nameof } from '~/utils/nameof';
 export class SceneSystem extends System {
     private readonly raycaster = new THREE.Raycaster();
     private readonly bloomPass: UnrealBloomPass;
+    private readonly camera: THREE.OrthographicCamera;
     private stopZoom?: () => void;
 
     public constructor(
         private readonly projectionHelper: ProjectionHelper,
         private readonly scene: THREE.Scene,
-        private readonly camera: THREE.OrthographicCamera,
+        camera: THREE.Camera,
         private readonly renderer: THREE.WebGLRenderer,
         private readonly composer: EffectComposer,
         private readonly engine: Engine,
         private readonly lil: GUI
     ) {
         super();
+
+        this.camera = camera as THREE.OrthographicCamera;
 
         // this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         // THREE.LinearSRGBColorSpace;
