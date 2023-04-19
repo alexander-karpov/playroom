@@ -9,6 +9,8 @@ import { SkySystem } from '~/systems/SkySystem';
 import { ProjectionHelper } from '~/utils/ProjectionHelper';
 import { Following2DCameraSystem } from './Following2DCameraSystem';
 import { JoystickSystem } from './JoystckSystem';
+import { JetSystem } from './JetSystem';
+import { PlayerControllerSystem } from './PlayerControllerSystem';
 
 class WindRunnersGame extends Game {
     protected override configureSystems(
@@ -31,6 +33,8 @@ class WindRunnersGame extends Game {
             new SkySystem(projectionHelper, scene),
             new Following2DCameraSystem(camera),
             new JoystickSystem(50, renderer),
+            new JetSystem(),
+            new PlayerControllerSystem(),
         ]);
 
         systemsRuntime.initialize();
