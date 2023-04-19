@@ -3,9 +3,7 @@ import { changeMatterJsRandomSeed } from '~/utils/changeMatterJsRandomSeed';
 import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
-import { Engine } from 'matter-js';
 import GUI from 'lil-gui';
-import { initYandexSdk } from '~/yandexSdk';
 import { ScreenSizeSource } from './utils/ScreenSizeSource';
 
 export abstract class Game {

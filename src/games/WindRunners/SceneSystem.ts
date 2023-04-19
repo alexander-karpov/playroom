@@ -3,39 +3,21 @@ import { System, type World } from '~/ecs';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { Player } from './Player';
-import { GameObject, RigibBody } from '~/components';
-import { Bodies, Composite, Engine, Vector } from 'matter-js';
+import { GameObject } from '~/components';
+import { Joystick } from './Joystick';
 
 export class SceneSystem extends System {
-    private readonly toRightQuat = new THREE.Quaternion().setFromEuler(
-        new THREE.Euler(Math.PI / 2, Math.PI / 2, 0),
-        false
-    );
-    private readonly toLeftQuat = new THREE.Quaternion().setFromEuler(
-        new THREE.Euler(Math.PI / 2, -Math.PI / 2, 0),
-        false
-    );
-
-    private readonly toDownQuat = new THREE.Quaternion().setFromEuler(
-        new THREE.Euler(Math.PI / 2, 0, 0),
-        false
-    );
-    private readonly toUpQuat = new THREE.Quaternion().setFromEuler(
-        new THREE.Euler(Math.PI / 2, Math.PI, 0),
-        false
-    );
-
     private readonly dir = new THREE.Vector3(1, 0, 0);
 
     private go!: GameObject;
 
-    public constructor(private readonly scene: THREE.Scene, private readonly engine: Engine) {
+    public constructor(private readonly scene: THREE.Scene) {
         super();
 
         /**
          * Light
          */
-        const ambientLight = new THREE.AmbientLight(0xa0a0a0); // soft white light
+        const ambientLight = new THREE.AmbientLight(0xf0f0f0); // soft white light
         scene.add(ambientLight);
 
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
@@ -81,6 +63,26 @@ export class SceneSystem extends System {
         if (!this.go) {
             return;
         }
+
+        for (const joystickId of world.select([Joystick])) {
+            const joystick = world.getComponent(Joystick, joystickId);
+            if (joystick.tilt === 0) {
+                continue;
+            }
+
+            const dir = joystick.direction;
+            const speed = joystick.tilt * 10;
+
+            const q = new THREE.Quaternion();
+            q.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(dir.x, -dir.y, 0));
+
+            this.go.object3d.position.add(
+                new THREE.Vector3(dir.x, -dir.y, 0).multiplyScalar(speed)
+            );
+
+            this.go.object3d.quaternion.rotateTowards(q, deltaS * speed);
+        }
+
         timeS += deltaS;
 
         if (timeS > 1) {
@@ -88,15 +90,6 @@ export class SceneSystem extends System {
 
             this.dir.applyAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI / 6);
         }
-
-        const q = new THREE.Quaternion();
-        q.setFromUnitVectors(new THREE.Vector3(0, 0, 1), this.dir);
-
-        this.go.object3d.position.add(
-            new THREE.Vector3(this.dir.x, this.dir.y, this.dir.z).multiplyScalar(5)
-        );
-
-        this.go.object3d.quaternion.rotateTowards(q, deltaS * 4);
     }
 }
 
