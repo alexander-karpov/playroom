@@ -10,7 +10,6 @@ import { isOrthographicCamera } from '~/utils/typeGuards';
 import { animate, easeOut } from 'popmotion';
 import { Star } from './Star';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { type EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import type GUI from 'lil-gui';
 import { nameof } from '~/utils/nameof';
@@ -37,8 +36,6 @@ export class SceneSystem extends System {
         // this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         // THREE.LinearSRGBColorSpace;
         // this.renderer.toneMappingExposure = 1;
-
-        this.composer.addPass(new RenderPass(this.scene, this.camera));
 
         /**
          * Bloom

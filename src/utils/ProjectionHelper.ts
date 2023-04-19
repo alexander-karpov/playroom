@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import type { ScreenSizeSource } from '~/utils/ScreenSizeSource';
 
 /**
  * Screen
@@ -31,8 +32,7 @@ export class ProjectionHelper {
     private readonly tempVec2 = new THREE.Vector2();
 
     public constructor(
-        private readonly screenWidth: number,
-        private readonly screenHeight: number,
+        private readonly screenSizeSource: ScreenSizeSource,
         private readonly camera: THREE.Camera
     ) {}
 
@@ -44,8 +44,8 @@ export class ProjectionHelper {
     }
 
     public screenToView(x: number, y: number, target: THREE.Vector2): void {
-        target.x = (x / this.screenWidth) * 2 - 1;
-        target.y = -(y / this.screenHeight) * 2 + 1;
+        target.x = (x / this.screenSizeSource.width) * 2 - 1;
+        target.y = -(y / this.screenSizeSource.height) * 2 + 1;
     }
 
     public screenToWorld(x: number, y: number, target: THREE.Vector3): void {

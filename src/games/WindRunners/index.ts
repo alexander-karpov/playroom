@@ -1,19 +1,17 @@
 import { Runtime } from '~/ecs';
-import { SceneSystem } from './SceneSystem';
-import { SyncPhysicsSystem } from '~/systems/SyncPhysicsSystem';
-import { AudioSystem } from '~/systems/AudioSystem';
-import { PuzzleSystem } from './PuzzleSystem';
-import { StarsSystem } from './StarsSystem';
 import type * as THREE from 'three';
 import type { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { ProjectionHelper } from '~/utils/ProjectionHelper';
 import { Engine } from 'matter-js';
-import { JunkSystem } from './JunkSystem';
-import { SkySystem } from '../../systems/SkySystem';
+
 import type GUI from 'lil-gui';
 import { Game } from '../../Game';
+import { SceneSystem } from './SceneSystem';
+import { SyncPhysicsSystem } from '~/systems/SyncPhysicsSystem';
+import { SkySystem } from '~/systems/SkySystem';
+import { ProjectionHelper } from '~/utils/ProjectionHelper';
+import { Following2DCameraSystem } from './Following2DCameraSystem';
 
-class MusicGame extends Game {
+class WindRunnersGame extends Game {
     protected override configureSystems(
         renderer: THREE.WebGLRenderer,
         composer: EffectComposer,
@@ -25,7 +23,7 @@ class MusicGame extends Game {
          * Physics
          */
         const engine = Engine.create({
-            gravity: { x: 0, y: 0 },
+            gravity: { x: 0, y: -1 },
             // TODO: не работает засыпание, предметы просто зависают
             enableSleeping: false,
         });
@@ -39,13 +37,10 @@ class MusicGame extends Game {
          * Systems
          */
         const systemsRuntime = new Runtime([
-            new SceneSystem(projectionHelper, scene, camera, renderer, composer, engine, lil),
+            new SceneSystem(scene, engine),
+            // new SyncPhysicsSystem(engine),
             new SkySystem(projectionHelper, scene),
-            new SyncPhysicsSystem(engine),
-            new AudioSystem(),
-            new PuzzleSystem(lil),
-            new StarsSystem(scene, engine, lil),
-            new JunkSystem(scene, camera, engine, lil),
+            new Following2DCameraSystem(camera),
         ]);
 
         systemsRuntime.initialize();
@@ -54,4 +49,4 @@ class MusicGame extends Game {
     }
 }
 
-new MusicGame().run();
+new WindRunnersGame().run();

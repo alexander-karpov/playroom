@@ -2,12 +2,16 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = (env) => {
+    if (!env.game) {
+        throw new Error('Нужно передать название папки с игрой в --env game=[folder]')
+    }
+
     const mode = env.production ? 'production' : 'development';
 
     console.log('Mode:', mode);
 
     return {
-        entry: './src/games/music/index.ts',
+        entry: `./src/games/${env.game}/index.ts`,
         mode,
         output: {
             filename: '[name].bundle.js',

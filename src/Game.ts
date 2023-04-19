@@ -2,11 +2,11 @@ import type { Runtime } from '~/ecs';
 import { changeMatterJsRandomSeed } from '~/utils/changeMatterJsRandomSeed';
 import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { ProjectionHelper } from '~/utils/ProjectionHelper';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { Engine } from 'matter-js';
 import GUI from 'lil-gui';
 import { initYandexSdk } from '~/yandexSdk';
-import { ScreenSizeSource } from './ScreenSizeSource';
+import { ScreenSizeSource } from './utils/ScreenSizeSource';
 
 export abstract class Game {
     protected readonly screenSizeSource = new ScreenSizeSource();
@@ -14,12 +14,7 @@ export abstract class Game {
     public run() {
         changeMatterJsRandomSeed();
 
-        const yandexSdk = initYandexSdk();
-
-        /**
-         * Renderer
-         */
-        const { renderer, composer } = this.configureRenderer();
+        // const yandexSdk = initYandexSdk();
 
         /**
          * Scene
@@ -34,25 +29,23 @@ export abstract class Game {
         camera.far = 10000;
         camera.position.z = 1000;
 
-        /**
-         * Resize
-         */
-        function onResizeCamera() {
+        this.screenSizeSource.consume((w, h) => {
             const width = window.innerWidth;
             const height = window.innerHeight;
-
-            renderer.setSize(width, height, false);
 
             camera.left = width / -2;
             camera.right = width / 2;
             camera.top = height / 2;
             camera.bottom = height / -2;
             camera.updateProjectionMatrix();
-        }
+        });
 
-        onResizeCamera();
+        /**
+         * Renderer
+         */
+        const { renderer, composer } = this.configureRenderer();
 
-        window.addEventListener('resize', onResizeCamera);
+        composer.addPass(new RenderPass(scene, camera));
 
         /**
          * Без этого не будет работать Raycaster до первого рендеринга,
@@ -60,24 +53,6 @@ export abstract class Game {
          * мировом пространстве
          */
         camera.updateWorldMatrix(false, false);
-
-        /**
-         * ProjectionHelper
-         */
-        const projectionHelper = new ProjectionHelper(
-            renderer.domElement.width,
-            renderer.domElement.height,
-            camera
-        );
-
-        /**
-         * Physics
-         */
-        const engine = Engine.create({
-            gravity: { x: 0, y: 0 },
-            // TODO: не работает засыпание, предметы просто зависают
-            enableSleeping: false,
-        });
 
         /**
          * Lil
@@ -88,15 +63,7 @@ export abstract class Game {
             lil.hide();
         }
 
-        const systemsRuntime = this.configureSystems(
-            renderer,
-            composer,
-            camera,
-            scene,
-            engine,
-            projectionHelper,
-            lil
-        );
+        const systemsRuntime = this.configureSystems(renderer, composer, camera, scene, lil);
 
         let lastTime = performance.now();
 
@@ -119,7 +86,7 @@ export abstract class Game {
 
         animate(performance.now());
 
-        void yandexSdk.then((sdk) => sdk.features.LoadingAPI?.ready());
+        // void yandexSdk.then((sdk) => sdk.features.LoadingAPI?.ready());
     }
 
     /**
@@ -132,7 +99,7 @@ export abstract class Game {
 
         document.body.appendChild(renderer.domElement);
 
-        this.screenSizeSource.subscribe((w, h) => {
+        this.screenSizeSource.consume((w, h) => {
             renderer.setSize(w, h, false);
         });
 
@@ -141,13 +108,14 @@ export abstract class Game {
         return { renderer, composer };
     }
 
+    /**
+     * Systems
+     */
     protected abstract configureSystems(
         renderer: THREE.WebGLRenderer,
         composer: EffectComposer,
         camera: THREE.Camera,
         scene: THREE.Scene,
-        engine: Engine,
-        projectionHelper: ProjectionHelper,
         lil: GUI
     ): Runtime;
 }

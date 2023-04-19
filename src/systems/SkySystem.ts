@@ -1,7 +1,7 @@
 import { System } from '~/ecs/System';
 import type { World } from '~/ecs/World';
 import * as THREE from 'three';
-import { SizedPointsMaterial } from './materials/SizedPointsMaterial';
+import { SizedPointsMaterial } from '~/materials/SizedPointsMaterial';
 import type { ProjectionHelper } from '~/utils/ProjectionHelper';
 
 export class SkySystem extends System {
