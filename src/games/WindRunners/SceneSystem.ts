@@ -1,12 +1,15 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { type GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { Player } from './Player';
 import { GameObject } from '~/components';
 import { Airplane } from './Airplane';
+import { Enemy } from './Enemy';
 
 export class SceneSystem extends System {
+    private readonly gltfLoader = new GLTFLoader();
+
     public constructor(private readonly scene: THREE.Scene) {
         super();
 
@@ -21,33 +24,54 @@ export class SceneSystem extends System {
     }
 
     public override onCreate(world: World): void {
-        // Instantiate a loader
-        const loader = new GLTFLoader();
+        void this.loadModel('Spaceship1.glb').then((gltf) => {
+            this.addPlayer(gltf, world);
+        });
 
-        // Optional: Provide a DRACOLoader instance to decode compressed mesh data
-        const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath('/examples/jsm/libs/draco/');
-        loader.setDRACOLoader(dracoLoader);
+        void this.loadModel('Spaceship4.glb').then((gltf) => {
+            this.addEnemy(gltf, world);
+        });
+    }
 
-        // Load a glTF resource
-        loader.load(
-            // resource URL
-            './assets/models/Spaceship1.glb',
-            // called when the resource is loaded
-            (gltf) => {
-                this.scene.add(gltf.scene);
+    private addPlayer(gltf: GLTF, world: World) {
+        this.scene.add(gltf.scene);
 
-                const [id] = world.addEntity(Player);
-                const go = world.addComponent(GameObject, id);
+        const [id] = world.addEntity(Player);
+        const go = world.addComponent(GameObject, id);
 
-                go.object3d = gltf.scene;
-                go.object3d.scale.multiplyScalar(0.15);
+        go.object3d = gltf.scene;
+        go.object3d.scale.multiplyScalar(0.15);
 
-                const airplane = world.addComponent(Airplane, id);
-                airplane.direction = new THREE.Vector3(1, 0, 0);
-                airplane.speed = 600;
-                airplane.turningSpeed = 4;
-            }
-        );
+        const airplane = world.addComponent(Airplane, id);
+        airplane.direction = new THREE.Vector3(1, 0, 0);
+        airplane.speed = 600;
+        airplane.turningSpeed = 4;
+    }
+
+    private addEnemy(gltf: GLTF, world: World) {
+        this.scene.add(gltf.scene);
+
+        const [id] = world.addEntity(Enemy);
+        const go = world.addComponent(GameObject, id);
+
+        go.object3d = gltf.scene;
+        go.object3d.scale.multiplyScalar(0.2);
+        go.object3d.position.set(300, 300, 0);
+
+        const airplane = world.addComponent(Airplane, id);
+        airplane.direction = new THREE.Vector3(1, 0, 0);
+        airplane.speed = 600;
+        airplane.turningSpeed = 4;
+    }
+
+    private loadModel(filename: string): Promise<GLTF> {
+        return new Promise<GLTF>((resolve, reject) => {
+            this.gltfLoader.load(
+                `./assets/models/${filename}`,
+                resolve,
+                function onProgress() {},
+                reject
+            );
+        });
     }
 }
