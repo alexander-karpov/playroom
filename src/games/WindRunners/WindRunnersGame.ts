@@ -8,7 +8,7 @@ import { SkySystem } from '~/systems/SkySystem';
 import { ProjectionHelper } from '~/utils/ProjectionHelper';
 import { Following2DCameraSystem } from './Following2DCameraSystem';
 import { JoystickSystem } from './JoystickSystem';
-import { JetSystem } from './JetSystem';
+import { AirplaneSystem } from './AirplaneSystem';
 import { PlayerControllerSystem } from './PlayerControllerSystem';
 
 export class WindRunnersGame extends Game {
@@ -32,7 +32,7 @@ export class WindRunnersGame extends Game {
             new SkySystem(projectionHelper, scene),
             new Following2DCameraSystem(camera),
             new JoystickSystem(50, renderer),
-            new JetSystem(),
+            new AirplaneSystem(),
             new PlayerControllerSystem(),
         ]);
 
