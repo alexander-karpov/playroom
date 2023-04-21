@@ -12,8 +12,6 @@ export abstract class Game {
     public run() {
         changeMatterJsRandomSeed();
 
-        // const yandexSdk = initYandexSdk();
-
         /**
          * Scene
          */

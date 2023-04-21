@@ -31,6 +31,12 @@
             width: 100%;
             height: 100%;
             display: block;
+
+            /*
+                Чтобы браузер не прерывал события pointer*
+                https://stackoverflow.com/questions/48124372/pointermove-event-not-working-with-touch-why-not
+            */
+            touch-action: none;
         }
 
         .Score {
