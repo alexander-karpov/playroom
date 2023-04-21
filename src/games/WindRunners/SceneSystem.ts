@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
 import { type GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { Player } from './Player';
 import { GameObject } from '~/components';
 import { Airplane } from './Airplane';
 import { Enemy } from './Enemy';
+import { Bullet } from './Bullet';
+import { Hitable } from './Hitable';
 
 export class SceneSystem extends System {
     private readonly gltfLoader = new GLTFLoader();
@@ -31,21 +32,46 @@ export class SceneSystem extends System {
         void this.loadModel('Spaceship4.glb').then((gltf) => {
             this.addEnemy(gltf, world);
         });
+
+        this.addBullet(world);
+    }
+
+    private addBullet(world: World) {
+        const [id, b] = world.addEntity(Bullet);
+        b.position.set(150, 150, 0);
+
+        const go = world.addComponent(GameObject, id);
+
+        go.object3d = new THREE.Mesh(
+            new THREE.SphereGeometry(32),
+            new THREE.MeshStandardMaterial({
+                color: 0xffff00,
+            })
+        );
+
+        go.object3d.position.set(150, 150, 0);
+        this.scene.add(go.object3d);
+
+        console.log((go.object3d as THREE.Mesh).geometry.computeBoundingBox());
+        console.log((go.object3d as THREE.Mesh).geometry.boundingBox);
     }
 
     private addPlayer(gltf: GLTF, world: World) {
         this.scene.add(gltf.scene);
 
         const [id] = world.addEntity(Player);
-        const go = world.addComponent(GameObject, id);
 
+        const go = world.addComponent(GameObject, id);
         go.object3d = gltf.scene;
         go.object3d.scale.multiplyScalar(0.15);
 
         const airplane = world.addComponent(Airplane, id);
         airplane.direction = new THREE.Vector3(1, 0, 0);
-        airplane.speed = 600;
+        airplane.speed = 500;
         airplane.turningSpeed = 4;
+
+        const hitable = world.addComponent(Hitable, id);
+        new THREE.Box3().setFromObject(go.object3d).getBoundingSphere(hitable.sphere);
     }
 
     private addEnemy(gltf: GLTF, world: World) {
