@@ -31,7 +31,7 @@ export class WindRunnersGame extends Game {
          * Systems
          */
         const systemsRuntime = new Runtime([
-            new SceneSystem(scene),
+            new SceneSystem(scene, camera as THREE.OrthographicCamera),
             new SkySystem(projectionHelper, scene),
             new Following2DCameraSystem(camera),
             new JoystickSystem(64, renderer),

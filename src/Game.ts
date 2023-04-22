@@ -20,21 +20,7 @@ export abstract class Game {
         /**
          * Camera
          */
-        const camera = new THREE.OrthographicCamera();
-        camera.near = 1;
-        camera.far = 10000;
-        camera.position.z = 1000;
-
-        this.screenSizeSource.consume((w, h) => {
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-
-            camera.left = width / -2;
-            camera.right = width / 2;
-            camera.top = height / 2;
-            camera.bottom = height / -2;
-            camera.updateProjectionMatrix();
-        });
+        const camera = this.createCamera();
 
         /**
          * Renderer
@@ -83,6 +69,27 @@ export abstract class Game {
         animate(performance.now());
 
         // void yandexSdk.then((sdk) => sdk.features.LoadingAPI?.ready());
+    }
+
+    protected createCamera(): THREE.Camera {
+        const camera = new THREE.OrthographicCamera();
+
+        camera.near = 1;
+        camera.far = 10000;
+        camera.position.z = 1000;
+
+        this.screenSizeSource.consume((w, h) => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            camera.left = width / -2;
+            camera.right = width / 2;
+            camera.top = height / 2;
+            camera.bottom = height / -2;
+            camera.updateProjectionMatrix();
+        });
+
+        return camera;
     }
 
     /**

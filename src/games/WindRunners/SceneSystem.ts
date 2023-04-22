@@ -13,8 +13,14 @@ import { CollisionMasks } from './CollisionMasks';
 export class SceneSystem extends System {
     private readonly gltfLoader = new GLTFLoader();
 
-    public constructor(private readonly scene: THREE.Scene) {
+    public constructor(
+        private readonly scene: THREE.Scene,
+        private readonly camera: THREE.OrthographicCamera
+    ) {
         super();
+
+        camera.zoom = 0.5;
+        camera.updateProjectionMatrix();
 
         /**
          * Light
@@ -43,7 +49,7 @@ export class SceneSystem extends System {
 
         const go = world.addComponent(GameObject, id);
         go.object3d = gltf.scene;
-        go.object3d.scale.multiplyScalar(0.1);
+        go.object3d.scale.multiplyScalar(0.15);
 
         const airplane = world.addComponent(Airplane, id);
         airplane.direction = new THREE.Vector3(1, 0, 0);
@@ -62,7 +68,7 @@ export class SceneSystem extends System {
         const go = world.addComponent(GameObject, id);
 
         go.object3d = gltf.scene;
-        go.object3d.scale.multiplyScalar(0.15);
+        go.object3d.scale.multiplyScalar(0.2);
         go.object3d.position.set(300, 300, 0);
 
         const airplane = world.addComponent(Airplane, id);
