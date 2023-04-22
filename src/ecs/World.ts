@@ -148,8 +148,8 @@ export class World {
         return selectResult;
     }
 
-    public cound(query: readonly ComponentClass[]): number {
-        let counder = 0;
+    public count(query: readonly ComponentClass[]): number {
+        let counter = 0;
         const queryMask = this.queryMask(query);
 
         // eslint-disable-next-line @typescript-eslint/prefer-for-of
@@ -157,11 +157,11 @@ export class World {
             const existsAndAddedMask = this.entities[entityId]! | this.added[entityId]!;
 
             if ((existsAndAddedMask & queryMask) === queryMask) {
-                counder++;
+                counter++;
             }
         }
 
-        return counder;
+        return counter;
     }
 
     public onAdd(query: readonly ComponentClass[], handler: EntityChangeHandler): void {

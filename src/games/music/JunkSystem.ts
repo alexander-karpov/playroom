@@ -70,7 +70,7 @@ export class JunkSystem extends System {
 
     @System.on([Junk])
     private onJunk(world: World, entity: number): void {
-        if (world.cound([Junk]) >= this.particles) {
+        if (world.count([Junk]) >= this.particles) {
             world.deleteComponent(Junk, entity);
             return;
         }

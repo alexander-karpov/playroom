@@ -33,27 +33,16 @@ export class SceneSystem extends System {
             this.addEnemy(gltf, world);
         });
 
-        this.addBullet(world);
+        this.spawnBullets(world);
     }
 
-    private addBullet(world: World) {
+    private spawnBullets(world: World) {
         const [id, b] = world.addEntity(Bullet);
         b.position.set(150, 150, 0);
+        b.direction.set(1, 0, 0);
+        b.speed = 10;
 
-        const go = world.addComponent(GameObject, id);
-
-        go.object3d = new THREE.Mesh(
-            new THREE.SphereGeometry(32),
-            new THREE.MeshStandardMaterial({
-                color: 0xffff00,
-            })
-        );
-
-        go.object3d.position.set(150, 150, 0);
-        this.scene.add(go.object3d);
-
-        console.log((go.object3d as THREE.Mesh).geometry.computeBoundingBox());
-        console.log((go.object3d as THREE.Mesh).geometry.boundingBox);
+        setTimeout(() => this.spawnBullets(world), Math.random() * 1000);
     }
 
     private addPlayer(gltf: GLTF, world: World) {

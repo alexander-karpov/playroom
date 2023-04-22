@@ -37,7 +37,7 @@ export class WindRunnersGame extends Game {
             new AirplaneSystem(),
             new PlayerControllerSystem(),
             new EnemyControllerSystem(),
-            new BulletSystem(),
+            new BulletSystem(scene),
         ]);
 
         systemsRuntime.initialize();
