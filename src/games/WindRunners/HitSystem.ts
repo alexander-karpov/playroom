@@ -1,11 +1,10 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
-import { Player } from './Player';
 import { GameObject } from '~/components';
 import { Bullet } from './Bullet';
 import { Hitable } from './Hitable';
 
-export class BulletSystem extends System {
+export class HitSystem extends System {
     public constructor(private readonly scene: THREE.Scene) {
         super();
     }
@@ -41,8 +40,6 @@ export class BulletSystem extends System {
     }
 
     public override onSimulate(world: World, deltaSec: number): void {
-        console.log(world.count([Bullet]));
-
         const hitableIds = world.select([Hitable, GameObject]);
         const hitableGos = hitableIds.map((id) => world.getComponent(GameObject, id));
         const hitableComponents = hitableIds.map((id) => world.getComponent(Hitable, id));
@@ -55,13 +52,13 @@ export class BulletSystem extends System {
             /**
              * Время жизки снаряда
              */
-            if (bullet.beforeDeactivationSec <= 0) {
+            if (bullet.untilDeactivationSec <= 0) {
                 this.deactivateBullet(world, bulletId);
 
                 continue;
             }
 
-            bullet.beforeDeactivationSec -= deltaSec;
+            bullet.untilDeactivationSec -= deltaSec;
 
             /**
              * Первая проверка столкновения
@@ -69,8 +66,7 @@ export class BulletSystem extends System {
             const hitableIndex = this.detectHit(hitableComponents, bullet);
 
             if (hitableIndex !== -1) {
-                this.deactivateBullet(world, bulletId);
-                console.log('hit!', hitableIds[hitableIndex]);
+                this.handleHit(world, bulletId, hitableIds[hitableIndex]!);
 
                 // Переходим к следующей пуле, эта попала
                 continue;
@@ -89,9 +85,18 @@ export class BulletSystem extends System {
             const hitableIndexMoved = this.detectHit(hitableComponents, bullet);
 
             if (hitableIndexMoved !== -1) {
-                this.deactivateBullet(world, bulletId);
-                console.log('hit moved!', hitableIds[hitableIndexMoved]);
+                this.handleHit(world, bulletId, hitableIds[hitableIndexMoved]!);
             }
+        }
+    }
+
+    private handleHit(world: World, bulletId: number, hitableId: number) {
+        const bullet = world.getComponent(Bullet, bulletId);
+        const hitable = world.getComponent(Hitable, hitableId);
+
+        hitable.health -= bullet.damage;
+        if (hitable.health <= 0) {
+            world.deleteComponent(Hitable, hitableId);
         }
     }
 
@@ -99,7 +104,7 @@ export class BulletSystem extends System {
         for (const id of world.select([Bullet])) {
             const bullet = world.getComponent(Bullet, id);
 
-            if (bullet.beforeDeactivationSec <= 0) {
+            if (bullet.untilDeactivationSec <= 0) {
                 return id;
             }
         }
@@ -120,7 +125,7 @@ export class BulletSystem extends System {
 
     private deactivateBullet(world: World, id: number) {
         const bullet = world.getComponent(Bullet, id);
-        bullet.beforeDeactivationSec = -1;
+        bullet.untilDeactivationSec = -1;
 
         if (world.hasComponent(GameObject, id)) {
             const go = world.getComponent(GameObject, id);
@@ -146,9 +151,9 @@ export class BulletSystem extends System {
 
     private detectHit(hitableComponents: readonly Hitable[], bullet: Bullet): number | -1 {
         for (let i = 0; i < hitableComponents.length; i++) {
-            const { sphere } = hitableComponents[i]!;
+            const { sphere, collisionMask } = hitableComponents[i]!;
 
-            if (sphere.containsPoint(bullet.position)) {
+            if (collisionMask == bullet.collisionMask && sphere.containsPoint(bullet.position)) {
                 return i;
             }
         }

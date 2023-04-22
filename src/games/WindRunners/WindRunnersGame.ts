@@ -11,7 +11,8 @@ import { JoystickSystem } from './JoystickSystem';
 import { AirplaneSystem } from './AirplaneSystem';
 import { PlayerControllerSystem } from './PlayerControllerSystem';
 import { EnemyControllerSystem } from './EnemyControllerSystem';
-import { BulletSystem } from './BulletSystem';
+import { HitSystem } from './HitSystem';
+import { PlayerShootingSystem } from './PlayerShootingSystem';
 
 export class WindRunnersGame extends Game {
     protected override configureSystems(
@@ -33,11 +34,12 @@ export class WindRunnersGame extends Game {
             new SceneSystem(scene),
             new SkySystem(projectionHelper, scene),
             new Following2DCameraSystem(camera),
-            new JoystickSystem(100, renderer),
+            new JoystickSystem(64, renderer),
             new AirplaneSystem(),
             new PlayerControllerSystem(),
             new EnemyControllerSystem(),
-            new BulletSystem(scene),
+            new HitSystem(scene),
+            new PlayerShootingSystem(),
         ]);
 
         systemsRuntime.initialize();
