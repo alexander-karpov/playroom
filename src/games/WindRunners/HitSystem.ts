@@ -1,42 +1,12 @@
-import * as THREE from 'three';
+import type * as THREE from 'three';
 import { System, type World } from '~/ecs';
 import { GameObject } from '~/components';
 import { Bullet } from './Bullet';
 import { Hitable } from './Hitable';
 
 export class HitSystem extends System {
-    public constructor(private readonly scene: THREE.Scene) {
+    public constructor() {
         super();
-    }
-
-    @System.on([Bullet])
-    private onBullet(world: World, id: number) {
-        const bullet = world.getComponent(Bullet, id);
-
-        const reusedBulletId = this.findDeactivatedBulletId(world);
-
-        if (reusedBulletId !== -1) {
-            const reusedBullet = world.getComponent(Bullet, reusedBulletId);
-
-            Bullet.copy(bullet, reusedBullet);
-
-            world.deleteComponent(Bullet, id);
-
-            this.activateBullet(world, reusedBulletId);
-        } else {
-            const go = world.addComponent(GameObject, id);
-
-            go.object3d = new THREE.Mesh(
-                new THREE.SphereGeometry(32),
-                new THREE.MeshStandardMaterial({
-                    color: 0xffff00,
-                })
-            );
-
-            this.scene.add(go.object3d);
-
-            this.activateBullet(world, id);
-        }
     }
 
     public override onSimulate(world: World, deltaSec: number): void {
@@ -97,29 +67,6 @@ export class HitSystem extends System {
         hitable.health -= bullet.damage;
         if (hitable.health <= 0) {
             world.deleteComponent(Hitable, hitableId);
-        }
-    }
-
-    private findDeactivatedBulletId(world: World): number | -1 {
-        for (const id of world.select([Bullet])) {
-            const bullet = world.getComponent(Bullet, id);
-
-            if (bullet.untilDeactivationSec <= 0) {
-                return id;
-            }
-        }
-
-        return -1;
-    }
-
-    private activateBullet(world: World, id: number) {
-        const bullet = world.getComponent(Bullet, id);
-
-        if (world.hasComponent(GameObject, id)) {
-            const go = world.getComponent(GameObject, id);
-
-            go.object3d.visible = true;
-            go.object3d.position.copy(bullet.position);
         }
     }
 
