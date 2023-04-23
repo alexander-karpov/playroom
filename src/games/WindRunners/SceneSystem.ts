@@ -43,7 +43,6 @@ export class SceneSystem extends System {
             this.addEnemy(gltf, world);
             this.addEnemy(gltf, world);
             this.addEnemy(gltf, world);
-            this.addEnemy(gltf, world);
         });
     }
 
@@ -58,7 +57,6 @@ export class SceneSystem extends System {
         this.scene.add(go.object3d);
 
         const airplane = world.addComponent(Airplane, id);
-        airplane.direction = new THREE.Vector3(1, 0, 0);
         airplane.turningSpeed = 4;
 
         const hitable = world.addComponent(Hitable, id);
@@ -82,7 +80,6 @@ export class SceneSystem extends System {
         this.scene.add(go.object3d);
 
         const airplane = world.addComponent(Airplane, id);
-        airplane.direction = new THREE.Vector3(1, 0, 0);
         airplane.direction.applyAxisAngle(new Vector3(0, 0, 1), Math.random() * Math.PI);
         airplane.turningSpeed = 4;
 

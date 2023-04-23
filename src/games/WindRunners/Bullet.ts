@@ -4,7 +4,7 @@ export class Bullet {
     public readonly position = new THREE.Vector3(0, 0);
     public readonly direction = new THREE.Vector3(0, 1);
 
-    public speed = 24;
+    public speed = 64;
     public untilDeactivationSec = 1;
     public targetMask = -1;
     public damage = 1;

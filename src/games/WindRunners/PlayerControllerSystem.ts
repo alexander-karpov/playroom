@@ -60,21 +60,8 @@ export class PlayerControllerSystem extends System {
             for (const playerId of world.select([Player, Airplane])) {
                 const airplane = world.getComponent(Airplane, playerId);
 
-                const rotationDir = rotationDirection(
-                    airplane.direction,
-                    this.worldJoystickDirection,
-                    this.screenNormal
-                );
-
-                const angle = Math.min(
-                    airplane.direction.angleTo(this.worldJoystickDirection),
-                    airplane.turningSpeed * joystick.tilt * deltaS
-                );
-
-                airplane.direction.applyAxisAngle(
-                    this.screenNormal,
-                    angle * Math.sign(rotationDir)
-                );
+                airplane.targetDirection.copy(this.worldJoystickDirection);
+                // airplane.turningSpeed = joystick.tilt * 4;
             }
         }
     }

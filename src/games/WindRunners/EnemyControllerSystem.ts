@@ -29,7 +29,7 @@ export class EnemyControllerSystem extends System {
         for (const enemyId of world.select([Enemy, Airplane])) {
             const enemyGo = world.getComponent(GameObject, enemyId);
             const enemy = world.getComponent(Enemy, enemyId);
-            const enemyAirplane = world.getComponent(Airplane, enemyId);
+            const { targetDirection } = world.getComponent(Airplane, enemyId);
 
             enemy.untilTurnSec += deltaS;
 
@@ -39,12 +39,10 @@ export class EnemyControllerSystem extends System {
                 for (const playerId of world.select([Player, Airplane])) {
                     const playerGo = world.getComponent(GameObject, playerId);
 
-                    enemyAirplane.direction
+                    targetDirection
                         .copy(playerGo.object3d.position)
                         .sub(enemyGo.object3d.position)
                         .normalize();
-
-                    enemyAirplane.engineOn = Math.random() > 0.5;
                 }
             }
         }
