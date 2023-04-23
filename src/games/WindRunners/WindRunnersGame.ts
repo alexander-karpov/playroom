@@ -12,7 +12,7 @@ import { AirplaneSystem } from './AirplaneSystem';
 import { PlayerControllerSystem } from './PlayerControllerSystem';
 import { EnemyControllerSystem } from './EnemyControllerSystem';
 import { HitSystem } from './HitSystem';
-import { PlayerShootingSystem } from './PlayerShootingSystem';
+import { ShootingSystem } from './ShootingSystem';
 
 export class WindRunnersGame extends Game {
     protected override configureSystems(
@@ -39,7 +39,7 @@ export class WindRunnersGame extends Game {
             new PlayerControllerSystem(),
             new EnemyControllerSystem(),
             new HitSystem(scene),
-            new PlayerShootingSystem(),
+            new ShootingSystem(),
         ]);
 
         systemsRuntime.initialize();

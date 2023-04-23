@@ -1,1 +1,3 @@
-export class Enemy {}
+export class Enemy {
+    public untilTurnSec = 0;
+}

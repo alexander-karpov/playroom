@@ -151,9 +151,9 @@ export class HitSystem extends System {
 
     private detectHit(hitableComponents: readonly Hitable[], bullet: Bullet): number | -1 {
         for (let i = 0; i < hitableComponents.length; i++) {
-            const { sphere, collisionMask } = hitableComponents[i]!;
+            const { sphere, mask: collisionMask } = hitableComponents[i]!;
 
-            if (collisionMask == bullet.collisionMask && sphere.containsPoint(bullet.position)) {
+            if (collisionMask == bullet.targetMask && sphere.containsPoint(bullet.position)) {
                 return i;
             }
         }

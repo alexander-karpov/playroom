@@ -4,10 +4,30 @@ import { Player } from './Player';
 import { Joystick } from './Joystick';
 import { Airplane } from './Airplane';
 import { rotationDirection } from '~/utils/dotBetween';
+import { GameObject } from '~/components';
+import { Hitable } from './Hitable';
 
 export class PlayerControllerSystem extends System {
     private readonly worldJoystickDirection = new THREE.Vector3();
     private readonly screenNormal = new THREE.Vector3(0, 0, 1);
+
+    @System.onNot([Player, GameObject, Hitable])
+    private detachHitable(world: World, id: number) {
+        const hitable = world.getComponent(Hitable, id);
+        const { object3d } = world.getComponent(GameObject, id);
+
+        object3d.position.set(0, 0, 0);
+        object3d.visible = false;
+
+        setTimeout(() => {
+            const hitable2 = world.addComponent(Hitable, id);
+
+            Hitable.copy(hitable, hitable2);
+
+            hitable2.health = 1;
+            object3d.visible = true;
+        }, 1000);
+    }
 
     @System.on([Joystick])
     private onJoystick(world: World, id: number) {

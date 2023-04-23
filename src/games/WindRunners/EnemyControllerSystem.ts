@@ -7,8 +7,6 @@ import { GameObject } from '~/components';
 import { Hitable } from './Hitable';
 
 export class EnemyControllerSystem extends System {
-    private timeS = 0;
-
     @System.onNot([Enemy, GameObject, Hitable])
     private detachHitable(world: World, id: number) {
         const hitable = world.getComponent(Hitable, id);
@@ -28,13 +26,16 @@ export class EnemyControllerSystem extends System {
     }
 
     public override onSimulate(world: World, deltaS: number): void {
-        this.timeS += deltaS;
-
         for (const enemyId of world.select([Enemy, Airplane])) {
             const enemyGo = world.getComponent(GameObject, enemyId);
+            const enemy = world.getComponent(Enemy, enemyId);
             const enemyAirplane = world.getComponent(Airplane, enemyId);
 
-            if (this.timeS > 3) {
+            enemy.untilTurnSec += deltaS;
+
+            if (enemy.untilTurnSec > 3) {
+                enemy.untilTurnSec = 0;
+
                 for (const playerId of world.select([Player, Airplane])) {
                     const playerGo = world.getComponent(GameObject, playerId);
 
@@ -44,8 +45,6 @@ export class EnemyControllerSystem extends System {
                         .normalize();
 
                     enemyAirplane.engineOn = Math.random() > 0.5;
-
-                    this.timeS = 0;
                 }
             }
         }
