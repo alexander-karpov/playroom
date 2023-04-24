@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
 import { Player } from './Player';
-import { Airplane } from './Airplane';
+import { Ship } from './Ship';
 import { Enemy } from './Enemy';
 import { GameObject } from '~/components';
 import { Hitable } from './Hitable';
@@ -20,23 +20,23 @@ export class EnemyControllerSystem extends System {
 
             Hitable.copy(hitable, hitable2);
 
-            hitable2.health = 1;
+            hitable2.health = 5;
             object3d.visible = true;
         }, 1000);
     }
 
     public override onSimulate(world: World, deltaS: number): void {
-        for (const enemyId of world.select([Enemy, Airplane])) {
+        for (const enemyId of world.select([Enemy, Ship])) {
             const enemyGo = world.getComponent(GameObject, enemyId);
             const enemy = world.getComponent(Enemy, enemyId);
-            const { targetDirection } = world.getComponent(Airplane, enemyId);
+            const { targetDirection } = world.getComponent(Ship, enemyId);
 
             enemy.untilTurnSec += deltaS;
 
             if (enemy.untilTurnSec > 3) {
                 enemy.untilTurnSec = 0;
 
-                for (const playerId of world.select([Player, Airplane])) {
+                for (const playerId of world.select([Player, Ship])) {
                     const playerGo = world.getComponent(GameObject, playerId);
 
                     targetDirection

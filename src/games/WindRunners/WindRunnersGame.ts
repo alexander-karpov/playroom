@@ -6,13 +6,14 @@ import { Game } from '../../Game';
 import { SceneSystem } from './SceneSystem';
 import { SkySystem } from '~/systems/SkySystem';
 import { ProjectionHelper } from '~/utils/ProjectionHelper';
-import { Following2DCameraSystem } from './Following2DCameraSystem';
+import { ShipCameraSystem } from './ShipCameraSystem';
 import { JoystickSystem } from './JoystickSystem';
 import { AirplaneSystem } from './AirplaneSystem';
 import { PlayerControllerSystem } from './PlayerControllerSystem';
 import { EnemyControllerSystem } from './EnemyControllerSystem';
 import { HitSystem } from './HitSystem';
 import { ShootingSystem } from './ShootingSystem';
+import { TargetSelectionSystem } from './TargetSelectionSystem';
 
 export class WindRunnersGame extends Game {
     protected override configureSystems(
@@ -33,13 +34,14 @@ export class WindRunnersGame extends Game {
         const systemsRuntime = new Runtime([
             new SceneSystem(scene, camera as THREE.OrthographicCamera),
             new SkySystem(projectionHelper, scene),
-            new Following2DCameraSystem(camera),
+            new ShipCameraSystem(camera),
             new JoystickSystem(64, renderer),
             new AirplaneSystem(),
             new PlayerControllerSystem(),
             new EnemyControllerSystem(),
             new HitSystem(),
             new ShootingSystem(scene),
+            new TargetSelectionSystem(scene),
         ]);
 
         systemsRuntime.initialize();

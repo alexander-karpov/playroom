@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
 import { GameObject } from '~/components';
-import { Airplane } from './Airplane';
+import { Ship } from './Ship';
 import { Gun } from './Gun';
 import { rotationDirection } from '~/utils/dotBetween';
 
@@ -9,10 +9,10 @@ export class AirplaneSystem extends System {
     private readonly screenNormal = new THREE.Vector3(0, 0, 1);
 
     public override onSimulate(world: World, deltaS: number): void {
-        for (const id of world.select([Airplane, GameObject])) {
+        for (const id of world.select([Ship, GameObject])) {
             const { object3d } = world.getComponent(GameObject, id);
             const { speed, direction, targetDirection, turningSpeed } = world.getComponent(
-                Airplane,
+                Ship,
                 id
             );
 

@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { System, type World } from '~/ecs';
 import { GameObject } from '~/components';
 import { Bullet } from './Bullet';
-import { Bits } from '~/utils/Bits';
 import { Hitable } from './Hitable';
 import { Gun } from './Gun';
 import type { Vector3 } from 'three';
@@ -45,7 +44,7 @@ export class ShootingSystem extends System {
 
                 if (angle <= gun.angle) {
                     this.createBullet(world, gunGo, gun, this.directionToTarget);
-                    gun.untilNextShotSec = gun.delayBetweenShotsSec;
+                    gun.untilNextShotSec = 1 / gun.fireRateInSec;
                     break;
                 }
             }
@@ -85,11 +84,10 @@ export class ShootingSystem extends System {
         const go = world.addComponent(GameObject, id);
 
         go.object3d = new THREE.Mesh(
-            new THREE.PlaneGeometry(128, 4),
+            new THREE.PlaneGeometry(64, 4),
             new THREE.MeshBasicMaterial({
                 color: 0x60ff00,
-                opacity: 0.7,
-                transparent: true,
+                transparent: false,
                 depthTest: false,
                 depthWrite: false,
             })

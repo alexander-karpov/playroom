@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import { System, type World } from '~/ecs';
 import { type GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Player } from './Player';
-import { GameObject } from '~/components';
-import { Airplane } from './Airplane';
+import { Active, GameObject } from '~/components';
+import { Ship } from './Ship';
 import { Enemy } from './Enemy';
 import { Bullet } from './Bullet';
 import { Hitable } from './Hitable';
@@ -48,6 +48,7 @@ export class SceneSystem extends System {
 
     private addPlayer(gltf: GLTF, world: World) {
         const [id] = world.addEntity(Player);
+        world.addComponent(Active, id);
 
         const go = world.addComponent(GameObject, id);
         go.object3d = new Object3D();
@@ -56,19 +57,22 @@ export class SceneSystem extends System {
 
         this.scene.add(go.object3d);
 
-        const airplane = world.addComponent(Airplane, id);
-        airplane.turningSpeed = 4;
+        const airplane = world.addComponent(Ship, id);
+        airplane.turningSpeed = 3;
 
         const hitable = world.addComponent(Hitable, id);
         hitable.mask = Bits.bit(CollisionMasks.Player);
+        hitable.health = 10;
         new THREE.Box3().setFromObject(go.object3d).getBoundingSphere(hitable.sphere);
 
         const gun = world.addComponent(Gun, id);
         gun.targetMask = Bits.bit(CollisionMasks.Enemy);
+        gun.fireRateInSec = 4;
     }
 
     private addEnemy(gltf: GLTF, world: World) {
         const [id, enemy] = world.addEntity(Enemy);
+        world.addComponent(Active, id);
         enemy.untilTurnSec = 1 + Math.random() * 3;
         const go = world.addComponent(GameObject, id);
 
@@ -79,12 +83,13 @@ export class SceneSystem extends System {
 
         this.scene.add(go.object3d);
 
-        const airplane = world.addComponent(Airplane, id);
+        const airplane = world.addComponent(Ship, id);
         airplane.direction.applyAxisAngle(new Vector3(0, 0, 1), Math.random() * Math.PI);
-        airplane.turningSpeed = 4;
+        airplane.turningSpeed = 2;
 
         const hitable = world.addComponent(Hitable, id);
         hitable.mask = Bits.bit(CollisionMasks.Enemy);
+        hitable.health = 5;
         new THREE.Box3().setFromObject(go.object3d).getBoundingSphere(hitable.sphere);
 
         const gun = world.addComponent(Gun, id);
