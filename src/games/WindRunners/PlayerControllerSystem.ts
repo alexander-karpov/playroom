@@ -44,6 +44,9 @@ export class PlayerControllerSystem extends System {
             const airplane = world.getComponent(Airplane, playerId);
 
             airplane.engineOn = false;
+
+            // Прекращаем поворот если пользователь отпустил джойстик
+            airplane.targetDirection.copy(airplane.direction);
         }
     }
 
