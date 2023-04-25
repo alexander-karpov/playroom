@@ -3,8 +3,9 @@ import { System, type World } from '~/ecs';
 import { Player } from './Player';
 import { Ship } from './Ship';
 import { Enemy } from './Enemy';
-import { GameObject } from '~/components';
+import { Active, GameObject } from '~/components';
 import { Hitable } from './Hitable';
+import { Target } from './Target';
 
 export class EnemyControllerSystem extends System {
     @System.onNot([Enemy, GameObject, Hitable])
@@ -15,13 +16,25 @@ export class EnemyControllerSystem extends System {
         object3d.position.set(0, 0, 0);
         object3d.visible = false;
 
+        if (world.hasComponent(Active, id)) {
+            world.deleteComponent(Active, id);
+        }
+
+        if (world.hasComponent(Target, id)) {
+            world.deleteComponent(Target, id);
+        }
+
         setTimeout(() => {
             const hitable2 = world.addComponent(Hitable, id);
 
             Hitable.copy(hitable, hitable2);
 
-            hitable2.health = 5;
+            hitable2.health = 10;
             object3d.visible = true;
+
+            if (!world.hasComponent(Active, id)) {
+                world.addComponent(Active, id);
+            }
         }, 1000);
     }
 

@@ -18,7 +18,7 @@ export class TargetSelectionSystem extends System {
         this.targetMarker = new THREE.Mesh(
             new THREE.PlaneGeometry(64, 64),
             new THREE.MeshBasicMaterial({
-                color: 0x60ff00,
+                color: 0x60f000,
                 transparent: false,
                 depthTest: false,
                 depthWrite: false,

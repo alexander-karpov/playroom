@@ -20,6 +20,10 @@ export class PlayerControllerSystem extends System {
         object3d.position.set(0, 0, 0);
         object3d.visible = false;
 
+        if (world.hasComponent(Active, id)) {
+            world.deleteComponent(Active, id);
+        }
+
         setTimeout(() => {
             const hitable2 = world.addComponent(Hitable, id);
 
@@ -27,6 +31,10 @@ export class PlayerControllerSystem extends System {
 
             hitable2.health = 10;
             object3d.visible = true;
+
+            if (!world.hasComponent(Active, id)) {
+                world.addComponent(Active, id);
+            }
         }, 1000);
     }
 

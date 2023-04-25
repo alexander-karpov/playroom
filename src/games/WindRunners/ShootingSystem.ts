@@ -43,7 +43,7 @@ export class ShootingSystem extends System {
                 const angle = gun.direction.angleTo(this.directionToTarget);
 
                 if (angle <= gun.angle) {
-                    this.createBullet(world, gunGo, gun, this.directionToTarget);
+                    this.createBullet(world, gunGo, gun);
                     gun.untilNextShotSec = 1 / gun.fireRateInSec;
                     break;
                 }
@@ -51,12 +51,12 @@ export class ShootingSystem extends System {
         }
     }
 
-    private createBullet(world: World, gunGo: GameObject, gun: Gun, directionToTarget: Vector3) {
+    private createBullet(world: World, gunGo: GameObject, gun: Gun) {
         const [id, bullet, go] = this.findUnusedOrCreateNewBullet(world);
 
         bullet.position.copy(gunGo.object3d.position);
         bullet.position.addScaledVector(gun.direction, 64);
-        bullet.direction.copy(directionToTarget);
+        bullet.direction.copy(gun.direction);
         bullet.untilDeactivationSec = 1;
         bullet.targetMask = gun.targetMask;
 

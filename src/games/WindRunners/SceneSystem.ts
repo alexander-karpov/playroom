@@ -43,6 +43,7 @@ export class SceneSystem extends System {
             this.addEnemy(gltf, world);
             this.addEnemy(gltf, world);
             this.addEnemy(gltf, world);
+            this.addEnemy(gltf, world);
         });
     }
 
@@ -67,7 +68,7 @@ export class SceneSystem extends System {
 
         const gun = world.addComponent(Gun, id);
         gun.targetMask = Bits.bit(CollisionMasks.Enemy);
-        gun.fireRateInSec = 4;
+        gun.fireRateInSec = 8;
     }
 
     private addEnemy(gltf: GLTF, world: World) {
@@ -85,15 +86,16 @@ export class SceneSystem extends System {
 
         const airplane = world.addComponent(Ship, id);
         airplane.direction.applyAxisAngle(new Vector3(0, 0, 1), Math.random() * Math.PI);
-        airplane.turningSpeed = 2;
+        airplane.turningSpeed = 3;
 
         const hitable = world.addComponent(Hitable, id);
         hitable.mask = Bits.bit(CollisionMasks.Enemy);
-        hitable.health = 5;
+        hitable.health = 10;
         new THREE.Box3().setFromObject(go.object3d).getBoundingSphere(hitable.sphere);
 
         const gun = world.addComponent(Gun, id);
         gun.targetMask = Bits.bit(CollisionMasks.Player);
+        gun.fireRateInSec = 1;
     }
 
     private loadModel(filename: string): Promise<GLTF> {
