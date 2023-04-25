@@ -164,6 +164,28 @@ export class World {
         return counter;
     }
 
+    public selectExcept(
+        query: readonly ComponentClass[],
+        exceptQuery: readonly ComponentClass[]
+    ): readonly EntityId[] {
+        const selectResult = [];
+        const queryMask = this.queryMask(query);
+        const exceptMask = this.queryMask(exceptQuery);
+
+        for (let entityId = 0; entityId < this.entities.length; entityId++) {
+            const existsAndAddedMask = this.entities[entityId]! | this.added[entityId]!;
+
+            if (
+                (existsAndAddedMask & queryMask) === queryMask &&
+                (existsAndAddedMask & exceptMask) === 0
+            ) {
+                selectResult.push(entityId);
+            }
+        }
+
+        return selectResult;
+    }
+
     public onAdd(query: readonly ComponentClass[], handler: EntityChangeHandler): void {
         const queryMask = this.queryMask(query);
 

@@ -89,6 +89,26 @@ describe('ECS / World', () => {
         });
     });
 
+    describe('Запросы', () => {
+        test('Исключающий запрос', () => {
+            /**
+             * Проверяет в т.ч. список добавляемых компонентов.
+             * Иначе новые сущности не могут участвовать в логике
+             * до применения изменений
+             */
+
+            const world = new World();
+            const [id, a] = world.addEntity(CompA);
+            world.addComponent(CompB, id);
+
+            const idsExceptB = world.selectExcept([CompA], [CompB]);
+            expect(idsExceptB).not.toContain(id);
+
+            const idsExceptC = world.selectExcept([CompA, CompB], [CompC]);
+            expect(idsExceptC).toContain(id);
+        });
+    });
+
     test('Подписка срабатывает один раз при добавлении', () => {
         const world = new World();
         let calledTimes = 0;
