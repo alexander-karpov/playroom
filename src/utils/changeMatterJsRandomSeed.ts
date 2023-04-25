@@ -1,6 +1,6 @@
-import { Common } from 'matter-js';
+import { type Common } from 'matter-js';
 
-export function changeMatterJsRandomSeed(): void {
+export function changeMatterJsRandomSeed(commonModule: Common): void {
     // @ts-expect-error
     if (typeof Common._seed !== 'number') {
         throw new Error('Пропало поле Common._seed');
@@ -9,4 +9,3 @@ export function changeMatterJsRandomSeed(): void {
     // @ts-expect-error
     Common._seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
 }
-

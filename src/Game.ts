@@ -1,5 +1,4 @@
 import type { Runtime } from '~/ecs';
-import { changeMatterJsRandomSeed } from '~/utils/changeMatterJsRandomSeed';
 import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
@@ -8,9 +7,14 @@ import { ScreenSizeSource } from './utils/ScreenSizeSource';
 
 export abstract class Game {
     protected readonly screenSizeSource = new ScreenSizeSource();
+    private isRun = false;
 
     public run() {
-        changeMatterJsRandomSeed();
+        if (this.isRun) {
+            throw new Error('Game already run');
+        }
+
+        this.isRun = true;
 
         /**
          * Scene
@@ -67,8 +71,6 @@ export abstract class Game {
         }
 
         animate(performance.now());
-
-        // void yandexSdk.then((sdk) => sdk.features.LoadingAPI?.ready());
     }
 
     protected createCamera(): THREE.Camera {
