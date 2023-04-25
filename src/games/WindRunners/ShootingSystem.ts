@@ -1,16 +1,18 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
-import { GameObject } from '~/components';
+import { Active, GameObject, RigibBody } from '~/components';
 import { Bullet } from './Bullet';
 import { Hitable } from './Hitable';
 import { Gun } from './Gun';
-import type { Vector3 } from 'three';
+import { Bodies, Body, Composite, type Engine } from 'matter-js';
+import { signedAngleBetween } from '~/utils/signedAngleBetween';
 
 export class ShootingSystem extends System {
     private readonly directionToTarget = new THREE.Vector3();
     private readonly rightDirection = new THREE.Vector3(1, 0, 0);
+    private readonly screenNormal = new THREE.Vector3(0, 0, 1);
 
-    public constructor(private readonly scene: THREE.Scene) {
+    public constructor(private readonly scene: THREE.Scene, private readonly engine: Engine) {
         super();
     }
 
@@ -43,7 +45,7 @@ export class ShootingSystem extends System {
                 const angle = gun.direction.angleTo(this.directionToTarget);
 
                 if (angle <= gun.angle) {
-                    this.createBullet(world, gunGo, gun);
+                    this.fireProjectile(world, gunGo, gun);
                     gun.untilNextShotSec = 1 / gun.fireRateInSec;
                     break;
                 }
@@ -51,35 +53,38 @@ export class ShootingSystem extends System {
         }
     }
 
-    private createBullet(world: World, gunGo: GameObject, gun: Gun) {
-        const [id, bullet, go] = this.findUnusedOrCreateNewBullet(world);
+    private fireProjectile(world: World, gunGo: GameObject, gun: Gun) {
+        const id = this.findUnusedOrCreateBullet(world);
 
-        bullet.position.copy(gunGo.object3d.position);
-        bullet.position.addScaledVector(gun.direction, 64);
-        bullet.direction.copy(gun.direction);
-        bullet.untilDeactivationSec = 1;
-        bullet.targetMask = gun.targetMask;
+        const projectile = world.getComponent(Bullet, id);
+        const { object3d } = world.getComponent(GameObject, id);
+        const { body } = world.getComponent(RigibBody, id);
 
-        go.object3d.quaternion.setFromUnitVectors(this.rightDirection, bullet.direction);
-        go.object3d.visible = true;
+        projectile.untilDeactivationSec = 1;
+        object3d.visible = true;
+        Body.setVelocity(body, gun.direction.clone().multiplyScalar(32));
+        Body.setPosition(
+            body,
+            gunGo.object3d.position.clone().add(gun.direction.clone().multiplyScalar(64))
+        );
+        Body.setAngle(
+            body,
+            -signedAngleBetween(gun.direction, this.rightDirection, this.screenNormal)
+        );
+        Composite.add(this.engine.world, body);
     }
 
-    private findUnusedOrCreateNewBullet(world: World): [number, Bullet, GameObject] {
-        for (const id of world.select([Bullet])) {
-            const bullet = world.getComponent(Bullet, id);
-
-            if (bullet.untilDeactivationSec <= 0) {
-                const go = world.getComponent(GameObject, id);
-
-                return [id, bullet, go];
-            }
+    private findUnusedOrCreateBullet(world: World): number {
+        for (const id of world.selectExcept([Bullet], [Active])) {
+            return id;
         }
 
-        return this.createNewBullet(world);
+        return this.createBullet(world);
     }
 
-    private createNewBullet(world: World): [number, Bullet, GameObject] {
-        const [id, bullet] = world.addEntity(Bullet);
+    private createBullet(world: World): number {
+        const [id] = world.addEntity(Bullet);
+        world.addComponent(Active, id);
 
         const go = world.addComponent(GameObject, id);
 
@@ -95,17 +100,9 @@ export class ShootingSystem extends System {
 
         this.scene.add(go.object3d);
 
-        return [id, bullet, go];
-    }
+        const rb = world.addComponent(RigibBody, id);
+        rb.body = Bodies.rectangle(0, 0, 64, 4);
 
-    private activateBullet(world: World, id: number) {
-        const bullet = world.getComponent(Bullet, id);
-
-        if (world.hasComponent(GameObject, id)) {
-            const go = world.getComponent(GameObject, id);
-
-            go.object3d.visible = true;
-            go.object3d.position.copy(bullet.position);
-        }
+        return id;
     }
 }

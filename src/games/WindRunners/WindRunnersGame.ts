@@ -8,12 +8,14 @@ import { SkySystem } from '~/systems/SkySystem';
 import { ProjectionHelper } from '~/utils/ProjectionHelper';
 import { ShipCameraSystem } from './ShipCameraSystem';
 import { JoystickSystem } from './JoystickSystem';
-import { AirplaneSystem } from './AirplaneSystem';
+import { ShipSystem } from './ShipSystem';
 import { PlayerControllerSystem } from './PlayerControllerSystem';
 import { EnemyControllerSystem } from './EnemyControllerSystem';
 import { HitSystem } from './HitSystem';
 import { ShootingSystem } from './ShootingSystem';
 import { TargetSelectionSystem } from './TargetSelectionSystem';
+import { Engine } from 'matter-js';
+import { SyncPhysicsSystem } from '~/systems/SyncPhysicsSystem';
 
 export class WindRunnersGame extends Game {
     protected override configureSystems(
@@ -29,18 +31,28 @@ export class WindRunnersGame extends Game {
         const projectionHelper = new ProjectionHelper(this.screenSizeSource, camera);
 
         /**
+         * Physics
+         */
+        const engine = Engine.create({
+            gravity: { x: 0, y: 0 },
+            // TODO: не работает засыпание, предметы просто зависают
+            enableSleeping: false,
+        });
+
+        /**
          * Systems
          */
         const systemsRuntime = new Runtime([
-            new SceneSystem(scene, camera as THREE.OrthographicCamera),
+            new SyncPhysicsSystem(engine),
+            new SceneSystem(scene, camera as THREE.OrthographicCamera, engine),
             new SkySystem(projectionHelper, scene),
             new ShipCameraSystem(camera),
             new JoystickSystem(64, renderer),
-            new AirplaneSystem(),
+            new ShipSystem(),
             new PlayerControllerSystem(),
             new EnemyControllerSystem(),
             new HitSystem(),
-            new ShootingSystem(scene),
+            new ShootingSystem(scene, engine),
             new TargetSelectionSystem(scene),
         ]);
 

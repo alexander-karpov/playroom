@@ -9,107 +9,88 @@ export class HitSystem extends System {
         super();
     }
 
-    public override onSimulate(world: World, deltaSec: number): void {
-        const hitableIds = world.select([Hitable, GameObject]);
-        const hitableGos = hitableIds.map((id) => world.getComponent(GameObject, id));
-        const hitableComponents = hitableIds.map((id) => world.getComponent(Hitable, id));
+    // public override onSimulate(world: World, deltaSec: number): void {
+    //     const hitableIds = world.select([Hitable, GameObject]);
+    //     const hitableGos = hitableIds.map((id) => world.getComponent(GameObject, id));
+    //     const hitableComponents = hitableIds.map((id) => world.getComponent(Hitable, id));
 
-        this.updateHitableSpheres(hitableComponents, hitableGos);
+    //     this.updateHitableSpheres(hitableComponents, hitableGos);
 
-        for (const bulletId of world.select([Bullet, GameObject])) {
-            const bullet = world.getComponent(Bullet, bulletId);
+    //     for (const bulletId of world.select([Bullet, GameObject])) {
+    //         const bullet = world.getComponent(Bullet, bulletId);
 
-            /**
-             * Время жизки снаряда
-             */
-            if (bullet.untilDeactivationSec <= 0) {
-                this.deactivateBullet(world, bulletId);
+    //         /**
+    //          * Время жизки снаряда
+    //          */
+    //         if (bullet.untilDeactivationSec <= 0) {
+    //             this.deactivateBullet(world, bulletId);
 
-                continue;
-            }
+    //             continue;
+    //         }
 
-            bullet.untilDeactivationSec -= deltaSec;
+    //         bullet.untilDeactivationSec -= deltaSec;
 
-            /**
-             * Первая проверка столкновения
-             */
-            const hitableIndex = this.detectHit(hitableComponents, bullet);
+    //         /**
+    //          * Первая проверка столкновения
+    //          */
+    //         const hitableIndex = this.detectHit(hitableComponents, bullet);
 
-            if (hitableIndex !== -1) {
-                this.handleHit(world, bulletId, hitableIds[hitableIndex]!);
+    //         if (hitableIndex !== -1) {
+    //             this.handleHit(world, bulletId, hitableIds[hitableIndex]!);
 
-                // Переходим к следующей пуле, эта попала
-                continue;
-            }
+    //             // Переходим к следующей пуле, эта попала
+    //             continue;
+    //         }
 
-            /**
-             * Небольшая интерполяция, чтобы пули сильно не пролетали мимо объектов
-             *  - двигаем пулю
-             *  - снова проверяем попадание
-             */
-            this.moveBullet(world, bulletId, bullet);
+    //         /**
+    //          * Небольшая интерполяция, чтобы пули сильно не пролетали мимо объектов
+    //          *  - двигаем пулю
+    //          *  - снова проверяем попадание
+    //          */
+    //         this.moveBullet(world, bulletId, bullet);
 
-            /**
-             * Вторая проверка
-             */
-            const hitableIndexMoved = this.detectHit(hitableComponents, bullet);
+    //         /**
+    //          * Вторая проверка
+    //          */
+    //         const hitableIndexMoved = this.detectHit(hitableComponents, bullet);
 
-            if (hitableIndexMoved !== -1) {
-                this.handleHit(world, bulletId, hitableIds[hitableIndexMoved]!);
-            }
-        }
-    }
+    //         if (hitableIndexMoved !== -1) {
+    //             this.handleHit(world, bulletId, hitableIds[hitableIndexMoved]!);
+    //         }
+    //     }
+    // }
 
-    private handleHit(world: World, bulletId: number, hitableId: number) {
-        const bullet = world.getComponent(Bullet, bulletId);
-        const hitable = world.getComponent(Hitable, hitableId);
+    // private handleHit(world: World, bulletId: number, hitableId: number) {
+    //     const bullet = world.getComponent(Bullet, bulletId);
+    //     const hitable = world.getComponent(Hitable, hitableId);
 
-        console.log(' hitable.health', hitable.health);
-        hitable.health -= bullet.damage;
-        console.log(' hitable.health -= bullet.damage', hitable.health);
+    //     console.log(' hitable.health', hitable.health);
+    //     hitable.health -= bullet.damage;
+    //     console.log(' hitable.health -= bullet.damage', hitable.health);
 
-        if (hitable.health <= 0) {
-            world.deleteComponent(Hitable, hitableId);
-        }
+    //     if (hitable.health <= 0) {
+    //         world.deleteComponent(Hitable, hitableId);
+    //     }
 
-        this.deactivateBullet(world, bulletId);
-    }
+    //     this.deactivateBullet(world, bulletId);
+    // }
 
-    private deactivateBullet(world: World, id: number) {
-        const bullet = world.getComponent(Bullet, id);
-        bullet.untilDeactivationSec = -1;
+    // private deactivateBullet(world: World, id: number) {
+    //     const bullet = world.getComponent(Bullet, id);
+    //     bullet.untilDeactivationSec = -1;
 
-        if (world.hasComponent(GameObject, id)) {
-            const go = world.getComponent(GameObject, id);
-            go.object3d.visible = false;
-        }
-    }
+    //     if (world.hasComponent(GameObject, id)) {
+    //         const go = world.getComponent(GameObject, id);
+    //         go.object3d.visible = false;
+    //     }
+    // }
 
-    private updateHitableSpheres(hitableComponents: Hitable[], hitableGos: GameObject[]) {
-        for (let i = 0; i < hitableComponents.length; i++) {
-            const { object3d } = hitableGos[i]!;
-            const hitable = hitableComponents[i]!;
+    // private updateHitableSpheres(hitableComponents: Hitable[], hitableGos: GameObject[]) {
+    //     for (let i = 0; i < hitableComponents.length; i++) {
+    //         const { object3d } = hitableGos[i]!;
+    //         const hitable = hitableComponents[i]!;
 
-            hitable.sphere.center.copy(object3d.position);
-        }
-    }
-
-    private moveBullet(world: World, bulletId: number, bullet: Bullet) {
-        bullet.position.addScaledVector(bullet.direction, bullet.speed);
-
-        const go = world.getComponent(GameObject, bulletId);
-        go.object3d.position.copy(bullet.position);
-    }
-
-    private detectHit(hitableComponents: readonly Hitable[], bullet: Bullet): number | -1 {
-        for (let i = 0; i < hitableComponents.length; i++) {
-            const { sphere, mask: collisionMask } = hitableComponents[i]!;
-
-            if (collisionMask == bullet.targetMask && sphere.containsPoint(bullet.position)) {
-                return i;
-            }
-        }
-
-        return -1;
-    }
+    //         hitable.sphere.center.copy(object3d.position);
+    //     }
+    // }
 }

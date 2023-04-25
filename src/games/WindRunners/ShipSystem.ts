@@ -1,16 +1,19 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
-import { GameObject } from '~/components';
+import { Active, GameObject, RigibBody } from '~/components';
 import { Ship } from './Ship';
 import { Gun } from './Gun';
 import { rotationDirection } from '~/utils/dotBetween';
+import { Body } from 'matter-js';
 
-export class AirplaneSystem extends System {
+export class ShipSystem extends System {
     private readonly screenNormal = new THREE.Vector3(0, 0, 1);
+    private readonly movement = new THREE.Vector3(0, 0, 0);
 
     public override onSimulate(world: World, deltaS: number): void {
-        for (const id of world.select([Ship, GameObject])) {
+        for (const id of world.select([Ship, GameObject, RigibBody, Active])) {
             const { object3d } = world.getComponent(GameObject, id);
+            const { body } = world.getComponent(RigibBody, id);
             const { speed, direction, targetDirection, turningSpeed } = world.getComponent(
                 Ship,
                 id
@@ -33,7 +36,8 @@ export class AirplaneSystem extends System {
                 }
             }
 
-            object3d.position.addScaledVector(direction, speed * deltaS);
+            this.movement.copy(direction).multiplyScalar(speed * deltaS);
+            Body.translate(body, this.movement);
         }
     }
 }

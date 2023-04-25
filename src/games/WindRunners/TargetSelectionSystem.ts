@@ -2,7 +2,7 @@ import { System, type World } from '~/ecs';
 import { Target } from './Target';
 import { Ship } from './Ship';
 import { Enemy } from './Enemy';
-import { Active, GameObject } from '~/components';
+import { Active, RigibBody } from '~/components';
 import { Player } from './Player';
 import * as THREE from 'three';
 
@@ -35,10 +35,15 @@ export class TargetSelectionSystem extends System {
 
         this.targetMarker.visible = false;
 
-        for (const id of world.select([Target, Active, GameObject])) {
-            const go = world.getComponent(GameObject, id);
+        for (const id of world.select([Target, Active, RigibBody])) {
+            const { body } = world.getComponent(RigibBody, id);
 
-            this.targetMarker.position.copy(go.object3d.position);
+            this.targetMarker.position.set(
+                body.position.x,
+                body.position.y,
+                this.targetMarker.position.z
+            );
+
             this.targetMarker.visible = true;
         }
     }
@@ -47,7 +52,7 @@ export class TargetSelectionSystem extends System {
         let nearestEnemyId = -1;
         let distanceSqToNearestEnemy = Number.MAX_SAFE_INTEGER;
 
-        for (const id of world.select([Player, Ship, GameObject, Active])) {
+        for (const id of world.select([Player, Ship, RigibBody, Active])) {
             const ship = world.getComponent(Ship, id);
 
             // Фиксируемся на цели когда двигатель выключен
@@ -55,10 +60,10 @@ export class TargetSelectionSystem extends System {
                 return;
             }
 
-            const go = world.getComponent(GameObject, id);
+            const { body } = world.getComponent(RigibBody, id);
 
-            for (const enemyId of world.select([Enemy, GameObject, Active])) {
-                const enemyGo = world.getComponent(GameObject, enemyId);
+            for (const enemyId of world.select([Enemy, RigibBody, Active])) {
+                const { body: enemyBody } = world.getComponent(RigibBody, enemyId);
 
                 const distanceSq = go.object3d.position.distanceToSquared(
                     enemyGo.object3d.position
