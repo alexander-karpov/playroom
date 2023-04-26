@@ -5,10 +5,12 @@ import { Enemy } from './Enemy';
 import { Active, RigibBody } from '~/components';
 import { Player } from './Player';
 import * as THREE from 'three';
+import { Body, Vector } from 'matter-js';
+import { VectorEx } from '~/utils/VectorEx';
 
 export class TargetSelectionSystem extends System {
-    private readonly directionToEnemy = new THREE.Vector3();
-    private readonly maxAngleToTarget = Math.PI / 4;
+    private readonly directionToEnemy = Vector.create();
+    private readonly minDotForTarget = 0.8;
     private readonly maxDistanceToTarget = 500;
     private readonly targetMarker: THREE.Object3D;
 
@@ -53,10 +55,10 @@ export class TargetSelectionSystem extends System {
         let distanceSqToNearestEnemy = Number.MAX_SAFE_INTEGER;
 
         for (const id of world.select([Player, Ship, RigibBody, Active])) {
-            const ship = world.getComponent(Ship, id);
+            const { engineOn, direction } = world.getComponent(Ship, id);
 
             // Фиксируемся на цели когда двигатель выключен
-            if (!ship.engineOn) {
+            if (!engineOn) {
                 return;
             }
 
@@ -65,9 +67,7 @@ export class TargetSelectionSystem extends System {
             for (const enemyId of world.select([Enemy, RigibBody, Active])) {
                 const { body: enemyBody } = world.getComponent(RigibBody, enemyId);
 
-                const distanceSq = go.object3d.position.distanceToSquared(
-                    enemyGo.object3d.position
-                );
+                const distanceSq = VectorEx.distanceSq(body.position, enemyBody.position);
 
                 if (
                     distanceSq > this.maxDistanceToTarget * this.maxDistanceToTarget ||
@@ -76,14 +76,11 @@ export class TargetSelectionSystem extends System {
                     continue;
                 }
 
-                this.directionToEnemy
-                    .copy(enemyGo.object3d.position)
-                    .sub(go.object3d.position)
-                    .normalize();
+                VectorEx.directionFrom(body.position, enemyBody.position, this.directionToEnemy);
 
-                const angle = ship.direction.angleTo(this.directionToEnemy);
+                const dot = Vector.dot(direction, this.directionToEnemy);
 
-                if (angle > this.maxAngleToTarget) {
+                if (dot < this.minDotForTarget) {
                     continue;
                 }
 

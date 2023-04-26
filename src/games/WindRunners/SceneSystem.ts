@@ -66,8 +66,8 @@ export class SceneSystem extends System {
         rb.syncRotation = false;
         Composite.add(this.engine.world, rb.body);
 
-        const airplane = world.addComponent(Ship, id);
-        airplane.turningSpeed = 3;
+        const ship = world.addComponent(Ship, id);
+        ship.turningSpeed = 3;
 
         const hitable = world.addComponent(Hitable, id);
         hitable.mask = Bits.bit(CollisionMasks.Player);
@@ -109,9 +109,9 @@ export class SceneSystem extends System {
         rb.syncRotation = false;
         Composite.add(this.engine.world, rb.body);
 
-        const airplane = world.addComponent(Ship, id);
-        airplane.direction.applyAxisAngle(new Vector3(0, 0, 1), Math.random() * Math.PI);
-        airplane.turningSpeed = 3;
+        const ship = world.addComponent(Ship, id);
+        ship.direction.applyAxisAngle(new Vector3(0, 0, 1), Math.random() * Math.PI);
+        ship.turningSpeed = 3;
 
         const hitable = world.addComponent(Hitable, id);
         hitable.mask = Bits.bit(CollisionMasks.Enemy);
