@@ -55,7 +55,7 @@ export class TargetSelectionSystem extends System {
         let distanceSqToNearestEnemy = Number.MAX_SAFE_INTEGER;
 
         for (const id of world.select([Player, Ship, RigibBody, Active])) {
-            const { engineOn, direction } = world.getComponent(Ship, id);
+            const { bootsOn: engineOn, direction } = world.getComponent(Ship, id);
 
             // Фиксируемся на цели когда двигатель выключен
             if (!engineOn) {

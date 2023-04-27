@@ -43,16 +43,16 @@ export class WindRunnersGame extends Game {
          * Systems
          */
         const systemsRuntime = new Runtime([
-            new SyncPhysicsSystem(engine),
-            new SceneSystem(scene, camera as THREE.OrthographicCamera, engine),
-            new SkySystem(projectionHelper, scene),
-            new ShipCameraSystem(camera),
-            new JoystickSystem(64, renderer),
-            new ShipSystem(),
-            new PlayerControllerSystem(),
             new EnemyControllerSystem(),
-            new HitSystem(),
+            new HitSystem(engine),
+            new JoystickSystem(64, renderer),
+            new PlayerControllerSystem(),
+            new SceneSystem(scene, camera as THREE.OrthographicCamera, engine),
+            new ShipCameraSystem(camera),
+            new ShipSystem(),
             new ShootingSystem(scene, engine),
+            new SkySystem(projectionHelper, scene),
+            new SyncPhysicsSystem(engine),
             new TargetSelectionSystem(scene),
         ]);
 

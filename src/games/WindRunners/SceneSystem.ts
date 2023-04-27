@@ -5,13 +5,10 @@ import { Player } from './Player';
 import { Active, GameObject, RigibBody } from '~/components';
 import { Ship } from './Ship';
 import { Enemy } from './Enemy';
-import { Hitable } from './Hitable';
-import { Bits } from '~/utils/Bits';
-import { CollisionMasks } from './CollisionMasks';
 import { Gun } from './Gun';
 import { Object3D, Vector3 } from 'three';
-import type { IBodyDefinition } from 'matter-js';
-import { Bodies, Composite, type Engine } from 'matter-js';
+import { Bodies, Composite, type Engine, type IBodyDefinition } from 'matter-js';
+import { CollisionCategory } from './CollisionCategory';
 
 export class SceneSystem extends System {
     private readonly gltfLoader = new GLTFLoader();
@@ -62,20 +59,25 @@ export class SceneSystem extends System {
         this.scene.add(go.object3d);
 
         const rb = world.addComponent(RigibBody, id);
-        rb.body = this.createBodyForObject3d(go.object3d, { isSensor: false }, 6);
+        rb.body = this.createBodyForObject3d(
+            go.object3d,
+            {
+                isSensor: true,
+                collisionFilter: {
+                    category: CollisionCategory.Ship,
+                    mask: CollisionCategory.Projectile,
+                },
+            },
+            6
+        );
         rb.syncRotation = false;
         Composite.add(this.engine.world, rb.body);
 
         const ship = world.addComponent(Ship, id);
         ship.turningSpeed = 3;
 
-        const hitable = world.addComponent(Hitable, id);
-        hitable.mask = Bits.bit(CollisionMasks.Player);
-        hitable.health = 10;
-        new THREE.Box3().setFromObject(go.object3d).getBoundingSphere(hitable.sphere);
-
         const gun = world.addComponent(Gun, id);
-        gun.targetMask = Bits.bit(CollisionMasks.Enemy);
+        gun.targetQuery.push(Enemy);
         gun.fireRateInSec = 8;
     }
 
@@ -105,7 +107,17 @@ export class SceneSystem extends System {
         this.scene.add(go.object3d);
 
         const rb = world.addComponent(RigibBody, id);
-        rb.body = this.createBodyForObject3d(go.object3d, { isSensor: false }, 6);
+        rb.body = this.createBodyForObject3d(
+            go.object3d,
+            {
+                isSensor: true,
+                collisionFilter: {
+                    category: CollisionCategory.Ship,
+                    mask: CollisionCategory.Projectile,
+                },
+            },
+            6
+        );
         rb.syncRotation = false;
         Composite.add(this.engine.world, rb.body);
 
@@ -113,13 +125,8 @@ export class SceneSystem extends System {
         ship.direction.applyAxisAngle(new Vector3(0, 0, 1), Math.random() * Math.PI);
         ship.turningSpeed = 3;
 
-        const hitable = world.addComponent(Hitable, id);
-        hitable.mask = Bits.bit(CollisionMasks.Enemy);
-        hitable.health = 10;
-        new THREE.Box3().setFromObject(go.object3d).getBoundingSphere(hitable.sphere);
-
         const gun = world.addComponent(Gun, id);
-        gun.targetMask = Bits.bit(CollisionMasks.Player);
+        gun.targetQuery.push(Player);
         gun.fireRateInSec = 1;
     }
 

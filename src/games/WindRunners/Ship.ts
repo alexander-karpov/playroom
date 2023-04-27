@@ -4,6 +4,7 @@ export class Ship {
     public readonly direction = new Vector3(1, 0, 0);
     public readonly targetDirection = new Vector3(1, 0, 0);
     public speed: number = 600;
-    public engineOn: boolean = false;
+    public bootsOn: boolean = false;
     public turningSpeed: number = 1;
+    public health = 1;
 }

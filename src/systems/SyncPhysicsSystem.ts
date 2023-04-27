@@ -2,10 +2,18 @@ import { Engine } from 'matter-js';
 import { System, type World } from '~/ecs';
 import { RigibBody } from '~/components/RigibBody';
 import { GameObject } from '~/components/GameObject';
+import { writeEntityId } from '~/utils/extraProps';
 
 export class SyncPhysicsSystem extends System {
     public constructor(private readonly engine: Engine) {
         super();
+    }
+
+    @System.on([RigibBody])
+    private onRigibBody(world: World, id: number) {
+        const { body } = world.getComponent(RigibBody, id);
+        body.plugin ??= {};
+        writeEntityId(body.plugin, id);
     }
 
     @System.on([RigibBody, GameObject])
