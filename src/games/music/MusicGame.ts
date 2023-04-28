@@ -1,4 +1,4 @@
-import { Runtime } from '~/ecs';
+import { Runtime, World } from '~/ecs';
 import { SceneSystem } from './SceneSystem';
 import { SyncPhysicsSystem } from '~/systems/SyncPhysicsSystem';
 import { AudioSystem } from '~/systems/AudioSystem';
@@ -46,7 +46,9 @@ export class MusicGame extends Game {
         /**
          * Systems
          */
-        const systemsRuntime = new Runtime([
+        const world = new World();
+
+        const systemsRuntime = new Runtime(world, [
             new SceneSystem(projectionHelper, scene, camera, renderer, composer, engine, lil),
             new SkySystem(projectionHelper, scene),
             new SyncPhysicsSystem(engine),

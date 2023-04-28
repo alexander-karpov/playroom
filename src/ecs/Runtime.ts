@@ -1,18 +1,19 @@
-import { World, System } from './index';
+import { type World, System } from './index';
 
 export class Runtime {
-    private readonly world: World = new World();
-
     private inputSystems!: System[];
     private simulateSystems!: System[];
     private outputSystems!: System[];
     private sometimesSystems!: System[];
 
-    private readonly timeBetweenSameSometimesCallsS = 5;
     private nextSometimesHandlerIndex = 0;
-    private timeSinceLastSometimesCallS = 0;
+    private sinceLastSometimesCallSec = 0;
 
-    public constructor(private readonly systems: System[]) {}
+    public constructor(
+        private readonly world: World,
+        private readonly systems: System[],
+        private readonly timeBetweenSometimesCallsSec = 5
+    ) {}
 
     public initialize() {
         this.separateSystemsByHandlers();
@@ -58,16 +59,16 @@ export class Runtime {
     }
 
     private callSometimesHandlers(timeDeltaS: number): void {
-        this.timeSinceLastSometimesCallS += timeDeltaS;
+        this.sinceLastSometimesCallSec += timeDeltaS;
 
         if (
-            this.timeSinceLastSometimesCallS >
-            this.timeBetweenSameSometimesCallsS / this.sometimesSystems.length
+            this.sinceLastSometimesCallSec >
+            this.timeBetweenSometimesCallsSec / this.sometimesSystems.length
         ) {
             this.nextSometimesHandlerIndex %= this.sometimesSystems.length;
             this.sometimesSystems[this.nextSometimesHandlerIndex]!.onSometimes(this.world);
             this.nextSometimesHandlerIndex += 1;
-            this.timeSinceLastSometimesCallS = 0;
+            this.sinceLastSometimesCallSec = 0;
         }
     }
 

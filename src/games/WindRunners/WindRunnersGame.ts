@@ -1,4 +1,4 @@
-import { Runtime } from '~/ecs';
+import { Runtime, World } from '~/ecs';
 import type * as THREE from 'three';
 import type { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import type GUI from 'lil-gui';
@@ -16,6 +16,7 @@ import { ShootingSystem } from './ShootingSystem';
 import { TargetSelectionSystem } from './TargetSelectionSystem';
 import { Engine } from 'matter-js';
 import { SyncPhysicsSystem } from '~/systems/SyncPhysicsSystem';
+import { EnemySpawnSystem } from './EnemySpawnSystem';
 
 export class WindRunnersGame extends Game {
     protected override configureSystems(
@@ -42,19 +43,26 @@ export class WindRunnersGame extends Game {
         /**
          * Systems
          */
-        const systemsRuntime = new Runtime([
-            new EnemyControllerSystem(),
-            new HitSystem(engine),
-            new JoystickSystem(64, renderer),
-            new PlayerControllerSystem(),
-            new SceneSystem(scene, camera as THREE.OrthographicCamera, engine),
-            new ShipCameraSystem(camera),
-            new ShipSystem(),
-            new ShootingSystem(scene, engine),
-            new SkySystem(projectionHelper, scene),
-            new SyncPhysicsSystem(engine),
-            new TargetSelectionSystem(scene),
-        ]);
+        const world = new World();
+
+        const systemsRuntime = new Runtime(
+            world,
+            [
+                new EnemyControllerSystem(),
+                new HitSystem(engine),
+                new JoystickSystem(64, renderer),
+                new PlayerControllerSystem(),
+                new SceneSystem(scene, camera as THREE.OrthographicCamera, engine),
+                new ShipCameraSystem(camera),
+                new ShipSystem(),
+                new ShootingSystem(scene, engine),
+                new SkySystem(projectionHelper, scene),
+                new SyncPhysicsSystem(engine),
+                new TargetSelectionSystem(scene),
+                new EnemySpawnSystem(world, scene, engine),
+            ],
+            3
+        );
 
         systemsRuntime.initialize();
 

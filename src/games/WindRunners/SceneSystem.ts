@@ -1,20 +1,18 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
-import { type GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { type GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Player } from './Player';
 import { Active, GameObject, RigibBody } from '~/components';
 import { Ship } from './Ship';
 import { Enemy } from './Enemy';
 import { Gun } from './Gun';
-import { Object3D, Vector3 } from 'three';
-import { Bodies, Composite, type Engine, type IBodyDefinition } from 'matter-js';
+import { Object3D } from 'three';
+import { Composite, type Engine } from 'matter-js';
 import { CollisionCategory } from './CollisionCategory';
+import { loadGLTF } from '~/utils/loadGLTF';
+import { createBodyForObject3d } from '~/utils/createBodyForObject3d';
 
 export class SceneSystem extends System {
-    private readonly gltfLoader = new GLTFLoader();
-    private readonly tempBox3 = new THREE.Box3();
-    private readonly tempVec3 = new THREE.Vector3();
-
     public constructor(
         private readonly scene: THREE.Scene,
         private readonly camera: THREE.OrthographicCamera,
@@ -36,15 +34,8 @@ export class SceneSystem extends System {
     }
 
     public override onCreate(world: World): void {
-        void this.loadModel('Spaceship1.glb').then((gltf) => {
+        void loadGLTF('Spaceship1.glb').then((gltf) => {
             this.addPlayer(gltf, world);
-        });
-
-        void this.loadModel('Spaceship4.glb').then((gltf) => {
-            this.addEnemy(gltf, world);
-            this.addEnemy(gltf, world);
-            this.addEnemy(gltf, world);
-            this.addEnemy(gltf, world);
         });
     }
 
@@ -59,7 +50,7 @@ export class SceneSystem extends System {
         this.scene.add(go.object3d);
 
         const rb = world.addComponent(RigibBody, id);
-        rb.body = this.createBodyForObject3d(
+        rb.body = createBodyForObject3d(
             go.object3d,
             {
                 isSensor: true,
@@ -70,7 +61,7 @@ export class SceneSystem extends System {
             },
             6
         );
-        rb.syncRotation = false;
+        rb.syncGameObjectRotation = false;
         Composite.add(this.engine.world, rb.body);
 
         const ship = world.addComponent(Ship, id);
@@ -78,66 +69,6 @@ export class SceneSystem extends System {
 
         const gun = world.addComponent(Gun, id);
         gun.targetQuery.push(Enemy);
-        gun.fireRateInSec = 8;
-    }
-
-    private createBodyForObject3d(
-        object3d: THREE.Object3D,
-        options: IBodyDefinition,
-        maxSides: number
-    ) {
-        this.tempBox3.setFromObject(object3d);
-        this.tempBox3.getSize(this.tempVec3);
-        const maxSide = Math.max(this.tempVec3.x, this.tempVec3.y, this.tempVec3.z);
-
-        return Bodies.circle(0, 0, maxSide / 2, options, maxSides);
-    }
-
-    private addEnemy(gltf: GLTF, world: World) {
-        const [id, enemy] = world.addEntity(Enemy);
-        world.addComponent(Active, id);
-        enemy.untilTurnSec = 1 + Math.random() * 3;
-        const go = world.addComponent(GameObject, id);
-
-        go.object3d = new Object3D();
-        go.object3d.add(gltf.scene.clone());
-        go.object3d.scale.multiplyScalar(0.2);
-        go.object3d.position.set(200 * Math.random(), 200 * Math.random(), 0);
-
-        this.scene.add(go.object3d);
-
-        const rb = world.addComponent(RigibBody, id);
-        rb.body = this.createBodyForObject3d(
-            go.object3d,
-            {
-                isSensor: true,
-                collisionFilter: {
-                    category: CollisionCategory.Ship,
-                    mask: CollisionCategory.Projectile,
-                },
-            },
-            6
-        );
-        rb.syncRotation = false;
-        Composite.add(this.engine.world, rb.body);
-
-        const ship = world.addComponent(Ship, id);
-        ship.direction.applyAxisAngle(new Vector3(0, 0, 1), Math.random() * Math.PI);
-        ship.turningSpeed = 3;
-
-        const gun = world.addComponent(Gun, id);
-        gun.targetQuery.push(Player);
-        gun.fireRateInSec = 1;
-    }
-
-    private loadModel(filename: string): Promise<GLTF> {
-        return new Promise<GLTF>((resolve, reject) => {
-            this.gltfLoader.load(
-                `./assets/models/${filename}`,
-                resolve,
-                function onProgress() {},
-                reject
-            );
-        });
+        gun.fireRate = 8;
     }
 }

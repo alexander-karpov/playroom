@@ -3,18 +3,20 @@ import { System, type World } from '~/ecs';
 import { Active, GameObject, RigibBody } from '~/components';
 import { Projectile } from './Projectile';
 import { Gun } from './Gun';
-import { Bodies, Body, Composite, Vector, type Engine } from 'matter-js';
+import { Bodies, Body, Vector, type Engine } from 'matter-js';
 import { signedAngleBetween } from '~/utils/signedAngleBetween';
 import { Hit } from './Hit';
 import { VectorEx } from '~/utils/VectorEx';
 import { CollisionCategories } from '../music/CollisionCategories';
 import { CollisionCategory } from './CollisionCategory';
+import { ObjectPoolHelper } from './ObjectPoolHelper';
+import { Player } from './Player';
 
 export class ShootingSystem extends System {
     private readonly directionToTarget = Vector.create();
     private readonly rightDirection = new THREE.Vector3(1, 0, 0);
     private readonly screenNormal = new THREE.Vector3(0, 0, 1);
-    private readonly minDotForTarget = 0.9;
+    private readonly minDotForTarget = Math.cos(Math.PI / 8);
     private readonly projectileLifetime = 1;
 
     public constructor(private readonly scene: THREE.Scene, private readonly engine: Engine) {
@@ -23,7 +25,7 @@ export class ShootingSystem extends System {
 
     @System.on([Projectile, Hit])
     private onProjectileHit(world: World, id: number) {
-        this.deactivate(world, id);
+        ObjectPoolHelper.deactivate(world, this.engine, id);
         world.deleteComponent(Hit, id);
     }
 
@@ -63,7 +65,7 @@ export class ShootingSystem extends System {
             projectile.untilSelfDestructionSec -= deltaSec;
 
             if (projectile.untilSelfDestructionSec <= 0) {
-                this.deactivate(world, id);
+                ObjectPoolHelper.deactivate(world, this.engine, id);
             }
         }
     }
@@ -74,14 +76,14 @@ export class ShootingSystem extends System {
         gun: Gun,
         targetCollisionCategory: number | undefined
     ) {
-        gun.untilNextShotSec = 1 / gun.fireRateInSec;
+        gun.untilNextShotSec = 1 / gun.fireRate;
 
         const id = this.findUnusedOrCreateProjectile(world);
 
         const projectile = world.getComponent(Projectile, id);
         projectile.untilSelfDestructionSec = this.projectileLifetime;
 
-        this.activate(world, id);
+        ObjectPoolHelper.activate(world, this.engine, id);
         this.reconfigure(world, id, gun, gunGo, targetCollisionCategory);
     }
 
@@ -143,31 +145,5 @@ export class ShootingSystem extends System {
         });
 
         return id;
-    }
-
-    private activate(world: World, id: number) {
-        if (!world.hasComponent(Active, id)) {
-            world.addComponent(Active, id);
-
-            const { object3d } = world.getComponent(GameObject, id);
-            const { body } = world.getComponent(RigibBody, id);
-
-            object3d.visible = true;
-            Body.setStatic(body, false);
-            Composite.add(this.engine.world, body);
-        }
-    }
-
-    private deactivate(world: World, id: number) {
-        if (world.hasComponent(Active, id)) {
-            world.deleteComponent(Active, id);
-
-            const { object3d } = world.getComponent(GameObject, id);
-            const { body } = world.getComponent(RigibBody, id);
-
-            Composite.remove(this.engine.world, body);
-            Body.setStatic(body, true);
-            object3d.visible = false;
-        }
     }
 }

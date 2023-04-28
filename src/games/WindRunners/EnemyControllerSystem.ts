@@ -1,4 +1,3 @@
-import * as THREE from 'three';
 import { System, type World } from '~/ecs';
 import { Player } from './Player';
 import { Ship } from './Ship';
@@ -6,38 +5,8 @@ import { Enemy } from './Enemy';
 import { Active, GameObject } from '~/components';
 
 export class EnemyControllerSystem extends System {
-    // @System.onNot([Enemy, GameObject, Hitable])
-    // private detachHitable(world: World, id: number) {
-    //     const hitable = world.getComponent(Hitable, id);
-    //     const { object3d } = world.getComponent(GameObject, id);
-
-    //     object3d.position.set(0, 0, 0);
-    //     object3d.visible = false;
-
-    //     if (world.hasComponent(Active, id)) {
-    //         world.deleteComponent(Active, id);
-    //     }
-
-    //     if (world.hasComponent(Target, id)) {
-    //         world.deleteComponent(Target, id);
-    //     }
-
-    //     setTimeout(() => {
-    //         const hitable2 = world.addComponent(Hitable, id);
-
-    //         Hitable.copy(hitable, hitable2);
-
-    //         hitable2.health = 10;
-    //         object3d.visible = true;
-
-    //         if (!world.hasComponent(Active, id)) {
-    //             world.addComponent(Active, id);
-    //         }
-    //     }, 1000);
-    // }
-
     public override onSimulate(world: World, deltaS: number): void {
-        for (const enemyId of world.select([Enemy, Ship])) {
+        for (const enemyId of world.select([Enemy, Ship, Active])) {
             const enemyGo = world.getComponent(GameObject, enemyId);
             const enemy = world.getComponent(Enemy, enemyId);
             const { targetDirection } = world.getComponent(Ship, enemyId);

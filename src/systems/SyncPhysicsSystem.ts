@@ -39,7 +39,10 @@ export class SyncPhysicsSystem extends System {
         for (let i = 0; i < bodyIds.length; i++) {
             const id = bodyIds[i]!;
 
-            const { body, syncRotation } = world.getComponent(RigibBody, id);
+            const { body, syncGameObjectRotation: syncRotation } = world.getComponent(
+                RigibBody,
+                id
+            );
             const { object3d: object } = world.getComponent(GameObject, id);
 
             if (!body.isSleeping && !body.isStatic) {
