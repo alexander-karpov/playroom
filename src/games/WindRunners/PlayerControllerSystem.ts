@@ -3,35 +3,44 @@ import { System, type World } from '~/ecs';
 import { Player } from './Player';
 import { Joystick } from './Joystick';
 import { Ship } from './Ship';
-import { Active, GameObject } from '~/components';
+import { Active, GameObject, RigibBody } from '~/components';
 import { Target } from './Target';
+import { Hit } from './Hit';
+import { ObjectPoolHelper } from './ObjectPoolHelper';
+import { Body, type Engine } from 'matter-js';
 
 export class PlayerControllerSystem extends System {
     private readonly worldJoystickDirection = new THREE.Vector3();
 
-    // @System.onNot([Player, GameObject, Active])
-    // private detachHitable(world: World, id: number) {
-    //     const { object3d } = world.getComponent(GameObject, id);
+    public constructor(
+        private readonly world: World,
+        private readonly scene: THREE.Scene,
+        private readonly engine: Engine
+    ) {
+        super();
+    }
 
-    //     object3d.position.set(0, 0, 0);
-    //     object3d.visible = false;
+    @System.on([Player, Hit])
+    private onPlayerHit(world: World, id: number) {
+        world.deleteComponent(Hit, id);
+        const ship = world.getComponent(Ship, id);
+        const { body } = world.getComponent(RigibBody, id);
 
-    //     if (world.hasComponent(Active, id)) {
-    //         world.deleteComponent(Active, id);
-    //     }
+        ship.health -= 1;
 
-    //     setTimeout(() => {
-    //         world.addComponent(Active, id);
-    //         const airplane =
+        if (ship.health <= 0) {
+            if (world.hasComponent(Active, id)) {
+                world.deleteComponent(Active, id);
+                Body.setPosition(body, { x: 0, y: 0 });
+                ObjectPoolHelper.deactivate(world, this.engine, id);
+            }
 
-    //         hitable2.health = 10;
-    //         object3d.visible = true;
-
-    //         if (!world.hasComponent(Active, id)) {
-    //             world.addComponent(Active, id);
-    //         }
-    //     }, 1000);
-    // }
+            setTimeout(() => {
+                ObjectPoolHelper.activate(world, this.engine, id);
+                ship.health = 10;
+            }, 1000);
+        }
+    }
 
     @System.on([Joystick])
     private onJoystick(world: World, id: number) {

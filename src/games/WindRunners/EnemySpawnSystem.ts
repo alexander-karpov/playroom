@@ -35,7 +35,7 @@ export class EnemySpawnSystem extends System {
     }
 
     @System.on([Enemy, Hit])
-    private onProjectileHit(world: World, id: number) {
+    private onEnemyHit(world: World, id: number) {
         world.deleteComponent(Hit, id);
 
         const ship = this.world.getComponent(Ship, id);
@@ -48,6 +48,13 @@ export class EnemySpawnSystem extends System {
             if (world.hasComponent(Target, id)) {
                 world.deleteComponent(Target, id);
             }
+        }
+    }
+
+    @System.on([Player, Active])
+    private onNotPlayerActive(world: World, id: number) {
+        for (const id of this.world.select([Enemy])) {
+            ObjectPoolHelper.deactivate(world, this.engine, id);
         }
     }
 

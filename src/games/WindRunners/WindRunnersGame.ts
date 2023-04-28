@@ -51,7 +51,7 @@ export class WindRunnersGame extends Game {
                 new EnemyControllerSystem(),
                 new HitSystem(engine),
                 new JoystickSystem(64, renderer),
-                new PlayerControllerSystem(),
+                new PlayerControllerSystem(world, scene, engine),
                 new SceneSystem(scene, camera as THREE.OrthographicCamera, engine),
                 new ShipCameraSystem(camera),
                 new ShipSystem(),

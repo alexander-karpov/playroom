@@ -30,7 +30,7 @@ export class ShootingSystem extends System {
     }
 
     public override onSimulate(world: World, deltaSec: number): void {
-        for (const gunId of world.select([Gun, GameObject])) {
+        for (const gunId of world.select([Gun, GameObject, Active])) {
             const gun = world.getComponent(Gun, gunId);
 
             gun.untilNextShotSec -= deltaSec;
@@ -41,7 +41,7 @@ export class ShootingSystem extends System {
 
             const gunGo = world.getComponent(GameObject, gunId);
 
-            for (const targetId of world.select(gun.targetQuery)) {
+            for (const targetId of world.select([...gun.targetQuery, Active])) {
                 const { body } = world.getComponent(RigibBody, targetId);
 
                 VectorEx.directionFrom(
