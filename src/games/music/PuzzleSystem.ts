@@ -154,7 +154,7 @@ export class PuzzleSystem extends System {
                     return;
                 }
 
-                world.attach(Shine, starEntity);
+                world.attach(starEntity, Shine);
                 world.detach(Shine, starEntity);
                 this.lastTonePlayed = Date.now();
 

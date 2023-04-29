@@ -121,7 +121,7 @@ export class ShootingSystem extends System {
 
     private createProjectile(world: World): number {
         const [id] = world.newEntity(Projectile);
-        const go = world.attach(GameObject, id);
+        const go = world.attach(id, GameObject);
 
         go.object3d = new THREE.Mesh(
             // TODO: переиспользовать геометрию и материал
@@ -136,7 +136,7 @@ export class ShootingSystem extends System {
 
         this.scene.add(go.object3d);
 
-        const rb = world.attach(RigibBody, id);
+        const rb = world.attach(id, RigibBody);
         rb.body = Bodies.rectangle(0, 0, 64, 4, {
             isSensor: true,
             collisionFilter: {

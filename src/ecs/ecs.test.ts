@@ -34,7 +34,7 @@ describe('ECS / World', () => {
             expect(world.has(CompA, e)).toBe(true);
             expect(world.has(CompB, e)).toBe(false);
 
-            world.attach(CompB, e);
+            world.attach(e, CompB);
 
             expect(world.has(CompB, e)).toBe(true);
 
@@ -61,7 +61,7 @@ describe('ECS / World', () => {
             const world = new World();
 
             world.onAttach([CompA], (w, e) => {
-                world.attach(CompB, e);
+                world.attach(e, CompB);
                 world.detach(CompB, e);
             });
 
@@ -99,7 +99,7 @@ describe('ECS / World', () => {
 
             const world = new World();
             const [id, a] = world.newEntity(CompA);
-            world.attach(CompB, id);
+            world.attach(id, CompB);
 
             const idsExceptB = world.selectExcept([CompA], [CompB]);
             expect(idsExceptB).not.toContain(id);
@@ -122,12 +122,12 @@ describe('ECS / World', () => {
 
         expect(calledTimes).toBe(0);
 
-        world.attach(CompB, entity);
+        world.attach(entity, CompB);
         world.applyChanges();
 
         expect(calledTimes).toBe(1);
 
-        world.attach(CompC, entity);
+        world.attach(entity, CompC);
         world.applyChanges();
 
         expect(calledTimes).toBe(1);
@@ -142,8 +142,8 @@ describe('ECS / World', () => {
         });
 
         const [entity] = world.newEntity(CompA);
-        world.attach(CompB, entity);
-        world.attach(CompC, entity);
+        world.attach(entity, CompB);
+        world.attach(entity, CompC);
 
         world.applyChanges();
 
@@ -173,7 +173,7 @@ describe('ECS / World', () => {
         world.onAttach([CompA, CompB], (w, e) => {
             abCalled = true;
 
-            w.attach(CompC, e);
+            w.attach(e, CompC);
         });
 
         world.onAttach([CompA, CompC], (w, e) => {
@@ -186,7 +186,7 @@ describe('ECS / World', () => {
         expect(abCalled).toBe(false);
         expect(acCalled).toBe(false);
 
-        world.attach(CompB, entity);
+        world.attach(entity, CompB);
         world.applyChanges();
 
         expect(abCalled).toBe(true);

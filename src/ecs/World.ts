@@ -78,7 +78,7 @@ export class World {
             freeEntityId = this.entities.length - 1;
         }
 
-        const component = this.attach(componentClass, freeEntityId);
+        const component = this.attach(freeEntityId, componentClass);
 
         return [freeEntityId, component];
     }
@@ -87,7 +87,7 @@ export class World {
      * Планирует добавление компонента к сущности
      * @param entity
      */
-    public attach<T>(componentClass: ComponentClass<T>, entityId: number): T {
+    public attach<T>(entityId: number, componentClass: ComponentClass<T>): T {
         const componentClassId = this.componentClassId(componentClass);
         const componentId = this.componentId(entityId, componentClassId);
 

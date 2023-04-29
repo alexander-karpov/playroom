@@ -5,7 +5,7 @@ import { Body, Composite, type Engine } from 'matter-js';
 export class ObjectPoolHelper {
     public static activate(world: World, engine: Engine, id: number) {
         if (!world.has(Active, id)) {
-            world.attach(Active, id);
+            world.attach(id, Active);
         }
 
         const { object3d } = world.get(GameObject, id);

@@ -111,7 +111,7 @@ export class EnemySpawnSystem extends System {
         /**
          * GameObject
          */
-        const go = this.world.attach(GameObject, id);
+        const go = this.world.attach(id, GameObject);
         go.object3d = SkeletonUtils.clone(originalModel);
         go.object3d.scale.multiplyScalar(0.2);
         go.object3d.position.set(200 * Math.random(), 200 * Math.random(), 0);
@@ -120,7 +120,7 @@ export class EnemySpawnSystem extends System {
         /**
          * RigibBody
          */
-        const rb = this.world.attach(RigibBody, id);
+        const rb = this.world.attach(id, RigibBody);
         rb.body = createBodyForObject3d(
             go.object3d,
             {
@@ -139,13 +139,13 @@ export class EnemySpawnSystem extends System {
         /**
          * Ship
          */
-        const ship = this.world.attach(Ship, id);
+        const ship = this.world.attach(id, Ship);
         ship.turningSpeed = 3;
 
         /**
          * Gun
          */
-        const gun = this.world.attach(Gun, id);
+        const gun = this.world.attach(id, Gun);
         gun.targetQuery.push(Player);
         gun.fireRate = 1;
 

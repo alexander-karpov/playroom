@@ -54,15 +54,15 @@ export class SceneSystem extends System {
 
     private addPlayer(gltf: GLTF, world: World) {
         const [id] = world.newEntity(Player);
-        world.attach(Active, id);
+        world.attach(id, Active);
 
-        const go = world.attach(GameObject, id);
+        const go = world.attach(id, GameObject);
         go.object3d = new Object3D();
         go.object3d.add(gltf.scene.children[0]!);
         go.object3d.scale.multiplyScalar(0.15);
         this.scene.add(go.object3d);
 
-        const rb = world.attach(RigibBody, id);
+        const rb = world.attach(id, RigibBody);
         rb.body = createBodyForObject3d(
             go.object3d,
             {
@@ -77,10 +77,10 @@ export class SceneSystem extends System {
         rb.syncGameObjectRotation = false;
         Composite.add(this.engine.world, rb.body);
 
-        const ship = world.attach(Ship, id);
+        const ship = world.attach(id, Ship);
         ship.turningSpeed = 3;
 
-        const gun = world.attach(Gun, id);
+        const gun = world.attach(id, Gun);
         gun.targetQuery.push(Enemy);
         gun.fireRate = 8;
     }

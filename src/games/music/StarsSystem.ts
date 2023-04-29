@@ -43,7 +43,7 @@ export class StarsSystem extends System {
         /**
          * GameObject
          */
-        const go = world.attach(GameObject, entity);
+        const go = world.attach(entity, GameObject);
 
         go.object3d = new THREE.Mesh(
             this.starGeom,
@@ -60,7 +60,7 @@ export class StarsSystem extends System {
         /**
          * Body
          */
-        const rb = world.attach(RigibBody, entity);
+        const rb = world.attach(entity, RigibBody);
         rb.body = Bodies.circle(position.x, position.y, 1, {
             collisionFilter: {
                 category: Bits.bit(CollisionCategories.Star),
@@ -81,7 +81,7 @@ export class StarsSystem extends System {
     @System.on([Star, Touched])
     private onStarTouched(world: World, entity: number): void {
         if (!world.has(Shine, entity)) {
-            world.attach(Shine, entity);
+            world.attach(entity, Shine);
             world.detach(Shine, entity);
         }
     }
@@ -110,7 +110,7 @@ export class StarsSystem extends System {
         // TODO: Нужна фунция для каждого компонента
         // которая делает это заполнение полей, хорошо если она
         // будет называться так же как класс
-        const sound = world.attach(Sound, entity);
+        const sound = world.attach(entity, Sound);
         sound.name = star.soundtrack;
         sound.throttleMs = 0;
     }

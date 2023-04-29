@@ -99,7 +99,7 @@ export class SceneSystem extends System {
 
             if (entity != null && world.has(Star, entity)) {
                 // Добавить компонент отвечающий за приём рейтрейса объект
-                world.attach(Touched, entity);
+                world.attach(entity, Touched);
                 world.detach(Touched, entity);
 
                 return;

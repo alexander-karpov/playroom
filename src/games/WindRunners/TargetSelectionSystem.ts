@@ -100,7 +100,7 @@ export class TargetSelectionSystem extends System {
         }
 
         if (nearestEnemyId !== -1) {
-            world.attach(Target, nearestEnemyId);
+            world.attach(nearestEnemyId, Target);
         }
     }
 }

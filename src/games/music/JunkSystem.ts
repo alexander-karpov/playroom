@@ -91,7 +91,7 @@ export class JunkSystem extends System {
         /**
          * Body
          */
-        const rb = world.attach(RigibBody, entity);
+        const rb = world.attach(entity, RigibBody);
 
         rb.body = Bodies.rectangle(position.x, position.y, 1, 1, {
             angle: angle,
