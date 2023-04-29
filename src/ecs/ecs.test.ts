@@ -84,7 +84,7 @@ describe('ECS / World', () => {
             const world = new World();
             const [e, a] = world.newEntity(CompA);
 
-            expect(world.get(CompA, e)).toBe(a);
+            expect(world.get(e, CompA)).toBe(a);
             expect(world.has(CompA, e)).toBe(true);
         });
     });

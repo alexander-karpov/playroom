@@ -23,8 +23,8 @@ export class PlayerControllerSystem extends System {
     @System.on([Player, Hit])
     private onPlayerHit(world: World, id: number) {
         world.detach(Hit, id);
-        const ship = world.get(Ship, id);
-        const { body } = world.get(RigibBody, id);
+        const ship = world.get(id, Ship);
+        const { body } = world.get(id, RigibBody);
 
         ship.health -= 1;
 
@@ -45,7 +45,7 @@ export class PlayerControllerSystem extends System {
     @System.on([Joystick])
     private onJoystick(world: World, id: number) {
         for (const playerId of world.select([Player, Ship])) {
-            const airplane = world.get(Ship, playerId);
+            const airplane = world.get(playerId, Ship);
 
             airplane.bootsOn = true;
         }
@@ -54,7 +54,7 @@ export class PlayerControllerSystem extends System {
     @System.onNot([Joystick])
     private onNotJoystick(world: World, id: number) {
         for (const playerId of world.select([Player, Ship])) {
-            const airplane = world.get(Ship, playerId);
+            const airplane = world.get(playerId, Ship);
 
             airplane.bootsOn = false;
 
@@ -65,7 +65,7 @@ export class PlayerControllerSystem extends System {
 
     public override onSimulate(world: World, deltaS: number): void {
         for (const joystickId of world.select([Joystick])) {
-            const joystick = world.get(Joystick, joystickId);
+            const joystick = world.get(joystickId, Joystick);
 
             if (joystick.tilt === 0) {
                 continue;
@@ -74,7 +74,7 @@ export class PlayerControllerSystem extends System {
             this.worldJoystickDirection.set(joystick.direction.x, -joystick.direction.y, 0);
 
             for (const playerId of world.select([Player, Active, Ship])) {
-                const airplane = world.get(Ship, playerId);
+                const airplane = world.get(playerId, Ship);
 
                 airplane.targetDirection.copy(this.worldJoystickDirection);
 
@@ -84,11 +84,11 @@ export class PlayerControllerSystem extends System {
         }
 
         for (const targetId of world.select([Target, Active, GameObject])) {
-            const targetGo = world.get(GameObject, targetId);
+            const targetGo = world.get(targetId, GameObject);
 
             for (const playerId of world.select([Player, Active, Ship])) {
-                const { targetDirection } = world.get(Ship, playerId);
-                const playerGo = world.get(GameObject, playerId);
+                const { targetDirection } = world.get(playerId, Ship);
+                const playerGo = world.get(playerId, GameObject);
 
                 targetDirection
                     .copy(targetGo.object3d.position)

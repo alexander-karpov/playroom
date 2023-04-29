@@ -38,7 +38,7 @@ export class EnemySpawnSystem extends System {
     private onEnemyHit(world: World, id: number) {
         world.detach(Hit, id);
 
-        const ship = this.world.get(Ship, id);
+        const ship = this.world.get(id, Ship);
 
         ship.health -= 1;
 
@@ -88,14 +88,14 @@ export class EnemySpawnSystem extends System {
     }
 
     private reconfigure(id: number) {
-        const { body } = this.world.get(RigibBody, id);
+        const { body } = this.world.get(id, RigibBody);
 
-        const ship = this.world.get(Ship, id);
+        const ship = this.world.get(id, Ship);
 
         ship.health = 5;
 
         for (const playerId of this.world.select([Player, Active])) {
-            const { body: playerBody } = this.world.get(RigibBody, playerId);
+            const { body: playerBody } = this.world.get(playerId, RigibBody);
 
             Body.setPosition(body, playerBody.position);
         }
@@ -154,7 +154,7 @@ export class EnemySpawnSystem extends System {
 
     private distanceFromStart(): number {
         for (const id of this.world.select([Player, RigibBody])) {
-            const { body } = this.world.get(RigibBody, id);
+            const { body } = this.world.get(id, RigibBody);
 
             return Vector.magnitude(body.position);
         }

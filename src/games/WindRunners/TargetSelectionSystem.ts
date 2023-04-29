@@ -38,7 +38,7 @@ export class TargetSelectionSystem extends System {
         this.targetMarker.visible = false;
 
         for (const id of world.select([Target, Active, RigibBody])) {
-            const { body } = world.get(RigibBody, id);
+            const { body } = world.get(id, RigibBody);
 
             this.targetMarker.position.set(
                 body.position.x,
@@ -55,17 +55,17 @@ export class TargetSelectionSystem extends System {
         let distanceSqToNearestEnemy = Number.MAX_SAFE_INTEGER;
 
         for (const id of world.select([Player, Ship, RigibBody, Active])) {
-            const { bootsOn: engineOn, direction } = world.get(Ship, id);
+            const { bootsOn: engineOn, direction } = world.get(id, Ship);
 
             // Фиксируемся на цели когда двигатель выключен
             if (!engineOn) {
                 return;
             }
 
-            const { body } = world.get(RigibBody, id);
+            const { body } = world.get(id, RigibBody);
 
             for (const enemyId of world.select([Enemy, RigibBody, Active])) {
-                const { body: enemyBody } = world.get(RigibBody, enemyId);
+                const { body: enemyBody } = world.get(enemyId, RigibBody);
 
                 const distanceSq = VectorEx.distanceSq(body.position, enemyBody.position);
 

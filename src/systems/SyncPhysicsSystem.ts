@@ -11,20 +11,20 @@ export class SyncPhysicsSystem extends System {
 
     @System.on([RigibBody])
     private onRigibBody(world: World, id: number) {
-        const { body } = world.get(RigibBody, id);
+        const { body } = world.get(id, RigibBody);
         body.plugin ??= {};
         writeEntityId(body.plugin, id);
     }
 
     @System.on([RigibBody, GameObject])
     private onRigibBodyGameObject(world: World, entity: number) {
-        const { object3d } = world.get(GameObject, entity);
+        const { object3d } = world.get(entity, GameObject);
         object3d.matrixAutoUpdate = false;
     }
 
     @System.onNot([RigibBody, GameObject])
     private onNotRigibBodyGameObject(world: World, entity: number) {
-        const { object3d } = world.get(GameObject, entity);
+        const { object3d } = world.get(entity, GameObject);
         object3d.matrixAutoUpdate = true;
     }
 
@@ -39,8 +39,8 @@ export class SyncPhysicsSystem extends System {
         for (let i = 0; i < bodyIds.length; i++) {
             const id = bodyIds[i]!;
 
-            const { body, syncGameObjectRotation: syncRotation } = world.get(RigibBody, id);
-            const { object3d: object } = world.get(GameObject, id);
+            const { body, syncGameObjectRotation: syncRotation } = world.get(id, RigibBody);
+            const { object3d: object } = world.get(id, GameObject);
 
             if (!body.isSleeping && !body.isStatic) {
                 object.position.set(body.position.x, body.position.y, object.position.z);

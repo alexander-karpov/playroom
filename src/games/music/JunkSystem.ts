@@ -81,7 +81,7 @@ export class JunkSystem extends System {
         /**
          * Junk
          */
-        const junk = world.get(Junk, entity);
+        const junk = world.get(entity, Junk);
 
         junk.flyDirection = new THREE.Vector2(
             Common.random(-1.3, 1.3),
@@ -125,8 +125,8 @@ export class JunkSystem extends System {
         for (let i = 0; i < particlesCountLimited; i++) {
             const entity = entities[i]!;
 
-            const rb = world.get(RigibBody, entity);
-            const junk = world.get(Junk, entity);
+            const rb = world.get(entity, RigibBody);
+            const junk = world.get(entity, Junk);
 
             const force2 = Vector.mult(junk.flyDirection, deltaS * rb.body.mass * 0.005);
 

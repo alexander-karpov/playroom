@@ -12,7 +12,7 @@ export class ShipCameraSystem extends System {
 
     public override onOutput(world: World, deltaS: number): void {
         for (const id of world.select([Player, GameObject])) {
-            const go = world.get(GameObject, id);
+            const go = world.get(id, GameObject);
             // const s = world.getComponent(Ship, id);
 
             this.targetPositionProjection.set(

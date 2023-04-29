@@ -39,7 +39,7 @@ export class JoystickSystem extends System {
 
         const onMove = (ev: PointerEvent) => {
             for (const id of world.select([Joystick])) {
-                const joystick = world.get(Joystick, id);
+                const joystick = world.get(id, Joystick);
 
                 if (joystick.pointerId === ev.pointerId) {
                     this.changeMovingJoystickState(joystick, ev.x, ev.y);
@@ -51,7 +51,7 @@ export class JoystickSystem extends System {
 
         const onEnd = (ev: PointerEvent) => {
             for (const id of world.select([Joystick])) {
-                const joystick = world.get(Joystick, id);
+                const joystick = world.get(id, Joystick);
 
                 if (joystick.pointerId === ev.pointerId) {
                     world.detach(Joystick, id);

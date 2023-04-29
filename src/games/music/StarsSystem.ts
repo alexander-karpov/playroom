@@ -32,7 +32,7 @@ export class StarsSystem extends System {
 
     @System.on([Star])
     private onStar(world: World, entity: number): void {
-        const star = world.get(Star, entity);
+        const star = world.get(entity, Star);
 
         const size = 0.5 * fib(star.size + 10);
         const position = new THREE.Vector2(
@@ -98,14 +98,14 @@ export class StarsSystem extends System {
         window.addEventListener('resize', function (ev) {
             const center = Vector.create(0, 10);
             for (const id of world.select([Star, RigibBody])) {
-                const rb = world.get(RigibBody, id);
+                const rb = world.get(id, RigibBody);
                 Body.setPosition(rb.body, Vector.rotate(center, Math.random() * Math.PI));
             }
         });
     }
 
     private playSound(world: World, entity: number) {
-        const star = world.get(Star, entity);
+        const star = world.get(entity, Star);
 
         // TODO: Нужна фунция для каждого компонента
         // которая делает это заполнение полей, хорошо если она
@@ -116,8 +116,8 @@ export class StarsSystem extends System {
     }
 
     private playShineEffect(world: World, entity: number) {
-        const { object3d } = world.get(GameObject, entity);
-        const star = world.get(Star, entity);
+        const { object3d } = world.get(entity, GameObject);
+        const star = world.get(entity, Star);
 
         if (
             isMesh(object3d) &&
@@ -149,7 +149,7 @@ export class StarsSystem extends System {
             .name('Цвет звёзд')
             .onChange((colorHex: number) => {
                 for (const id of world.select([Star, GameObject])) {
-                    const { object3d } = world.get(GameObject, id);
+                    const { object3d } = world.get(id, GameObject);
 
                     if (
                         isMesh(object3d) &&

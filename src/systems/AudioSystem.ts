@@ -19,7 +19,7 @@ export class AudioSystem extends System {
 
     @System.on([Sound])
     private onSound(world: World, entity: number): void {
-        const sound = world.get(Sound, entity);
+        const sound = world.get(entity, Sound);
 
         this.playSound(sound);
         world.detach(Sound, entity);

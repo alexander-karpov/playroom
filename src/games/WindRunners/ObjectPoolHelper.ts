@@ -8,8 +8,8 @@ export class ObjectPoolHelper {
             world.attach(id, Active);
         }
 
-        const { object3d } = world.get(GameObject, id);
-        const { body } = world.get(RigibBody, id);
+        const { object3d } = world.get(id, GameObject);
+        const { body } = world.get(id, RigibBody);
 
         object3d.visible = true;
         Body.setStatic(body, false);
@@ -21,8 +21,8 @@ export class ObjectPoolHelper {
             world.detach(Active, id);
         }
 
-        const { object3d } = world.get(GameObject, id);
-        const { body } = world.get(RigibBody, id);
+        const { object3d } = world.get(id, GameObject);
+        const { body } = world.get(id, RigibBody);
 
         Composite.remove(engine.world, body);
         Body.setStatic(body, true);

@@ -7,9 +7,9 @@ import { Active, GameObject } from '~/components';
 export class EnemyControllerSystem extends System {
     public override onSimulate(world: World, deltaS: number): void {
         for (const enemyId of world.select([Enemy, Ship, Active])) {
-            const enemyGo = world.get(GameObject, enemyId);
-            const enemy = world.get(Enemy, enemyId);
-            const { targetDirection } = world.get(Ship, enemyId);
+            const enemyGo = world.get(enemyId, GameObject);
+            const enemy = world.get(enemyId, Enemy);
+            const { targetDirection } = world.get(enemyId, Ship);
 
             enemy.untilTurnSec += deltaS;
 
@@ -17,7 +17,7 @@ export class EnemyControllerSystem extends System {
                 enemy.untilTurnSec = 0;
 
                 for (const playerId of world.select([Player, Ship])) {
-                    const playerGo = world.get(GameObject, playerId);
+                    const playerGo = world.get(playerId, GameObject);
 
                     targetDirection
                         .copy(playerGo.object3d.position)

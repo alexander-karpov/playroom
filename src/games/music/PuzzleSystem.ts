@@ -61,7 +61,7 @@ export class PuzzleSystem extends System {
         this.playPuzzleCancellation?.cancel();
         this.lastTonePlayed = Date.now();
 
-        const star = world.get(Star, entity);
+        const star = world.get(entity, Star);
 
         if (star.tone === this.puzzleTune[this.touchedStarNo]) {
             // Нажато правильно. Едем дальше
@@ -135,7 +135,7 @@ export class PuzzleSystem extends System {
 
     private playPuzzleTune(world: World, afterMs: number, repeat: boolean = false): void {
         const starsByTone = new Map(
-            world.select([Star]).map((entity) => [world.get(Star, entity).tone, entity])
+            world.select([Star]).map((entity) => [world.get(entity, Star).tone, entity])
         );
 
         this.playPuzzleCancellation?.cancel();
@@ -216,7 +216,7 @@ export class PuzzleSystem extends System {
         }
 
         for (const entity of world.select([Star, RigibBody])) {
-            const rb = world.get(RigibBody, entity);
+            const rb = world.get(entity, RigibBody);
             // const force = Vector.create(0, 0.001 * rb.body.mass);
             const force = Vector.mult(
                 Vector.normalise(Vector.neg(rb.body.position)),
@@ -238,7 +238,7 @@ export class PuzzleSystem extends System {
 
     private nextLevelEffect(world: World) {
         for (const entity of world.select([Star, RigibBody])) {
-            const rb = world.get(RigibBody, entity);
+            const rb = world.get(entity, RigibBody);
 
             Body.setAngularVelocity(rb.body, 10 / rb.body.mass);
         }

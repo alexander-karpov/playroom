@@ -106,7 +106,7 @@ export class World {
         return component;
     }
 
-    public get<T>(componentClass: ComponentClass<T>, entityId: number): T {
+    public get<T>(entityId: number, componentClass: ComponentClass<T>): T {
         const componentClassId = this.componentClassId(componentClass);
         const componentId = this.componentId(entityId, componentClassId);
 
