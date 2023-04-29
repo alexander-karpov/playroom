@@ -19,10 +19,10 @@ export class AudioSystem extends System {
 
     @System.on([Sound])
     private onSound(world: World, entity: number): void {
-        const sound = world.getComponent(Sound, entity);
+        const sound = world.get(Sound, entity);
 
         this.playSound(sound);
-        world.deleteComponent(Sound, entity);
+        world.detach(Sound, entity);
     }
 
     public override onCreate(world: World): void {

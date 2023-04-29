@@ -12,12 +12,9 @@ export class ShipSystem extends System {
 
     public override onSimulate(world: World, deltaS: number): void {
         for (const id of world.select([Ship, GameObject, RigibBody, Active])) {
-            const { object3d } = world.getComponent(GameObject, id);
-            const { body } = world.getComponent(RigibBody, id);
-            const { speed, direction, targetDirection, turningSpeed } = world.getComponent(
-                Ship,
-                id
-            );
+            const { object3d } = world.get(GameObject, id);
+            const { body } = world.get(RigibBody, id);
+            const { speed, direction, targetDirection, turningSpeed } = world.get(Ship, id);
 
             const angle = Math.min(direction.angleTo(targetDirection), turningSpeed * deltaS);
 
@@ -30,8 +27,8 @@ export class ShipSystem extends System {
 
                 object3d.quaternion.setFromUnitVectors(this.screenNormal, direction);
 
-                if (world.hasComponent(Gun, id)) {
-                    const gun = world.getComponent(Gun, id);
+                if (world.has(Gun, id)) {
+                    const gun = world.get(Gun, id);
                     gun.direction.copy(direction);
                 }
             }

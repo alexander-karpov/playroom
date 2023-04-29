@@ -71,7 +71,7 @@ export class JunkSystem extends System {
     @System.on([Junk])
     private onJunk(world: World, entity: number): void {
         if (world.count([Junk]) >= this.particles) {
-            world.deleteComponent(Junk, entity);
+            world.detach(Junk, entity);
             return;
         }
 
@@ -81,7 +81,7 @@ export class JunkSystem extends System {
         /**
          * Junk
          */
-        const junk = world.getComponent(Junk, entity);
+        const junk = world.get(Junk, entity);
 
         junk.flyDirection = new THREE.Vector2(
             Common.random(-1.3, 1.3),
@@ -91,7 +91,7 @@ export class JunkSystem extends System {
         /**
          * Body
          */
-        const rb = world.addComponent(RigibBody, entity);
+        const rb = world.attach(RigibBody, entity);
 
         rb.body = Bodies.rectangle(position.x, position.y, 1, 1, {
             angle: angle,
@@ -125,8 +125,8 @@ export class JunkSystem extends System {
         for (let i = 0; i < particlesCountLimited; i++) {
             const entity = entities[i]!;
 
-            const rb = world.getComponent(RigibBody, entity);
-            const junk = world.getComponent(Junk, entity);
+            const rb = world.get(RigibBody, entity);
+            const junk = world.get(Junk, entity);
 
             const force2 = Vector.mult(junk.flyDirection, deltaS * rb.body.mass * 0.005);
 
@@ -153,7 +153,7 @@ export class JunkSystem extends System {
             addJunk: () => {
                 let i = 100;
                 while (i--) {
-                    world.addEntity(Junk);
+                    world.newEntity(Junk);
                 }
             },
         };

@@ -4,12 +4,12 @@ import { Body, Composite, type Engine } from 'matter-js';
 
 export class ObjectPoolHelper {
     public static activate(world: World, engine: Engine, id: number) {
-        if (!world.hasComponent(Active, id)) {
-            world.addComponent(Active, id);
+        if (!world.has(Active, id)) {
+            world.attach(Active, id);
         }
 
-        const { object3d } = world.getComponent(GameObject, id);
-        const { body } = world.getComponent(RigibBody, id);
+        const { object3d } = world.get(GameObject, id);
+        const { body } = world.get(RigibBody, id);
 
         object3d.visible = true;
         Body.setStatic(body, false);
@@ -17,12 +17,12 @@ export class ObjectPoolHelper {
     }
 
     public static deactivate(world: World, engine: Engine, id: number) {
-        if (world.hasComponent(Active, id)) {
-            world.deleteComponent(Active, id);
+        if (world.has(Active, id)) {
+            world.detach(Active, id);
         }
 
-        const { object3d } = world.getComponent(GameObject, id);
-        const { body } = world.getComponent(RigibBody, id);
+        const { object3d } = world.get(GameObject, id);
+        const { body } = world.get(RigibBody, id);
 
         Composite.remove(engine.world, body);
         Body.setStatic(body, true);

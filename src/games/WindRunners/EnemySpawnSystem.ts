@@ -36,17 +36,17 @@ export class EnemySpawnSystem extends System {
 
     @System.on([Enemy, Hit])
     private onEnemyHit(world: World, id: number) {
-        world.deleteComponent(Hit, id);
+        world.detach(Hit, id);
 
-        const ship = this.world.getComponent(Ship, id);
+        const ship = this.world.get(Ship, id);
 
         ship.health -= 1;
 
         if (ship.health <= 0) {
             ObjectPoolHelper.deactivate(world, this.engine, id);
 
-            if (world.hasComponent(Target, id)) {
-                world.deleteComponent(Target, id);
+            if (world.has(Target, id)) {
+                world.detach(Target, id);
             }
         }
     }
@@ -88,14 +88,14 @@ export class EnemySpawnSystem extends System {
     }
 
     private reconfigure(id: number) {
-        const { body } = this.world.getComponent(RigibBody, id);
+        const { body } = this.world.get(RigibBody, id);
 
-        const ship = this.world.getComponent(Ship, id);
+        const ship = this.world.get(Ship, id);
 
         ship.health = 5;
 
         for (const playerId of this.world.select([Player, Active])) {
-            const { body: playerBody } = this.world.getComponent(RigibBody, playerId);
+            const { body: playerBody } = this.world.get(RigibBody, playerId);
 
             Body.setPosition(body, playerBody.position);
         }
@@ -105,13 +105,13 @@ export class EnemySpawnSystem extends System {
         /**
          * Enemy
          */
-        const [id, enemy] = this.world.addEntity(Enemy);
+        const [id, enemy] = this.world.newEntity(Enemy);
         enemy.untilTurnSec = 0.5 + Math.random() * 2;
 
         /**
          * GameObject
          */
-        const go = this.world.addComponent(GameObject, id);
+        const go = this.world.attach(GameObject, id);
         go.object3d = SkeletonUtils.clone(originalModel);
         go.object3d.scale.multiplyScalar(0.2);
         go.object3d.position.set(200 * Math.random(), 200 * Math.random(), 0);
@@ -120,7 +120,7 @@ export class EnemySpawnSystem extends System {
         /**
          * RigibBody
          */
-        const rb = this.world.addComponent(RigibBody, id);
+        const rb = this.world.attach(RigibBody, id);
         rb.body = createBodyForObject3d(
             go.object3d,
             {
@@ -139,13 +139,13 @@ export class EnemySpawnSystem extends System {
         /**
          * Ship
          */
-        const ship = this.world.addComponent(Ship, id);
+        const ship = this.world.attach(Ship, id);
         ship.turningSpeed = 3;
 
         /**
          * Gun
          */
-        const gun = this.world.addComponent(Gun, id);
+        const gun = this.world.attach(Gun, id);
         gun.targetQuery.push(Player);
         gun.fireRate = 1;
 
@@ -154,7 +154,7 @@ export class EnemySpawnSystem extends System {
 
     private distanceFromStart(): number {
         for (const id of this.world.select([Player, RigibBody])) {
-            const { body } = this.world.getComponent(RigibBody, id);
+            const { body } = this.world.get(RigibBody, id);
 
             return Vector.magnitude(body.position);
         }

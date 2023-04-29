@@ -24,31 +24,31 @@ describe('ECS / World', () => {
 
             const world = new World();
 
-            const [e] = world.addEntity(CompA);
+            const [e] = world.newEntity(CompA);
 
-            expect(world.hasComponent(CompA, e)).toBe(true);
-            expect(world.hasComponent(CompB, e)).toBe(false);
-
-            world.applyChanges();
-
-            expect(world.hasComponent(CompA, e)).toBe(true);
-            expect(world.hasComponent(CompB, e)).toBe(false);
-
-            world.addComponent(CompB, e);
-
-            expect(world.hasComponent(CompB, e)).toBe(true);
+            expect(world.has(CompA, e)).toBe(true);
+            expect(world.has(CompB, e)).toBe(false);
 
             world.applyChanges();
 
-            expect(world.hasComponent(CompB, e)).toBe(true);
+            expect(world.has(CompA, e)).toBe(true);
+            expect(world.has(CompB, e)).toBe(false);
 
-            world.deleteComponent(CompB, e);
+            world.attach(CompB, e);
 
-            expect(world.hasComponent(CompB, e)).toBe(true);
+            expect(world.has(CompB, e)).toBe(true);
 
             world.applyChanges();
 
-            expect(world.hasComponent(CompB, e)).toBe(false);
+            expect(world.has(CompB, e)).toBe(true);
+
+            world.detach(CompB, e);
+
+            expect(world.has(CompB, e)).toBe(true);
+
+            world.applyChanges();
+
+            expect(world.has(CompB, e)).toBe(false);
         });
 
         test('Добавляет и удаляет компонент из обработчика', () => {
@@ -60,16 +60,16 @@ describe('ECS / World', () => {
 
             const world = new World();
 
-            world.onAdd([CompA], (w, e) => {
-                world.addComponent(CompB, e);
-                world.deleteComponent(CompB, e);
+            world.onAttach([CompA], (w, e) => {
+                world.attach(CompB, e);
+                world.detach(CompB, e);
             });
 
-            const [e] = world.addEntity(CompA);
+            const [e] = world.newEntity(CompA);
 
             world.applyChanges();
 
-            expect(world.hasComponent(CompB, e)).toBe(false);
+            expect(world.has(CompB, e)).toBe(false);
         });
     });
 
@@ -82,10 +82,10 @@ describe('ECS / World', () => {
              */
 
             const world = new World();
-            const [e, a] = world.addEntity(CompA);
+            const [e, a] = world.newEntity(CompA);
 
-            expect(world.getComponent(CompA, e)).toBe(a);
-            expect(world.hasComponent(CompA, e)).toBe(true);
+            expect(world.get(CompA, e)).toBe(a);
+            expect(world.has(CompA, e)).toBe(true);
         });
     });
 
@@ -98,8 +98,8 @@ describe('ECS / World', () => {
              */
 
             const world = new World();
-            const [id, a] = world.addEntity(CompA);
-            world.addComponent(CompB, id);
+            const [id, a] = world.newEntity(CompA);
+            world.attach(CompB, id);
 
             const idsExceptB = world.selectExcept([CompA], [CompB]);
             expect(idsExceptB).not.toContain(id);
@@ -113,21 +113,21 @@ describe('ECS / World', () => {
         const world = new World();
         let calledTimes = 0;
 
-        world.onAdd([CompA, CompB], (w, e) => {
+        world.onAttach([CompA, CompB], (w, e) => {
             calledTimes++;
         });
 
-        const [entity] = world.addEntity(CompA);
+        const [entity] = world.newEntity(CompA);
         world.applyChanges();
 
         expect(calledTimes).toBe(0);
 
-        world.addComponent(CompB, entity);
+        world.attach(CompB, entity);
         world.applyChanges();
 
         expect(calledTimes).toBe(1);
 
-        world.addComponent(CompC, entity);
+        world.attach(CompC, entity);
         world.applyChanges();
 
         expect(calledTimes).toBe(1);
@@ -137,24 +137,24 @@ describe('ECS / World', () => {
         const world = new World();
         let calledTimes = 0;
 
-        world.onDelete([CompA, CompB], (w, e) => {
+        world.onDetach([CompA, CompB], (w, e) => {
             calledTimes++;
         });
 
-        const [entity] = world.addEntity(CompA);
-        world.addComponent(CompB, entity);
-        world.addComponent(CompC, entity);
+        const [entity] = world.newEntity(CompA);
+        world.attach(CompB, entity);
+        world.attach(CompC, entity);
 
         world.applyChanges();
 
         expect(calledTimes).toBe(0);
 
-        world.deleteComponent(CompC, entity);
+        world.detach(CompC, entity);
         world.applyChanges();
 
         expect(calledTimes).toBe(0);
 
-        world.deleteComponent(CompB, entity);
+        world.detach(CompB, entity);
         world.applyChanges();
 
         expect(calledTimes).toBe(1);
@@ -170,23 +170,23 @@ describe('ECS / World', () => {
         let abCalled = false;
         let acCalled = false;
 
-        world.onAdd([CompA, CompB], (w, e) => {
+        world.onAttach([CompA, CompB], (w, e) => {
             abCalled = true;
 
-            w.addComponent(CompC, e);
+            w.attach(CompC, e);
         });
 
-        world.onAdd([CompA, CompC], (w, e) => {
+        world.onAttach([CompA, CompC], (w, e) => {
             acCalled = true;
         });
 
-        const [entity] = world.addEntity(CompA);
+        const [entity] = world.newEntity(CompA);
         world.applyChanges();
 
         expect(abCalled).toBe(false);
         expect(acCalled).toBe(false);
 
-        world.addComponent(CompB, entity);
+        world.attach(CompB, entity);
         world.applyChanges();
 
         expect(abCalled).toBe(true);

@@ -97,10 +97,10 @@ export class SceneSystem extends System {
         for (const { object } of intersects) {
             const entity = extraProps.readEntityId(object.userData);
 
-            if (entity != null && world.hasComponent(Star, entity)) {
+            if (entity != null && world.has(Star, entity)) {
                 // Добавить компонент отвечающий за приём рейтрейса объект
-                world.addComponent(Touched, entity);
-                world.deleteComponent(Touched, entity);
+                world.attach(Touched, entity);
+                world.detach(Touched, entity);
 
                 return;
             }

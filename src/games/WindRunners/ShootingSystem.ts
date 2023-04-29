@@ -26,12 +26,12 @@ export class ShootingSystem extends System {
     @System.on([Projectile, Hit])
     private onProjectileHit(world: World, id: number) {
         ObjectPoolHelper.deactivate(world, this.engine, id);
-        world.deleteComponent(Hit, id);
+        world.detach(Hit, id);
     }
 
     public override onSimulate(world: World, deltaSec: number): void {
         for (const gunId of world.select([Gun, GameObject, Active])) {
-            const gun = world.getComponent(Gun, gunId);
+            const gun = world.get(Gun, gunId);
 
             gun.untilNextShotSec -= deltaSec;
 
@@ -39,10 +39,10 @@ export class ShootingSystem extends System {
                 continue;
             }
 
-            const gunGo = world.getComponent(GameObject, gunId);
+            const gunGo = world.get(GameObject, gunId);
 
             for (const targetId of world.select([...gun.targetQuery, Active])) {
-                const { body } = world.getComponent(RigibBody, targetId);
+                const { body } = world.get(RigibBody, targetId);
 
                 VectorEx.directionFrom(
                     gunGo.object3d.position,
@@ -60,7 +60,7 @@ export class ShootingSystem extends System {
         }
 
         for (const id of world.select([Projectile])) {
-            const projectile = world.getComponent(Projectile, id);
+            const projectile = world.get(Projectile, id);
 
             projectile.untilSelfDestructionSec -= deltaSec;
 
@@ -80,7 +80,7 @@ export class ShootingSystem extends System {
 
         const id = this.findUnusedOrCreateProjectile(world);
 
-        const projectile = world.getComponent(Projectile, id);
+        const projectile = world.get(Projectile, id);
         projectile.untilSelfDestructionSec = this.projectileLifetime;
 
         ObjectPoolHelper.activate(world, this.engine, id);
@@ -94,7 +94,7 @@ export class ShootingSystem extends System {
         gunGo: GameObject,
         targetCollisionCategory: number | undefined
     ) {
-        const { body } = world.getComponent(RigibBody, id);
+        const { body } = world.get(RigibBody, id);
 
         body.collisionFilter.mask = targetCollisionCategory;
         Body.setVelocity(body, gun.direction.clone().multiplyScalar(32));
@@ -120,8 +120,8 @@ export class ShootingSystem extends System {
     }
 
     private createProjectile(world: World): number {
-        const [id] = world.addEntity(Projectile);
-        const go = world.addComponent(GameObject, id);
+        const [id] = world.newEntity(Projectile);
+        const go = world.attach(GameObject, id);
 
         go.object3d = new THREE.Mesh(
             // TODO: переиспользовать геометрию и материал
@@ -136,7 +136,7 @@ export class ShootingSystem extends System {
 
         this.scene.add(go.object3d);
 
-        const rb = world.addComponent(RigibBody, id);
+        const rb = world.attach(RigibBody, id);
         rb.body = Bodies.rectangle(0, 0, 64, 4, {
             isSensor: true,
             collisionFilter: {

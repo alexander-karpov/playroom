@@ -65,7 +65,7 @@ export class World {
      * Регистрирует новую сущность (id переиспользуются)
      * @param componentClass Первый компонент новой сущности
      */
-    public addEntity<T>(componentClass: ComponentClass<T>): [entityId: number, component: T] {
+    public newEntity<T>(componentClass: ComponentClass<T>): [entityId: number, component: T] {
         // 0 - отсутствие компонентов
         const freeEntityValue = 0;
         let freeEntityId = this.entities.indexOf(freeEntityValue);
@@ -78,7 +78,7 @@ export class World {
             freeEntityId = this.entities.length - 1;
         }
 
-        const component = this.addComponent(componentClass, freeEntityId);
+        const component = this.attach(componentClass, freeEntityId);
 
         return [freeEntityId, component];
     }
@@ -87,7 +87,7 @@ export class World {
      * Планирует добавление компонента к сущности
      * @param entity
      */
-    public addComponent<T>(componentClass: ComponentClass<T>, entityId: number): T {
+    public attach<T>(componentClass: ComponentClass<T>, entityId: number): T {
         const componentClassId = this.componentClassId(componentClass);
         const componentId = this.componentId(entityId, componentClassId);
 
@@ -106,7 +106,7 @@ export class World {
         return component;
     }
 
-    public getComponent<T>(componentClass: ComponentClass<T>, entityId: number): T {
+    public get<T>(componentClass: ComponentClass<T>, entityId: number): T {
         const componentClassId = this.componentClassId(componentClass);
         const componentId = this.componentId(entityId, componentClassId);
 
@@ -120,11 +120,11 @@ export class World {
         return this.components.get(componentId) as T;
     }
 
-    public hasComponent<T>(componentClass: ComponentClass<T>, entityId: number): boolean {
+    public has<T>(componentClass: ComponentClass<T>, entityId: number): boolean {
         return this.hasComponentClassId(this.componentClassId(componentClass), entityId);
     }
 
-    public deleteComponent(componentClass: ComponentClass, entityId: number): void {
+    public detach(componentClass: ComponentClass, entityId: number): void {
         // TODO: Подумать над механизмом очистки памяти при удалении
         // компонентов. Некоторые К. ссылкаются на сложные структуры
         // и не хорошо держать ссылки на них
@@ -186,14 +186,14 @@ export class World {
         return selectResult;
     }
 
-    public onAdd(query: readonly ComponentClass[], handler: EntityChangeHandler): void {
+    public onAttach(query: readonly ComponentClass[], handler: EntityChangeHandler): void {
         const queryMask = this.queryMask(query);
 
         this.onAddQueries.push(queryMask);
         this.onAddHandlers.push(handler);
     }
 
-    public onDelete(query: readonly ComponentClass[], handler: EntityChangeHandler): void {
+    public onDetach(query: readonly ComponentClass[], handler: EntityChangeHandler): void {
         const queryMask = this.queryMask(query);
 
         this.onDeleteQueries.push(queryMask);

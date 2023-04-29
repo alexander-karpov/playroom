@@ -69,9 +69,9 @@ export abstract class System {
 
         for (const sub of this.subscriptionList) {
             if (sub[2]) {
-                world.onAdd(sub[0], sub[1]);
+                world.onAttach(sub[0], sub[1]);
             } else {
-                world.onDelete(sub[0], sub[1]);
+                world.onDetach(sub[0], sub[1]);
             }
         }
 

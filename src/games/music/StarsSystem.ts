@@ -32,7 +32,7 @@ export class StarsSystem extends System {
 
     @System.on([Star])
     private onStar(world: World, entity: number): void {
-        const star = world.getComponent(Star, entity);
+        const star = world.get(Star, entity);
 
         const size = 0.5 * fib(star.size + 10);
         const position = new THREE.Vector2(
@@ -43,7 +43,7 @@ export class StarsSystem extends System {
         /**
          * GameObject
          */
-        const go = world.addComponent(GameObject, entity);
+        const go = world.attach(GameObject, entity);
 
         go.object3d = new THREE.Mesh(
             this.starGeom,
@@ -60,7 +60,7 @@ export class StarsSystem extends System {
         /**
          * Body
          */
-        const rb = world.addComponent(RigibBody, entity);
+        const rb = world.attach(RigibBody, entity);
         rb.body = Bodies.circle(position.x, position.y, 1, {
             collisionFilter: {
                 category: Bits.bit(CollisionCategories.Star),
@@ -80,9 +80,9 @@ export class StarsSystem extends System {
 
     @System.on([Star, Touched])
     private onStarTouched(world: World, entity: number): void {
-        if (!world.hasComponent(Shine, entity)) {
-            world.addComponent(Shine, entity);
-            world.deleteComponent(Shine, entity);
+        if (!world.has(Shine, entity)) {
+            world.attach(Shine, entity);
+            world.detach(Shine, entity);
         }
     }
 
@@ -98,26 +98,26 @@ export class StarsSystem extends System {
         window.addEventListener('resize', function (ev) {
             const center = Vector.create(0, 10);
             for (const id of world.select([Star, RigibBody])) {
-                const rb = world.getComponent(RigibBody, id);
+                const rb = world.get(RigibBody, id);
                 Body.setPosition(rb.body, Vector.rotate(center, Math.random() * Math.PI));
             }
         });
     }
 
     private playSound(world: World, entity: number) {
-        const star = world.getComponent(Star, entity);
+        const star = world.get(Star, entity);
 
         // TODO: Нужна фунция для каждого компонента
         // которая делает это заполнение полей, хорошо если она
         // будет называться так же как класс
-        const sound = world.addComponent(Sound, entity);
+        const sound = world.attach(Sound, entity);
         sound.name = star.soundtrack;
         sound.throttleMs = 0;
     }
 
     private playShineEffect(world: World, entity: number) {
-        const { object3d } = world.getComponent(GameObject, entity);
-        const star = world.getComponent(Star, entity);
+        const { object3d } = world.get(GameObject, entity);
+        const star = world.get(Star, entity);
 
         if (
             isMesh(object3d) &&
@@ -149,7 +149,7 @@ export class StarsSystem extends System {
             .name('Цвет звёзд')
             .onChange((colorHex: number) => {
                 for (const id of world.select([Star, GameObject])) {
-                    const { object3d } = world.getComponent(GameObject, id);
+                    const { object3d } = world.get(GameObject, id);
 
                     if (
                         isMesh(object3d) &&

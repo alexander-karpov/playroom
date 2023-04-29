@@ -20,7 +20,7 @@ export class JoystickSystem extends System {
 
     private subscribeToPointerEvents(world: World) {
         function onStart(ev: PointerEvent) {
-            const [, joystick] = world.addEntity(Joystick);
+            const [, joystick] = world.newEntity(Joystick);
 
             joystick.pointerId = ev.pointerId;
             joystick.tilt = 0;
@@ -39,7 +39,7 @@ export class JoystickSystem extends System {
 
         const onMove = (ev: PointerEvent) => {
             for (const id of world.select([Joystick])) {
-                const joystick = world.getComponent(Joystick, id);
+                const joystick = world.get(Joystick, id);
 
                 if (joystick.pointerId === ev.pointerId) {
                     this.changeMovingJoystickState(joystick, ev.x, ev.y);
@@ -51,10 +51,10 @@ export class JoystickSystem extends System {
 
         const onEnd = (ev: PointerEvent) => {
             for (const id of world.select([Joystick])) {
-                const joystick = world.getComponent(Joystick, id);
+                const joystick = world.get(Joystick, id);
 
                 if (joystick.pointerId === ev.pointerId) {
-                    world.deleteComponent(Joystick, id);
+                    world.detach(Joystick, id);
                     break;
                 }
             }

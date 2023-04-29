@@ -61,7 +61,7 @@ export class PuzzleSystem extends System {
         this.playPuzzleCancellation?.cancel();
         this.lastTonePlayed = Date.now();
 
-        const star = world.getComponent(Star, entity);
+        const star = world.get(Star, entity);
 
         if (star.tone === this.puzzleTune[this.touchedStarNo]) {
             // Нажато правильно. Едем дальше
@@ -135,7 +135,7 @@ export class PuzzleSystem extends System {
 
     private playPuzzleTune(world: World, afterMs: number, repeat: boolean = false): void {
         const starsByTone = new Map(
-            world.select([Star]).map((entity) => [world.getComponent(Star, entity).tone, entity])
+            world.select([Star]).map((entity) => [world.get(Star, entity).tone, entity])
         );
 
         this.playPuzzleCancellation?.cancel();
@@ -154,8 +154,8 @@ export class PuzzleSystem extends System {
                     return;
                 }
 
-                world.addComponent(Shine, starEntity);
-                world.deleteComponent(Shine, starEntity);
+                world.attach(Shine, starEntity);
+                world.detach(Shine, starEntity);
                 this.lastTonePlayed = Date.now();
 
                 await delay(500);
@@ -174,7 +174,7 @@ export class PuzzleSystem extends System {
     }
 
     private addStar(world: World, no: number, track: SoundTracks, size: number) {
-        const [, star] = world.addEntity(Star);
+        const [, star] = world.newEntity(Star);
 
         star.tone = no;
         star.soundtrack = track;
@@ -216,7 +216,7 @@ export class PuzzleSystem extends System {
         }
 
         for (const entity of world.select([Star, RigibBody])) {
-            const rb = world.getComponent(RigibBody, entity);
+            const rb = world.get(RigibBody, entity);
             // const force = Vector.create(0, 0.001 * rb.body.mass);
             const force = Vector.mult(
                 Vector.normalise(Vector.neg(rb.body.position)),
@@ -231,19 +231,19 @@ export class PuzzleSystem extends System {
             Body.applyForce(rb.body, rb.body.position, force);
         }
 
-        const [, sound] = world.addEntity(Sound);
+        const [, sound] = world.newEntity(Sound);
         sound.name = SoundTracks.Loss;
         sound.throttleMs = 0;
     }
 
     private nextLevelEffect(world: World) {
         for (const entity of world.select([Star, RigibBody])) {
-            const rb = world.getComponent(RigibBody, entity);
+            const rb = world.get(RigibBody, entity);
 
             Body.setAngularVelocity(rb.body, 10 / rb.body.mass);
         }
 
-        const [, sound] = world.addEntity(Sound);
+        const [, sound] = world.newEntity(Sound);
         sound.name = SoundTracks.Win;
         sound.throttleMs = 0;
     }
@@ -255,7 +255,7 @@ export class PuzzleSystem extends System {
         this.score = this.touchedStarNo;
 
         for (let i = 0; i < this.touchedStarNo; i++) {
-            world.addEntity(Junk);
+            world.newEntity(Junk);
         }
 
         if (this.score > this.record) {

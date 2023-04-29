@@ -22,15 +22,15 @@ export class PlayerControllerSystem extends System {
 
     @System.on([Player, Hit])
     private onPlayerHit(world: World, id: number) {
-        world.deleteComponent(Hit, id);
-        const ship = world.getComponent(Ship, id);
-        const { body } = world.getComponent(RigibBody, id);
+        world.detach(Hit, id);
+        const ship = world.get(Ship, id);
+        const { body } = world.get(RigibBody, id);
 
         ship.health -= 1;
 
         if (ship.health <= 0) {
-            if (world.hasComponent(Active, id)) {
-                world.deleteComponent(Active, id);
+            if (world.has(Active, id)) {
+                world.detach(Active, id);
                 Body.setPosition(body, { x: 0, y: 0 });
                 ObjectPoolHelper.deactivate(world, this.engine, id);
             }
@@ -45,7 +45,7 @@ export class PlayerControllerSystem extends System {
     @System.on([Joystick])
     private onJoystick(world: World, id: number) {
         for (const playerId of world.select([Player, Ship])) {
-            const airplane = world.getComponent(Ship, playerId);
+            const airplane = world.get(Ship, playerId);
 
             airplane.bootsOn = true;
         }
@@ -54,7 +54,7 @@ export class PlayerControllerSystem extends System {
     @System.onNot([Joystick])
     private onNotJoystick(world: World, id: number) {
         for (const playerId of world.select([Player, Ship])) {
-            const airplane = world.getComponent(Ship, playerId);
+            const airplane = world.get(Ship, playerId);
 
             airplane.bootsOn = false;
 
@@ -65,7 +65,7 @@ export class PlayerControllerSystem extends System {
 
     public override onSimulate(world: World, deltaS: number): void {
         for (const joystickId of world.select([Joystick])) {
-            const joystick = world.getComponent(Joystick, joystickId);
+            const joystick = world.get(Joystick, joystickId);
 
             if (joystick.tilt === 0) {
                 continue;
@@ -74,7 +74,7 @@ export class PlayerControllerSystem extends System {
             this.worldJoystickDirection.set(joystick.direction.x, -joystick.direction.y, 0);
 
             for (const playerId of world.select([Player, Active, Ship])) {
-                const airplane = world.getComponent(Ship, playerId);
+                const airplane = world.get(Ship, playerId);
 
                 airplane.targetDirection.copy(this.worldJoystickDirection);
 
@@ -84,11 +84,11 @@ export class PlayerControllerSystem extends System {
         }
 
         for (const targetId of world.select([Target, Active, GameObject])) {
-            const targetGo = world.getComponent(GameObject, targetId);
+            const targetGo = world.get(GameObject, targetId);
 
             for (const playerId of world.select([Player, Active, Ship])) {
-                const { targetDirection } = world.getComponent(Ship, playerId);
-                const playerGo = world.getComponent(GameObject, playerId);
+                const { targetDirection } = world.get(Ship, playerId);
+                const playerGo = world.get(GameObject, playerId);
 
                 targetDirection
                     .copy(targetGo.object3d.position)
