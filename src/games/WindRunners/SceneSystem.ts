@@ -55,7 +55,7 @@ export class SceneSystem extends System {
             {
                 isSensor: true,
                 collisionFilter: {
-                    category: CollisionCategory.Ship,
+                    category: CollisionCategory.Player,
                     mask: CollisionCategory.Projectile,
                 },
             },

@@ -126,7 +126,7 @@ export class EnemySpawnSystem extends System {
             {
                 isSensor: true,
                 collisionFilter: {
-                    category: CollisionCategory.Ship,
+                    category: CollisionCategory.Enemy,
                     mask: CollisionCategory.Projectile,
                 },
             },
