@@ -12,6 +12,13 @@ import { CollisionCategory } from './CollisionCategory';
 import { loadGLTF } from '~/utils/loadGLTF';
 import { createBodyForObject3d } from '~/utils/createBodyForObject3d';
 
+export class Palette {
+    public static sky = new THREE.Color(76 / 255, 160 / 255, 190 / 255);
+    public static grass = new THREE.Color(171, 191, 126);
+    public static grassInShadow = new THREE.Color(129, 166, 135);
+    public static vegetation = new THREE.Color(61, 115, 115);
+}
+
 export class SceneSystem extends System {
     public constructor(
         private readonly scene: THREE.Scene,
@@ -26,11 +33,17 @@ export class SceneSystem extends System {
         /**
          * Light
          */
-        const ambientLight = new THREE.AmbientLight(0xf0f0f0); // soft white light
+        const ambientLight = new THREE.AmbientLight(0xffffff); // soft white light
         scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(-1, 1, 1);
         scene.add(directionalLight);
+
+        /**
+         * Background
+         */
+        scene.background = Palette.sky;
     }
 
     public override onCreate(world: World): void {
