@@ -1,10 +1,10 @@
 import { Runtime, World } from '~/ecs';
-import type * as THREE from 'three';
+import * as THREE from 'three';
 import type { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import type GUI from 'lil-gui';
 import { Game } from '../../Game';
 import { SceneSystem } from './SceneSystem';
-import { SkySystem } from '~/systems/SkySystem';
+import { DustSystem } from '~/systems/DustSystem';
 import { ProjectionHelper } from '~/utils/ProjectionHelper';
 import { ShipCameraSystem } from './ShipCameraSystem';
 import { JoystickSystem } from './JoystickSystem';
@@ -52,11 +52,11 @@ export class WindRunnersGame extends Game {
                 new HitSystem(engine),
                 new JoystickSystem(64, renderer),
                 new PlayerControllerSystem(world, scene, engine),
-                new SceneSystem(scene, camera as THREE.OrthographicCamera, engine),
+                new SceneSystem(scene, engine),
                 new ShipCameraSystem(camera),
                 new ShipSystem(),
                 new ShootingSystem(scene, engine),
-                new SkySystem(projectionHelper, scene),
+                new DustSystem(projectionHelper, scene),
                 new SyncPhysicsSystem(engine),
                 new TargetSelectionSystem(scene),
                 new EnemySpawnSystem(world, scene, engine),
@@ -67,5 +67,23 @@ export class WindRunnersGame extends Game {
         systemsRuntime.initialize();
 
         return systemsRuntime;
+    }
+
+    protected override createCamera(): THREE.Camera {
+        const camera = new THREE.PerspectiveCamera(
+            45,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            10000
+        );
+
+        this.screenSizeSource.consume((w, h) => {
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+        });
+
+        camera.position.setZ(1000);
+
+        return camera;
     }
 }

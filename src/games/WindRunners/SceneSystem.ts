@@ -20,15 +20,8 @@ export class Palette {
 }
 
 export class SceneSystem extends System {
-    public constructor(
-        private readonly scene: THREE.Scene,
-        private readonly camera: THREE.OrthographicCamera,
-        private readonly engine: Engine
-    ) {
+    public constructor(private readonly scene: THREE.Scene, private readonly engine: Engine) {
         super();
-
-        this.camera.zoom = 0.5;
-        this.camera.updateProjectionMatrix();
 
         /**
          * Light
@@ -37,13 +30,13 @@ export class SceneSystem extends System {
         scene.add(ambientLight);
 
         const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(-1, 1, 1);
+        directionalLight.position.set(1, 1, 0.3);
         scene.add(directionalLight);
 
         /**
          * Background
          */
-        scene.background = Palette.sky;
+        // scene.background = Palette.sky;
     }
 
     public override onCreate(world: World): void {
