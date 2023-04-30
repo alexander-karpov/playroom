@@ -21,7 +21,7 @@
         body {
             overflow: hidden;
             background-color: black;
-            background-image: url('./assets/sprites/start_bg.png');
+            /* background-image: url('./assets/sprites/start_bg.png'); */
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
@@ -38,42 +38,10 @@
             */
             touch-action: none;
         }
-
-        .Score {
-            pointer-events: none;
-            position: absolute;
-            top: 7vh;
-            left: calc(50vw - 100px);
-            width: 200px;
-            font: 4vh sans-serif;
-            margin: auto;
-            text-align: center;
-            z-index: 100;
-            color: white;
-        }
-
-        .Score-Value {
-            display: block;
-            padding: 5px;
-            background: rgba(0, 0, 0, 0.1);
-            white-space: nowrap;
-        }
-
-        .Score-Record {
-            display: block;
-            padding: 5px;
-            background: rgba(0, 0, 0, 0.1);
-            font-size: 3vh;
-        }
     </style>
 </head>
 
 <body>
-    <div class="Score">
-        <div class="Score-Value">👉 ⭐</div>
-        <div class="Score-Record"></div>
-    </div>
-
 </body>
 
 </html>
