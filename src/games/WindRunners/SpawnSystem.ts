@@ -28,7 +28,7 @@ export abstract class SpawnSystem extends System {
     ) {
         super();
 
-        void loadGLTF('Spaceship4.glb').then((gltf) => {
+        void loadGLTF('Spaceship5.glb').then((gltf) => {
             this.model = gltf.scene.children[0];
         });
     }

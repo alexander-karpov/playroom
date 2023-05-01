@@ -43,5 +43,11 @@ export class AudioSystem extends System {
             sound.audio.stop();
             sound.audio.play();
         });
+
+        world.onDetach([Sound, GameObject, Active], (world, id) => {
+            const sound = world.get(id, Sound);
+
+            sound.audio.stop();
+        });
     }
 }

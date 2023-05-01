@@ -45,7 +45,7 @@ export class SceneSystem extends System {
         const go = world.attach(id, GameObject);
         go.object3d = new Object3D();
         go.object3d.add(gltf.scene.children[0]!);
-        go.object3d.scale.multiplyScalar(0.15);
+        go.object3d.scale.multiplyScalar(0.16);
         this.scene.add(go.object3d);
 
         const rb = world.attach(id, RigibBody);
