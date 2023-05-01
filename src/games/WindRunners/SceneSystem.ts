@@ -12,13 +12,6 @@ import { CollisionCategory } from './CollisionCategory';
 import { loadGLTF } from '~/utils/loadGLTF';
 import { createBodyForObject3d } from '~/utils/createBodyForObject3d';
 
-export class Palette {
-    public static sky = new THREE.Color(76 / 255, 160 / 255, 190 / 255);
-    public static grass = new THREE.Color(171, 191, 126);
-    public static grassInShadow = new THREE.Color(129, 166, 135);
-    public static vegetation = new THREE.Color(61, 115, 115);
-}
-
 export class SceneSystem extends System {
     public constructor(private readonly scene: THREE.Scene, private readonly engine: Engine) {
         super();
@@ -77,6 +70,6 @@ export class SceneSystem extends System {
 
         const gun = world.attach(id, Gun);
         gun.targetQuery.push(Enemy);
-        gun.fireRate = 8;
+        gun.fireRate = 4;
     }
 }

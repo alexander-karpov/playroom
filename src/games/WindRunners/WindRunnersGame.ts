@@ -19,6 +19,7 @@ import { SpawnSystem } from './SpawnSystem';
 import { SurvivalSpawnSystem } from './SurvivalSpawnSystem';
 import { HudSystem } from './HudSystem';
 import { PlayerDamageSystem } from './PlayerDamageSystem';
+import { AudioSystem } from '~/systems/AudioSystem';
 
 export class WindRunnersGame extends Game {
     protected override configureSystems(
@@ -53,12 +54,13 @@ export class WindRunnersGame extends Game {
             new SceneSystem(scene, engine),
             new ShipCameraSystem(camera),
             new ShipSystem(),
-            new ShootingSystem(scene, engine),
+            new ShootingSystem(world, scene, engine),
             new DustSystem(scene),
             new SyncPhysicsSystem(engine),
             new TargetSelectionSystem(scene),
             new SurvivalSpawnSystem(world, scene, engine),
             new HudSystem(world),
+            new AudioSystem(world),
         ]) {
             systemsRuntime.addSystem(system);
         }

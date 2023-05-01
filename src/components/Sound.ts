@@ -1,4 +1,7 @@
+import type * as THREE from 'three';
+import { type SoundTrack } from '~/systems/AudioSystem';
+
 export class Sound {
-    public name!: string;
-    public throttleMs!: number;
+    public track!: SoundTrack;
+    public audio!: THREE.PositionalAudio;
 }

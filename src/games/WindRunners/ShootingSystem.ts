@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
-import { Active, GameObject, RigibBody } from '~/components';
+import { Active, GameObject, RigibBody, Sound } from '~/components';
 import { Projectile } from './Projectile';
 import { Gun } from './Gun';
 import { Bodies, Body, Vector, type Engine } from 'matter-js';
@@ -9,6 +9,9 @@ import { Hit } from './Hit';
 import { VectorEx } from '~/utils/VectorEx';
 import { CollisionCategory } from './CollisionCategory';
 import { ObjectPoolHelper } from './ObjectPoolHelper';
+import { SoundTrack } from '~/systems/AudioSystem';
+import { choose } from '~/utils/choose';
+import { fib } from '~/utils/fib';
 
 export class ShootingSystem extends System {
     private readonly directionToTarget = Vector.create();
@@ -16,8 +19,13 @@ export class ShootingSystem extends System {
     private readonly screenNormal = new THREE.Vector3(0, 0, 1);
     private readonly minDotForTarget = Math.cos(Math.PI / 8);
     private readonly projectileLifetime = 1;
+    private readonly laserGeom = new THREE.PlaneGeometry(fib(12), 4);
 
-    public constructor(private readonly scene: THREE.Scene, private readonly engine: Engine) {
+    public constructor(
+        private readonly world: World,
+        private readonly scene: THREE.Scene,
+        private readonly engine: Engine
+    ) {
         super();
     }
 
@@ -57,7 +65,7 @@ export class ShootingSystem extends System {
             }
         }
 
-        for (const id of world.select([Projectile])) {
+        for (const id of world.select([Projectile, Active])) {
             const projectile = world.get(id, Projectile);
 
             projectile.untilSelfDestructionSec -= deltaSec;
@@ -83,6 +91,17 @@ export class ShootingSystem extends System {
 
         ObjectPoolHelper.activate(world, this.engine, id);
         this.reconfigure(world, id, gun, gunGo, targetCollisionCategory);
+
+        // const sound = this.world.attach(id, Sound);
+        // sound.name = choose([
+        //     // SoundTrack.TieBaster01,
+        //     SoundTrack.Blaster01,
+        //     SoundTrack.Blaster02,
+        //     SoundTrack.Blaster03,
+        //     SoundTrack.Blaster04,
+        //     SoundTrack.Blaster05,
+        // ]);
+        // sound.throttleMs = 0;
     }
 
     private reconfigure(
@@ -95,7 +114,8 @@ export class ShootingSystem extends System {
         const { body } = world.get(id, RigibBody);
 
         body.collisionFilter.mask = targetCollisionCategory;
-        Body.setVelocity(body, gun.direction.clone().multiplyScalar(32));
+        // TODO: Убрать клонирование
+        Body.setVelocity(body, gun.direction.clone().multiplyScalar(64));
 
         Body.setPosition(
             body,
@@ -122,8 +142,7 @@ export class ShootingSystem extends System {
         const go = world.attach(id, GameObject);
 
         go.object3d = new THREE.Mesh(
-            // TODO: переиспользовать геометрию и материал
-            new THREE.PlaneGeometry(64, 4),
+            this.laserGeom,
             new THREE.MeshBasicMaterial({
                 color: 0x60ff00,
                 transparent: false,
@@ -135,12 +154,16 @@ export class ShootingSystem extends System {
         this.scene.add(go.object3d);
 
         const rb = world.attach(id, RigibBody);
-        rb.body = Bodies.rectangle(0, 0, 64, 4, {
+        rb.body = Bodies.rectangle(0, 0, fib(12), 4, {
             isSensor: true,
             collisionFilter: {
                 category: CollisionCategory.Projectile,
             },
+            friction: 0,
+            frictionAir: 0,
         });
+
+        this.world.attach(id, Sound);
 
         return id;
     }
