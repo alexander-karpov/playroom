@@ -72,6 +72,8 @@ export class SceneSystem extends System {
 
         const ship = world.attach(id, Ship);
         ship.turningSpeed = 3;
+        ship.health = 10;
+        ship.maxHealth = 10;
 
         const gun = world.attach(id, Gun);
         gun.targetQuery.push(Enemy);

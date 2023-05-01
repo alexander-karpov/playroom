@@ -7,10 +7,8 @@ import { Bodies, Body, Vector, type Engine } from 'matter-js';
 import { signedAngleBetween } from '~/utils/signedAngleBetween';
 import { Hit } from './Hit';
 import { VectorEx } from '~/utils/VectorEx';
-import { CollisionCategories } from '../music/CollisionCategories';
 import { CollisionCategory } from './CollisionCategory';
 import { ObjectPoolHelper } from './ObjectPoolHelper';
-import { Player } from './Player';
 
 export class ShootingSystem extends System {
     private readonly directionToTarget = Vector.create();

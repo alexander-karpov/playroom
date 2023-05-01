@@ -26,7 +26,7 @@ import type { ScreenSizeSource } from '~/utils/ScreenSizeSource';
  * Это расположение 3D объектов на сцене
  * относительно друг друга
  */
-export class ProjectionHelper {
+export class ProjectionUtils {
     private readonly raycaster = new THREE.Raycaster();
     private readonly worldPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1));
     private readonly tempVec2 = new THREE.Vector2();

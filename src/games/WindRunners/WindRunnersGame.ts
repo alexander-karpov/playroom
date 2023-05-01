@@ -5,7 +5,6 @@ import type GUI from 'lil-gui';
 import { Game } from '../../Game';
 import { SceneSystem } from './SceneSystem';
 import { DustSystem } from '~/systems/DustSystem';
-import { ProjectionHelper } from '~/utils/ProjectionHelper';
 import { ShipCameraSystem } from './ShipCameraSystem';
 import { JoystickSystem } from './JoystickSystem';
 import { ShipSystem } from './ShipSystem';
@@ -17,6 +16,7 @@ import { TargetSelectionSystem } from './TargetSelectionSystem';
 import { Engine } from 'matter-js';
 import { SyncPhysicsSystem } from '~/systems/SyncPhysicsSystem';
 import { EnemySpawnSystem } from './EnemySpawnSystem';
+import { HudSystem } from './HudSystem';
 
 export class WindRunnersGame extends Game {
     protected override configureSystems(
@@ -26,11 +26,6 @@ export class WindRunnersGame extends Game {
         scene: THREE.Scene,
         lil: GUI
     ): Runtime {
-        /**
-         * ProjectionHelper
-         */
-        const projectionHelper = new ProjectionHelper(this.screenSizeSource, camera);
-
         /**
          * Physics
          */
@@ -56,10 +51,11 @@ export class WindRunnersGame extends Game {
                 new ShipCameraSystem(camera),
                 new ShipSystem(),
                 new ShootingSystem(scene, engine),
-                new DustSystem(projectionHelper, scene),
+                new DustSystem(scene),
                 new SyncPhysicsSystem(engine),
                 new TargetSelectionSystem(scene),
                 new EnemySpawnSystem(world, scene, engine),
+                new HudSystem(world),
             ],
             3
         );
@@ -82,7 +78,7 @@ export class WindRunnersGame extends Game {
             camera.updateProjectionMatrix();
         });
 
-        camera.position.setZ(1000);
+        camera.position.setZ(2000);
 
         return camera;
     }

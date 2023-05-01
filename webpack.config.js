@@ -21,7 +21,7 @@ module.exports = (env) => {
         module: {
             rules: [
                 {
-                    test: /\.ts$/,
+                    test: /\.tsx?$/,
                     use: 'ts-loader',
                     exclude: /node_modules/,
                 },
@@ -32,7 +32,7 @@ module.exports = (env) => {
             ],
         },
         resolve: {
-            extensions: ['.ts', '.js'],
+            extensions: ['.tsx', '.ts', '.js'],
             alias: {
                 '~': path.resolve(__dirname, 'src'),
             },

@@ -7,4 +7,5 @@ export class Ship {
     public bootsOn: boolean = false;
     public turningSpeed: number = 1;
     public health = 1;
+    public maxHealth = 1;
 }

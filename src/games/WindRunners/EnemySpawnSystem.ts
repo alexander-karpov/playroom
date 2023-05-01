@@ -92,7 +92,7 @@ export class EnemySpawnSystem extends System {
 
         const ship = this.world.get(id, Ship);
 
-        ship.health = 5;
+        ship.health = ship.maxHealth;
 
         for (const playerId of this.world.select([Player, Active])) {
             const { body: playerBody } = this.world.get(playerId, RigibBody);
@@ -141,6 +141,8 @@ export class EnemySpawnSystem extends System {
          */
         const ship = this.world.attach(id, Ship);
         ship.turningSpeed = 3;
+        ship.health = 5;
+        ship.maxHealth = 5;
 
         /**
          * Gun

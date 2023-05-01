@@ -37,7 +37,7 @@ export class PlayerControllerSystem extends System {
 
             setTimeout(() => {
                 ObjectPoolHelper.activate(world, this.engine, id);
-                ship.health = 10;
+                ship.health = ship.maxHealth;
             }, 1000);
         }
     }

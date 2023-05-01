@@ -1,18 +1,13 @@
 import { System } from '~/ecs/System';
-import type { World } from '~/ecs/World';
 import * as THREE from 'three';
 import { SizedPointsMaterial } from '~/materials/SizedPointsMaterial';
-import type { ProjectionHelper } from '~/utils/ProjectionHelper';
 
 export class DustSystem extends System {
     private readonly particleSystem;
     private readonly geometry;
     private readonly particles;
 
-    public constructor(
-        private readonly projectionHelper: ProjectionHelper,
-        private readonly scene: THREE.Scene
-    ) {
+    public constructor(private readonly scene: THREE.Scene) {
         super();
 
         const shaderMaterial = new SizedPointsMaterial(
