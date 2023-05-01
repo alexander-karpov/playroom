@@ -15,8 +15,10 @@ import { ShootingSystem } from './ShootingSystem';
 import { TargetSelectionSystem } from './TargetSelectionSystem';
 import { Engine } from 'matter-js';
 import { SyncPhysicsSystem } from '~/systems/SyncPhysicsSystem';
-import { EnemySpawnSystem } from './EnemySpawnSystem';
+import { SpawnSystem } from './SpawnSystem';
+import { SurvivalSpawnSystem } from './SurvivalSpawnSystem';
 import { HudSystem } from './HudSystem';
+import { PlayerDamageSystem } from './PlayerDamageSystem';
 
 export class WindRunnersGame extends Game {
     protected override configureSystems(
@@ -40,27 +42,26 @@ export class WindRunnersGame extends Game {
          */
         const world = new World();
 
-        const systemsRuntime = new Runtime(
-            world,
-            [
-                new EnemyControllerSystem(),
-                new HitSystem(engine),
-                new JoystickSystem(64, renderer),
-                new PlayerControllerSystem(world, scene, engine),
-                new SceneSystem(scene, engine),
-                new ShipCameraSystem(camera),
-                new ShipSystem(),
-                new ShootingSystem(scene, engine),
-                new DustSystem(scene),
-                new SyncPhysicsSystem(engine),
-                new TargetSelectionSystem(scene),
-                new EnemySpawnSystem(world, scene, engine),
-                new HudSystem(world),
-            ],
-            3
-        );
+        const systemsRuntime = new Runtime(world, 3);
 
-        systemsRuntime.initialize();
+        for (const system of [
+            new EnemyControllerSystem(world, scene, engine),
+            new HitSystem(engine),
+            new JoystickSystem(64, renderer),
+            new PlayerControllerSystem(),
+            new PlayerDamageSystem(world, scene, engine),
+            new SceneSystem(scene, engine),
+            new ShipCameraSystem(camera),
+            new ShipSystem(),
+            new ShootingSystem(scene, engine),
+            new DustSystem(scene),
+            new SyncPhysicsSystem(engine),
+            new TargetSelectionSystem(scene),
+            new SurvivalSpawnSystem(world, scene, engine),
+            new HudSystem(world),
+        ]) {
+            systemsRuntime.addSystem(system);
+        }
 
         return systemsRuntime;
     }

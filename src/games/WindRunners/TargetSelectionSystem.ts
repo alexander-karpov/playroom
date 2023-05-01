@@ -11,7 +11,7 @@ import { VectorEx } from '~/utils/VectorEx';
 export class TargetSelectionSystem extends System {
     private readonly directionToEnemy = Vector.create();
     private readonly minDotForTarget = 0.8;
-    private readonly maxDistanceToTarget = 500;
+    private readonly maxDistanceToTarget = 1000;
     private readonly targetMarker: THREE.Object3D;
 
     public constructor(private readonly scene: THREE.Scene) {

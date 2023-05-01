@@ -1,7 +1,7 @@
 import { System, type World } from '~/ecs';
 import { Player } from './Player';
 import { Active, GameObject, RigibBody } from '~/components';
-import { Composite, Vector, type Engine, Body } from 'matter-js';
+import { Composite, type Engine, Body } from 'matter-js';
 import { Enemy } from './Enemy';
 import type * as THREE from 'three';
 import { loadGLTF } from '~/utils/loadGLTF';
@@ -11,7 +11,6 @@ import { createBodyForObject3d } from '~/utils/createBodyForObject3d';
 import { CollisionCategory } from './CollisionCategory';
 import { Gun } from './Gun';
 import { ObjectPoolHelper } from './ObjectPoolHelper';
-import { VectorEx } from '~/utils/VectorEx';
 import { Hit } from './Hit';
 import { Target } from './Target';
 
@@ -19,13 +18,13 @@ import { Target } from './Target';
  * Спавним врагов:
  *  - чем дальше от стартовой точки тем больше их количество
  */
-export class EnemySpawnSystem extends System {
+export abstract class SpawnSystem extends System {
     private model?: THREE.Object3D;
 
     public constructor(
-        private readonly world: World,
-        private readonly scene: THREE.Scene,
-        private readonly engine: Engine
+        protected readonly world: World,
+        protected readonly scene: THREE.Scene,
+        protected readonly engine: Engine
     ) {
         super();
 
@@ -34,25 +33,8 @@ export class EnemySpawnSystem extends System {
         });
     }
 
-    @System.on([Enemy, Hit])
-    private onEnemyHit(world: World, id: number) {
-        world.detach(Hit, id);
-
-        const ship = this.world.get(id, Ship);
-
-        ship.health -= 1;
-
-        if (ship.health <= 0) {
-            ObjectPoolHelper.deactivate(world, this.engine, id);
-
-            if (world.has(Target, id)) {
-                world.detach(Target, id);
-            }
-        }
-    }
-
     @System.on([Player, Active])
-    private onNotPlayerActive(world: World, id: number) {
+    private onPlayerActive(world: World, id: number) {
         for (const id of this.world.select([Enemy])) {
             ObjectPoolHelper.deactivate(world, this.engine, id);
         }
@@ -154,17 +136,5 @@ export class EnemySpawnSystem extends System {
         return id;
     }
 
-    private distanceFromStart(): number {
-        for (const id of this.world.select([Player, RigibBody])) {
-            const { body } = this.world.get(id, RigibBody);
-
-            return Vector.magnitude(body.position);
-        }
-
-        return 0;
-    }
-
-    private difficulty(): number {
-        return Math.floor(this.distanceFromStart() / 1000);
-    }
+    protected abstract difficulty(): number;
 }

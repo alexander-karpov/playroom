@@ -3,43 +3,15 @@ import { System, type World } from '~/ecs';
 import { Player } from './Player';
 import { Joystick } from './Joystick';
 import { Ship } from './Ship';
-import { Active, GameObject, RigibBody } from '~/components';
+import { Active, GameObject } from '~/components';
 import { Target } from './Target';
-import { Hit } from './Hit';
-import { ObjectPoolHelper } from './ObjectPoolHelper';
-import { Body, type Engine } from 'matter-js';
+import { type Engine } from 'matter-js';
 
 export class PlayerControllerSystem extends System {
     private readonly worldJoystickDirection = new THREE.Vector3();
 
-    public constructor(
-        private readonly world: World,
-        private readonly scene: THREE.Scene,
-        private readonly engine: Engine
-    ) {
+    public constructor() {
         super();
-    }
-
-    @System.on([Player, Hit])
-    private onPlayerHit(world: World, id: number) {
-        world.detach(Hit, id);
-        const ship = world.get(id, Ship);
-        const { body } = world.get(id, RigibBody);
-
-        ship.health -= 1;
-
-        if (ship.health <= 0) {
-            if (world.has(Active, id)) {
-                world.detach(Active, id);
-                Body.setPosition(body, { x: 0, y: 0 });
-                ObjectPoolHelper.deactivate(world, this.engine, id);
-            }
-
-            setTimeout(() => {
-                ObjectPoolHelper.activate(world, this.engine, id);
-                ship.health = ship.maxHealth;
-            }, 1000);
-        }
     }
 
     @System.on([Joystick])

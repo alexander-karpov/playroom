@@ -1,27 +1,23 @@
 import { type World, System } from './index';
 
 export class Runtime {
-    private inputSystems!: System[];
-    private simulateSystems!: System[];
-    private outputSystems!: System[];
-    private sometimesSystems!: System[];
+    private readonly inputSystems: System[] = [];
+    private readonly simulateSystems: System[] = [];
+    private readonly outputSystems: System[] = [];
+    private readonly sometimesSystems: System[] = [];
 
     private nextSometimesHandlerIndex = 0;
     private sinceLastSometimesCallSec = 0;
 
     public constructor(
         private readonly world: World,
-        private readonly systems: System[],
         private readonly timeBetweenSometimesCallsSec = 5
     ) {}
 
-    public initialize() {
-        this.separateSystemsByHandlers();
-        this.callStartupHandlers();
-
-        for (const system of this.systems) {
-            system.uploadSubscriptionToWorld(this.world);
-        }
+    public addSystem(system: System) {
+        this.registerSystemByHandlers(system);
+        this.callStartupHandlers(system);
+        system.uploadSubscriptionToWorld(this.world);
     }
 
     public update(deltaS: number): void {
@@ -44,17 +40,9 @@ export class Runtime {
         }
     }
 
-    private callStartupHandlers(): void {
-        for (const system of this.systems) {
-            if (this.isSystemOverridesHandler(system, 'onCreate')) {
-                system.onCreate(this.world);
-            }
-        }
-
-        for (const system of this.systems) {
-            if (this.isSystemOverridesHandler(system, 'onLink')) {
-                system.onLink(this.world);
-            }
+    private callStartupHandlers(system: System): void {
+        if (this.isSystemOverridesHandler(system, 'onCreate')) {
+            system.onCreate(this.world);
         }
     }
 
@@ -73,22 +61,24 @@ export class Runtime {
     }
 
     /**
-     * Разделяем системы заранее, чтобы не делать этого на ходу
+     * Помещает систему в наборы наличию обработчика
      */
-    private separateSystemsByHandlers(): void {
-        this.inputSystems = this.systems.filter((s) => this.isSystemOverridesHandler(s, 'onInput'));
+    private registerSystemByHandlers(system: System): void {
+        if (this.isSystemOverridesHandler(system, 'onInput')) {
+            this.inputSystems.push(system);
+        }
 
-        this.simulateSystems = this.systems.filter((s) =>
-            this.isSystemOverridesHandler(s, 'onSimulate')
-        );
+        if (this.isSystemOverridesHandler(system, 'onSimulate')) {
+            this.simulateSystems.push(system);
+        }
 
-        this.outputSystems = this.systems.filter((s) =>
-            this.isSystemOverridesHandler(s, 'onOutput')
-        );
+        if (this.isSystemOverridesHandler(system, 'onOutput')) {
+            this.outputSystems.push(system);
+        }
 
-        this.sometimesSystems = this.systems.filter((s) =>
-            this.isSystemOverridesHandler(s, 'onSometimes')
-        );
+        if (this.isSystemOverridesHandler(system, 'onSometimes')) {
+            this.sometimesSystems.push(system);
+        }
     }
 
     private isSystemOverridesHandler(system: System, methodName: keyof System): boolean {
