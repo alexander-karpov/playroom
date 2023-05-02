@@ -5,7 +5,7 @@ import { Player } from '~/games/windrunners/Player';
 
 export enum SoundTrack {
     TieBasterLong01 = 'tie_blaster_long01.ogg',
-    XWingBaster01 = 'xwing_blaster01.ogg',
+    XWingBaster01 = 'blaster01.ogg',
 }
 
 export class AudioSystem extends System {
@@ -54,7 +54,7 @@ export class AudioSystem extends System {
         }
 
         sound.audio = new THREE.PositionalAudio(this.listener);
-        sound.audio.setRefDistance(64);
+        sound.audio.setRefDistance(100);
 
         const { object3d } = world.get(soundId, GameObject);
         object3d.add(sound.audio);

@@ -20,11 +20,11 @@ export class SceneSystem extends System {
         /**
          * Light
          */
-        const ambientLight = new THREE.AmbientLight(0xffffff); // soft white light
+        const ambientLight = new THREE.AmbientLight(0x444444); // soft white light
         scene.add(ambientLight);
 
         const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(1, 1, 0.3);
+        directionalLight.position.set(1, 1, 0.5);
         scene.add(directionalLight);
 
         /**
@@ -67,6 +67,7 @@ export class SceneSystem extends System {
         const ship = world.attach(id, Ship);
         ship.health = 10;
         ship.maxHealth = 10;
+        ship.turningSpeed = 3.5;
 
         const gun = world.attach(id, Gun);
         gun.targetQuery.push(Enemy);
