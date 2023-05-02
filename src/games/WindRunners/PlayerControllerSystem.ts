@@ -49,6 +49,7 @@ export class PlayerControllerSystem extends System {
                 const airplane = world.get(playerId, Ship);
 
                 airplane.targetDirection.copy(this.worldJoystickDirection);
+                airplane.turningSpeed = joystick.tilt * 3;
 
                 // Курс выбран
                 return;

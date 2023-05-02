@@ -23,6 +23,6 @@ export class SurvivalSpawnSystem extends SpawnSystem {
     }
 
     protected override difficulty(): number {
-        return Math.floor((Date.now() - this.startTimeMs) / 5000);
+        return Math.floor((Date.now() - this.startTimeMs) / 1000);
     }
 }

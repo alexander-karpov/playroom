@@ -9,9 +9,8 @@ import { Hit } from './Hit';
 import { VectorEx } from '~/utils/VectorEx';
 import { CollisionCategory } from './CollisionCategory';
 import { ObjectPoolHelper } from './ObjectPoolHelper';
-import { SoundTrack } from '~/systems/AudioSystem';
-import { choose } from '~/utils/choose';
 import { fib } from '~/utils/fib';
+import { SoundTrack } from '~/systems/AudioSystem';
 
 export class ShootingSystem extends System {
     private readonly directionToTarget = Vector.create();
@@ -91,17 +90,6 @@ export class ShootingSystem extends System {
 
         ObjectPoolHelper.activate(world, this.engine, id);
         this.reconfigure(world, id, gun, gunGo, targetCollisionCategory);
-
-        // const sound = this.world.attach(id, Sound);
-        // sound.name = choose([
-        //     // SoundTrack.TieBaster01,
-        //     SoundTrack.Blaster01,
-        //     SoundTrack.Blaster02,
-        //     SoundTrack.Blaster03,
-        //     SoundTrack.Blaster04,
-        //     SoundTrack.Blaster05,
-        // ]);
-        // sound.throttleMs = 0;
     }
 
     private reconfigure(
@@ -127,6 +115,12 @@ export class ShootingSystem extends System {
             body,
             -signedAngleBetween(gun.direction, this.rightDirection, this.screenNormal)
         );
+
+        const sound = world.get(id, Sound);
+        sound.track = gun.sound;
+
+        const { object3d } = world.get(id, GameObject);
+        ((object3d as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(gun.color);
     }
 
     private findUnusedOrCreateProjectile(world: World): number {

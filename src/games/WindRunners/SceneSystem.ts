@@ -11,6 +11,7 @@ import { Composite, type Engine } from 'matter-js';
 import { CollisionCategory } from './CollisionCategory';
 import { loadGLTF } from '~/utils/loadGLTF';
 import { createBodyForObject3d } from '~/utils/createBodyForObject3d';
+import { SoundTrack } from '~/systems/AudioSystem';
 
 export class SceneSystem extends System {
     public constructor(private readonly scene: THREE.Scene, private readonly engine: Engine) {
@@ -64,12 +65,12 @@ export class SceneSystem extends System {
         Composite.add(this.engine.world, rb.body);
 
         const ship = world.attach(id, Ship);
-        ship.turningSpeed = 3;
         ship.health = 10;
         ship.maxHealth = 10;
 
         const gun = world.attach(id, Gun);
         gun.targetQuery.push(Enemy);
-        gun.fireRate = 4;
+        gun.fireRate = 8;
+        gun.sound = SoundTrack.XWingBaster01;
     }
 }

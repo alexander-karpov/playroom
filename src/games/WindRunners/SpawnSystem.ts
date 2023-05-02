@@ -1,9 +1,9 @@
 import { System, type World } from '~/ecs';
 import { Player } from './Player';
 import { Active, GameObject, RigibBody } from '~/components';
-import { Composite, type Engine, Body } from 'matter-js';
+import { Composite, type Engine, Body, Vector } from 'matter-js';
 import { Enemy } from './Enemy';
-import type * as THREE from 'three';
+import * as THREE from 'three';
 import { loadGLTF } from '~/utils/loadGLTF';
 import { Ship } from './Ship';
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils';
@@ -11,8 +11,7 @@ import { createBodyForObject3d } from '~/utils/createBodyForObject3d';
 import { CollisionCategory } from './CollisionCategory';
 import { Gun } from './Gun';
 import { ObjectPoolHelper } from './ObjectPoolHelper';
-import { Hit } from './Hit';
-import { Target } from './Target';
+import { SoundTrack } from '~/systems/AudioSystem';
 
 /**
  * Спавним врагов:
@@ -71,15 +70,24 @@ export abstract class SpawnSystem extends System {
 
     private reconfigure(id: number) {
         const { body } = this.world.get(id, RigibBody);
-
         const ship = this.world.get(id, Ship);
 
         ship.health = ship.maxHealth;
 
         for (const playerId of this.world.select([Player, Active])) {
             const { body: playerBody } = this.world.get(playerId, RigibBody);
+            const playerShip = this.world.get(playerId, Ship);
 
-            Body.setPosition(body, playerBody.position);
+            Body.setPosition(
+                body,
+                Vector.add(
+                    playerBody.position,
+                    Vector.mult(
+                        Vector.rotate(playerShip.direction, THREE.MathUtils.randFloatSpread(2)),
+                        2000
+                    )
+                )
+            );
         }
     }
 
@@ -95,8 +103,8 @@ export abstract class SpawnSystem extends System {
          */
         const go = this.world.attach(id, GameObject);
         go.object3d = SkeletonUtils.clone(originalModel);
-        go.object3d.scale.multiplyScalar(0.2);
-        go.object3d.position.set(200 * Math.random(), 200 * Math.random(), 0);
+        go.object3d.scale.multiplyScalar(0.17);
+        go.object3d.position.set(0, 0, 0);
         this.scene.add(go.object3d);
 
         /**
@@ -123,8 +131,8 @@ export abstract class SpawnSystem extends System {
          */
         const ship = this.world.attach(id, Ship);
         ship.turningSpeed = 3;
-        ship.health = 5;
-        ship.maxHealth = 5;
+        ship.health = 1;
+        ship.maxHealth = 1;
 
         /**
          * Gun
@@ -132,6 +140,8 @@ export abstract class SpawnSystem extends System {
         const gun = this.world.attach(id, Gun);
         gun.targetQuery.push(Player);
         gun.fireRate = 1;
+        gun.sound = SoundTrack.TieBasterLong01;
+        gun.color.set(0xff6000);
 
         return id;
     }
