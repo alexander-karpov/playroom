@@ -34,8 +34,6 @@ export class WindRunnersGame extends Game {
          */
         const engine = Engine.create({
             gravity: { x: 0, y: 0 },
-            // TODO: не работает засыпание, предметы просто зависают
-            enableSleeping: false,
         });
 
         /**

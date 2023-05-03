@@ -36,22 +36,22 @@ export class World {
      * на данной итерации. После очередного цикла работы,
      * изменения переносятся в entities и массивы очищаются
      */
-    private readonly added: number[] = [];
-    private readonly deleted: number[] = [];
+    private readonly attached: number[] = [];
+    private readonly detached: number[] = [];
 
     /**
      * Индекс в этом массиве – это id подписки
      * Значение - маска подписки
      */
-    private readonly onAddQueries: number[] = [];
-    private readonly onDeleteQueries: number[] = [];
+    private readonly onAttachQueries: number[] = [];
+    private readonly onDetachQueries: number[] = [];
 
     /**
      * Индекс в этом массиве – это id подписки
      * Значение - обработчик подписки
      */
-    private readonly onAddHandlers: EntityChangeHandler[] = [];
-    private readonly onDeleteHandlers: EntityChangeHandler[] = [];
+    private readonly onAttachHandlers: EntityChangeHandler[] = [];
+    private readonly onDetachHandlers: EntityChangeHandler[] = [];
 
     private readonly componentClasses: ComponentClass[] = [];
 
@@ -70,10 +70,10 @@ export class World {
         const freeEntityValue = 0;
         let freeEntityId = this.entities.indexOf(freeEntityValue);
 
-        if (freeEntityId === -1 || this.added[freeEntityId] !== 0) {
+        if (freeEntityId === -1 || this.attached[freeEntityId] !== 0) {
             this.entities.push(0);
-            this.added.push(0);
-            this.deleted.push(0);
+            this.attached.push(0);
+            this.detached.push(0);
 
             freeEntityId = this.entities.length - 1;
         }
@@ -91,14 +91,15 @@ export class World {
         const componentClassId = this.componentClassId(componentClass);
         const componentId = this.componentId(entityId, componentClassId);
 
-        // TODO: сделать только в dev-mode
-        if (this.hasComponentClassId(componentClassId, entityId)) {
-            throw new Error(
-                `Entity ${entityId} already contains a component ${componentClass.name}`
-            );
+        if (process.env['NODE_ENV'] !== 'production') {
+            if (this.hasComponentClassId(componentClassId, entityId)) {
+                throw new Error(
+                    `Entity ${entityId} already contains a component ${componentClass.name}`
+                );
+            }
         }
 
-        this.added[entityId] |= 1 << componentClassId;
+        this.attached[entityId] |= 1 << componentClassId;
 
         const component = new componentClass();
         this.components.set(componentId, component);
@@ -110,11 +111,12 @@ export class World {
         const componentClassId = this.componentClassId(componentClass);
         const componentId = this.componentId(entityId, componentClassId);
 
-        // TODO: сделать только в dev-mode
-        if (!this.hasComponentClassId(componentClassId, entityId)) {
-            throw new Error(
-                `Entity ${entityId} does not contain a component ${componentClass.name}`
-            );
+        if (process.env['NODE_ENV'] !== 'production') {
+            if (!this.hasComponentClassId(componentClassId, entityId)) {
+                throw new Error(
+                    `Entity ${entityId} does not contain a component ${componentClass.name}`
+                );
+            }
         }
 
         return this.components.get(componentId) as T;
@@ -130,7 +132,7 @@ export class World {
         // и не хорошо держать ссылки на них
         const componentClassId = this.componentClassId(componentClass);
 
-        this.deleted[entityId] |= 1 << componentClassId;
+        this.detached[entityId] |= 1 << componentClassId;
     }
 
     public select(query: readonly ComponentClass[]): readonly EntityId[] {
@@ -138,7 +140,7 @@ export class World {
         const queryMask = this.queryMask(query);
 
         for (let entityId = 0; entityId < this.entities.length; entityId++) {
-            const existsAndAddedMask = this.entities[entityId]! | this.added[entityId]!;
+            const existsAndAddedMask = this.entities[entityId]! | this.attached[entityId]!;
 
             if ((existsAndAddedMask & queryMask) === queryMask) {
                 selectResult.push(entityId);
@@ -154,7 +156,7 @@ export class World {
 
         // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let entityId = 0; entityId < this.entities.length; entityId++) {
-            const existsAndAddedMask = this.entities[entityId]! | this.added[entityId]!;
+            const existsAndAddedMask = this.entities[entityId]! | this.attached[entityId]!;
 
             if ((existsAndAddedMask & queryMask) === queryMask) {
                 counter++;
@@ -173,7 +175,7 @@ export class World {
         const exceptMask = this.queryMask(exceptQuery);
 
         for (let entityId = 0; entityId < this.entities.length; entityId++) {
-            const existsAndAddedMask = this.entities[entityId]! | this.added[entityId]!;
+            const existsAndAddedMask = this.entities[entityId]! | this.attached[entityId]!;
 
             if (
                 (existsAndAddedMask & queryMask) === queryMask &&
@@ -189,15 +191,15 @@ export class World {
     public onAttach(query: readonly ComponentClass[], handler: EntityChangeHandler): void {
         const queryMask = this.queryMask(query);
 
-        this.onAddQueries.push(queryMask);
-        this.onAddHandlers.push(handler);
+        this.onAttachQueries.push(queryMask);
+        this.onAttachHandlers.push(handler);
     }
 
     public onDetach(query: readonly ComponentClass[], handler: EntityChangeHandler): void {
         const queryMask = this.queryMask(query);
 
-        this.onDeleteQueries.push(queryMask);
-        this.onDeleteHandlers.push(handler);
+        this.onDetachQueries.push(queryMask);
+        this.onDetachHandlers.push(handler);
     }
 
     public applyChanges(): void {
@@ -206,17 +208,17 @@ export class World {
         for (let eid = 0; eid < this.entities.length; eid++) {
             /**
              * Эта сущность могла быть изменена. Тогда обновления
-             * нужно применить сразу, в этой же итерации, чтобы не было
-             * ощущения задержки реакции
+             * нужно применить сразу (т.е. сразу вызвать другие обработчики),
+             * в этой же итерации, чтобы не было ощущения задержки реакции
              */
             let entityTriggersHandler = false;
 
             /**
              * Добавленные компоненты
              */
-            if (this.added[eid] !== 0) {
-                const addedMask = this.added[eid]!;
-                this.added[eid] = 0;
+            if (this.attached[eid] !== 0) {
+                const addedMask = this.attached[eid]!;
+                this.attached[eid] = 0;
 
                 this.entities[eid] |= addedMask;
 
@@ -227,8 +229,8 @@ export class World {
                 entityTriggersHandler = false;
 
                 // eslint-disable-next-line @typescript-eslint/prefer-for-of
-                for (let si = 0; si < this.onAddQueries.length; si++) {
-                    const subsMask = this.onAddQueries[si]!;
+                for (let si = 0; si < this.onAttachQueries.length; si++) {
+                    const subsMask = this.onAttachQueries[si]!;
 
                     if (
                         /**
@@ -238,7 +240,7 @@ export class World {
                         (subsMask & addedMask) !== 0 &&
                         (this.entities[eid]! & subsMask) === subsMask
                     ) {
-                        this.onAddHandlers[si]!(this, eid);
+                        this.onAttachHandlers[si]!(this, eid);
                         entityTriggersHandler = true;
                     }
                 }
@@ -258,9 +260,9 @@ export class World {
             /**
              * Удаленные компоненты
              */
-            if (this.deleted[eid] !== 0) {
-                const deletedMask = this.deleted[eid]!;
-                this.deleted[eid] = 0;
+            if (this.detached[eid] !== 0) {
+                const deletedMask = this.detached[eid]!;
+                this.detached[eid] = 0;
 
                 /**
                  * Вызов подписок
@@ -269,8 +271,8 @@ export class World {
                 entityTriggersHandler = false;
 
                 // eslint-disable-next-line @typescript-eslint/prefer-for-of
-                for (let si = 0; si < this.onDeleteQueries.length; si++) {
-                    const subsMask = this.onDeleteQueries[si]!;
+                for (let si = 0; si < this.onDetachQueries.length; si++) {
+                    const subsMask = this.onDetachQueries[si]!;
 
                     if (
                         /**
@@ -280,7 +282,7 @@ export class World {
                         (subsMask & deletedMask) !== 0 &&
                         (this.entities[eid]! & subsMask) === subsMask
                     ) {
-                        this.onDeleteHandlers[si]!(this, eid);
+                        this.onDetachHandlers[si]!(this, eid);
                         entityTriggersHandler = true;
                     }
                 }
@@ -333,9 +335,10 @@ export class World {
             return componentClassId;
         }
 
-        // TODO: вернуть проверку в dev-mode
-        if (this.componentClasses.length === 32) {
-            throw new Error('Компонентов уже 32');
+        if (process.env['NODE_ENV'] !== 'production') {
+            if (this.componentClasses.length === 32) {
+                throw new Error('Компонентов уже 32');
+            }
         }
 
         this.componentClasses.push(componentClass);
@@ -344,7 +347,7 @@ export class World {
 
     private hasComponentClassId(componentClassId: number, entityId: number): boolean {
         const componentClassMask = 1 << componentClassId;
-        const existsAndAddedMask = this.entities[entityId]! | this.added[entityId]!;
+        const existsAndAddedMask = this.entities[entityId]! | this.attached[entityId]!;
 
         return (existsAndAddedMask & componentClassMask) === componentClassMask;
     }
