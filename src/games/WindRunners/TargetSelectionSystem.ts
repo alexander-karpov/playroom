@@ -17,18 +17,8 @@ export class TargetSelectionSystem extends System {
     public constructor(private readonly scene: THREE.Scene) {
         super();
 
-        this.targetMarker = new THREE.Mesh(
-            new THREE.PlaneGeometry(64, 64),
-            new THREE.MeshBasicMaterial({
-                color: 0x60f000,
-                transparent: false,
-                depthTest: false,
-                depthWrite: false,
-            })
-        );
-
+        this.targetMarker = this.createTargetMarker();
         this.targetMarker.visible = false;
-
         scene.add(this.targetMarker);
     }
 
@@ -48,6 +38,21 @@ export class TargetSelectionSystem extends System {
 
             this.targetMarker.visible = true;
         }
+    }
+
+    private createTargetMarker(): THREE.Line {
+        const material = new THREE.LineBasicMaterial({ color: 0x60ff00 });
+        const halfSide = 64;
+
+        const geometry = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(-halfSide, -halfSide, 0),
+            new THREE.Vector3(halfSide, -halfSide, 0),
+            new THREE.Vector3(halfSide, halfSide, 0),
+            new THREE.Vector3(-halfSide, halfSide, 0),
+            new THREE.Vector3(-halfSide, -halfSide, 0),
+        ]);
+
+        return new THREE.Line(geometry, material);
     }
 
     private selectTarget(world: World) {
