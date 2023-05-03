@@ -7,22 +7,26 @@ import { Active } from '~/components';
 import { Enemy } from './Enemy';
 
 export class SurvivalSpawnSystem extends SpawnSystem {
-    private startTimeMs;
+    private survivalTimeSec;
 
     public constructor(world: World, scene: THREE.Scene, engine: Engine) {
         super(world, scene, engine);
-        this.startTimeMs = Date.now();
+        this.survivalTimeSec = 0;
 
         world.onAttach([Player, Active], (world, id) => {
-            this.startTimeMs = Date.now();
+            this.survivalTimeSec = 0;
         });
 
         world.onDetach([Enemy, Active], (world, id) => {
-            this.startTimeMs = Math.min(this.startTimeMs + 1000, Date.now());
+            this.survivalTimeSec = Math.max(this.survivalTimeSec - 1, 0);
         });
     }
 
+    public override onSimulate(world: World, deltaSec: number): void {
+        this.survivalTimeSec += deltaSec;
+    }
+
     protected override difficulty(): number {
-        return Math.floor((Date.now() - this.startTimeMs) / 1000);
+        return Math.floor(this.survivalTimeSec);
     }
 }
