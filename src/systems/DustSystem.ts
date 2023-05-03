@@ -53,8 +53,7 @@ export class DustSystem extends System {
             positions.push(point.y);
             positions.push(THREE.MathUtils.randFloatSpread(3000));
 
-            const l = THREE.MathUtils.randFloat(0.4, 1);
-            color.setHSL(0.5, 0.2, l);
+            color.setHSL(0.5, 0.2, 1);
             colors.push(color.r, color.g, color.b);
 
             const size = 3 + 5 * Math.random() * Math.random() * Math.random();
