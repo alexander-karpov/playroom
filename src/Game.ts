@@ -6,7 +6,7 @@ import GUI from 'lil-gui';
 import { ScreenSizeSource } from './utils/ScreenSizeSource';
 
 export abstract class Game {
-    protected readonly screenSizeSource = new ScreenSizeSource();
+    protected readonly screenSize = new ScreenSizeSource();
     private isRun = false;
 
     public run() {
@@ -80,7 +80,7 @@ export abstract class Game {
         camera.far = 10000;
         camera.position.z = 1000;
 
-        this.screenSizeSource.consume((w, h) => {
+        this.screenSize.consume((w, h) => {
             const width = window.innerWidth;
             const height = window.innerHeight;
 
@@ -104,7 +104,7 @@ export abstract class Game {
 
         document.body.appendChild(renderer.domElement);
 
-        this.screenSizeSource.consume((w, h) => {
+        this.screenSize.consume((w, h) => {
             renderer.setSize(w, h, false);
         });
 

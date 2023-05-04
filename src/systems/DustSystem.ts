@@ -1,57 +1,70 @@
-import { System } from '~/ecs/System';
 import * as THREE from 'three';
 import { SizedPointsMaterial } from '~/materials/SizedPointsMaterial';
+import { type World, System } from '~/ecs';
+import { type ProjectionUtil } from '~/utils/ProjectionUtil';
+import { type ScreenSizeSource } from '~/utils/ScreenSizeSource';
 
 export class DustSystem extends System {
     private readonly particleSystem;
     private readonly geometry;
     private readonly particles;
+    private readonly material;
 
-    public constructor(private readonly scene: THREE.Scene) {
+    public constructor(
+        private readonly scene: THREE.Scene,
+        private readonly projUtils: ProjectionUtil,
+        private readonly screenSize: ScreenSizeSource
+    ) {
         super();
 
-        const shaderMaterial = new SizedPointsMaterial(
+        this.material = new SizedPointsMaterial(
             new THREE.TextureLoader().load('./assets/sprites/disc.png'),
             true,
-            false,
+            true,
             true
         );
 
-        const radius = 4000;
-        this.particles = radius * 2;
-
+        const depth = 3000;
+        this.particles = 4000;
         this.geometry = new THREE.BufferGeometry();
+
+        this.screenSize.consume((w, h) => {
+            const min = new THREE.Vector3();
+            const max = new THREE.Vector3();
+
+            // Границы экрана на грубике где расмещаются самые глубокие точки
+            this.projUtils.viewToWorld(-1, -1, -depth / 2, min);
+            this.projUtils.viewToWorld(1, 1, -depth / 2, max);
+
+            /**
+             * Добавим чуть-чуть запаса чтобы спрайты частиц
+             * успевали целиком зайти за край экрана доиз переноса по модулю
+             */
+            min.multiplyScalar(1.1);
+            max.multiplyScalar(1.1);
+
+            const boundWidth = max.x - min.x;
+            const boundHeight = max.y - min.y;
+            const numOfPoints = (boundWidth * boundHeight) / Math.pow(2, 14);
+            this.material.setBounds(boundWidth, boundHeight);
+
+            this.geometry.setDrawRange(0, Math.min(numOfPoints, this.particles));
+        });
 
         const positions = [];
         const colors = [];
         const sizes = [];
 
-        const point = new THREE.Vector2(0, 0);
-        const center = new THREE.Vector2(0, 0);
-
-        /**
-         * Так можно получить тёмный контур круга
-         * point.setX(Math.pow(Math.random(), -2) * radius);
-         */
-
         const color = new THREE.Color();
 
         for (let i = 0; i < this.particles; i++) {
             /**
-             * Сложение двух random даёт более-менее ровное
-             * распределение в центре с сильным убыванием по краям
-             * При этом radius умножается он 0 до 2, что захватывает
-             * и область зума тоже
-             *  0.95 чтобы видно было контур круга при зуме
+             * Раскидать точки можно на любой площади т.к. всё равно
+             * они будут перенесены по границам экрана
              */
-            point.setX((Math.random() + Math.random()) * radius * 0.95);
-            point.setY(0);
-
-            point.rotateAround(center, Math.random() * Math.PI * 2);
-
-            positions.push(point.x);
-            positions.push(point.y);
-            positions.push(THREE.MathUtils.randFloatSpread(3000));
+            positions.push(THREE.MathUtils.randFloatSpread(10_000));
+            positions.push(THREE.MathUtils.randFloatSpread(10_000));
+            positions.push(THREE.MathUtils.randFloatSpread(depth));
 
             color.setHSL(0.5, 0.2, 1);
             colors.push(color.r, color.g, color.b);
@@ -64,7 +77,8 @@ export class DustSystem extends System {
         this.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
         this.geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
 
-        this.particleSystem = new THREE.Points(this.geometry, shaderMaterial);
+        this.particleSystem = new THREE.Points(this.geometry, this.material);
+        this.particleSystem.frustumCulled = false;
 
         this.scene.add(this.particleSystem);
     }

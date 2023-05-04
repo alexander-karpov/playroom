@@ -20,6 +20,7 @@ import { SurvivalSpawnSystem } from './SurvivalSpawnSystem';
 import { HudSystem } from './HudSystem';
 import { PlayerDamageSystem } from './PlayerDamageSystem';
 import { AudioSystem } from '~/systems/AudioSystem';
+import { ProjectionUtil } from '~/utils/ProjectionUtil';
 
 export class WindRunnersGame extends Game {
     protected override configureSystems(
@@ -35,6 +36,11 @@ export class WindRunnersGame extends Game {
         const engine = Engine.create({
             gravity: { x: 0, y: 0 },
         });
+
+        /**
+         * ProjectionUtil
+         */
+        const projUtil = new ProjectionUtil(this.screenSize, camera);
 
         /**
          * Systems
@@ -53,7 +59,7 @@ export class WindRunnersGame extends Game {
             new ShipCameraSystem(camera),
             new ShipSystem(),
             new ShootingSystem(world, scene, engine),
-            new DustSystem(scene),
+            new DustSystem(scene, projUtil, this.screenSize),
             new SyncPhysicsSystem(engine),
             new TargetSelectionSystem(scene),
             new SurvivalSpawnSystem(world, scene, engine),
@@ -74,7 +80,7 @@ export class WindRunnersGame extends Game {
             10000
         );
 
-        this.screenSizeSource.consume((w, h) => {
+        this.screenSize.consume((w, h) => {
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
         });

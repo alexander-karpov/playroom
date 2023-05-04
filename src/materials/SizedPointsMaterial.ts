@@ -4,14 +4,20 @@ export class SizedPointsMaterial extends THREE.ShaderMaterial {
     private static readonly vertexShader = `
     attribute float size;
     varying vec3 vColor;
+    uniform vec2 bounds;
 
     void main() {
-        vColor = color;
+        vec3 vPosition = vec3(position - cameraPosition);
 
-        vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+        vec4 boundedPosition = vec4(
+             mod(vPosition.xy, bounds) - bounds / vec2(2),
+            vPosition.z,
+            1.0
+        );
 
-        gl_Position = projectionMatrix * mvPosition;
+        gl_Position = projectionMatrix * boundedPosition;
         gl_PointSize = size;
+        vColor = color;
     }`;
 
     private static readonly fragmentShader = `
@@ -36,14 +42,22 @@ export class SizedPointsMaterial extends THREE.ShaderMaterial {
                 pointTexture: {
                     value: pointTexture,
                 },
+                bounds: {
+                    value: new THREE.Vector2(1024, 1024),
+                },
             },
             vertexShader: SizedPointsMaterial.vertexShader,
             fragmentShader: SizedPointsMaterial.fragmentShader,
-
             blending: THREE.AdditiveBlending,
             depthTest,
             transparent,
             vertexColors,
         });
+    }
+
+    public setBounds(width: number, height: number) {
+        const bounds = this.uniforms['bounds'] as THREE.Uniform<THREE.Vector2>;
+
+        bounds.value.set(width, height);
     }
 }
