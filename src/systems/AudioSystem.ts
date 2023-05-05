@@ -1,7 +1,8 @@
 import { System, type World } from '~/ecs';
 import { Active, GameObject, Sound } from '~/components';
 import * as THREE from 'three';
-import { Player } from '~/games/windrunners/Player';
+import { Player } from '~/games/space/Player';
+// TODO неправильная зависимость
 
 export enum SoundTrack {
     TieBasterLong01 = 'tie_blaster_long01.ogg',

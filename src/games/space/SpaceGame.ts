@@ -15,14 +15,13 @@ import { ShootingSystem } from './ShootingSystem';
 import { TargetSelectionSystem } from './TargetSelectionSystem';
 import { Engine } from 'matter-js';
 import { SyncPhysicsSystem } from '~/systems/SyncPhysicsSystem';
-import { SpawnSystem } from './SpawnSystem';
 import { SurvivalSpawnSystem } from './SurvivalSpawnSystem';
 import { HudSystem } from './HudSystem';
 import { PlayerDamageSystem } from './PlayerDamageSystem';
 import { AudioSystem } from '~/systems/AudioSystem';
 import { ProjectionUtil } from '~/utils/ProjectionUtil';
 
-export class WindRunnersGame extends Game {
+export class SpaceGame extends Game {
     protected override configureSystems(
         renderer: THREE.WebGLRenderer,
         composer: EffectComposer,
@@ -47,7 +46,7 @@ export class WindRunnersGame extends Game {
          */
         const world = new World();
 
-        const systemsRuntime = new Runtime(world, 3);
+        const systemsRuntime = new Runtime(world);
 
         for (const system of [
             new EnemyControllerSystem(world, scene, engine),
