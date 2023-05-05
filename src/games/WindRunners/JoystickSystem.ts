@@ -5,6 +5,7 @@ import { Joystick } from './Joystick';
 
 export class JoystickSystem extends System {
     public constructor(
+        private readonly world: World,
         /**
          * Как сильно джойстик отклоняется от центра
          */
@@ -12,9 +13,7 @@ export class JoystickSystem extends System {
         private readonly renderer: THREE.WebGLRenderer
     ) {
         super();
-    }
 
-    public override onCreate(world: World): void {
         this.subscribeToPointerEvents(world);
     }
 
@@ -101,3 +100,10 @@ export class JoystickSystem extends System {
         }
     }
 }
+
+// TODO
+
+// наверняка событие pointermove не отправляется когда мышка не нажата
+// и соотв. отписываться не нужно
+
+// возможно стоит выставить useCapture, хуже не будет

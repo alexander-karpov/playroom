@@ -30,14 +30,6 @@ export abstract class System {
         return System.on(query, false);
     }
 
-    /**
-     * Сущности создаются.
-     * Выполняется только один раз при старте.
-     */
-    public onCreate(world: World): void {
-        throw new Error('Not implemented');
-    }
-
     public onInput(world: World, deltaSec: number): void {
         throw new Error('Not implemented');
     }

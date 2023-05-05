@@ -8,11 +8,9 @@ import { Projectile } from './Projectile';
 import { Hit } from './Hit';
 
 export class HitSystem extends System {
-    public constructor(private readonly engine: Engine) {
+    public constructor(private readonly world: World, private readonly engine: Engine) {
         super();
-    }
 
-    public override onCreate(world: World): void {
         Events.on(this.engine, 'collisionStart', this.handleCollisions.bind(this, world));
     }
 

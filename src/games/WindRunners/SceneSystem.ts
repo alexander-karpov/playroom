@@ -14,7 +14,11 @@ import { createBodyForObject3d } from '~/utils/createBodyForObject3d';
 import { SoundTrack } from '~/systems/AudioSystem';
 
 export class SceneSystem extends System {
-    public constructor(private readonly scene: THREE.Scene, private readonly engine: Engine) {
+    public constructor(
+        private readonly world: World,
+        private readonly scene: THREE.Scene,
+        private readonly engine: Engine
+    ) {
         super();
 
         /**
@@ -31,11 +35,9 @@ export class SceneSystem extends System {
          * Background
          */
         // scene.background = Palette.sky;
-    }
 
-    public override onCreate(world: World): void {
         void loadGLTF('Spaceship1.glb').then((gltf) => {
-            this.addPlayer(gltf, world);
+            this.addPlayer(gltf, this.world);
         });
     }
 

@@ -51,11 +51,11 @@ export class WindRunnersGame extends Game {
 
         for (const system of [
             new EnemyControllerSystem(world, scene, engine),
-            new HitSystem(engine),
-            new JoystickSystem(64, renderer),
+            new HitSystem(world, engine),
+            new JoystickSystem(world, 64, renderer),
             new PlayerControllerSystem(),
             new PlayerDamageSystem(world, scene, engine),
-            new SceneSystem(scene, engine),
+            new SceneSystem(world, scene, engine),
             new ShipCameraSystem(camera),
             new ShipSystem(),
             new ShootingSystem(world, scene, engine),

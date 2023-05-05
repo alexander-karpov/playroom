@@ -16,7 +16,6 @@ export class Runtime {
 
     public addSystem(system: System) {
         this.registerSystemByHandlers(system);
-        this.callStartupHandlers(system);
         system.uploadSubscriptionToWorld(this.world);
     }
 
@@ -37,12 +36,6 @@ export class Runtime {
 
         for (const system of this.outputSystems) {
             system.onOutput(this.world, deltaS);
-        }
-    }
-
-    private callStartupHandlers(system: System): void {
-        if (this.isSystemOverridesHandler(system, 'onCreate')) {
-            system.onCreate(this.world);
         }
     }
 
