@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = (env) => {
     if (!env.game) {
@@ -37,11 +38,7 @@ module.exports = (env) => {
                 '~': path.resolve(__dirname, 'src'),
             },
         },
-        plugins: [
-            new HtmlWebpackPlugin({
-                template: './src/index.html',
-            }),
-        ],
+        plugins: getPlugins(env),
         devServer: {
             static: [
                 {
@@ -53,7 +50,25 @@ module.exports = (env) => {
         },
         optimization: {
             runtimeChunk: 'single',
+            usedExports: true,
+            sideEffects: true,
+            providedExports: true,
         },
-        devtool: 'source-map'
+        // https://webpack.js.org/configuration/devtool/
+        devtool: mode === 'development' ? 'source-map' : 'hidden-source-map'
     };
 };
+
+function getPlugins(env) {
+    const plugins = [
+        new HtmlWebpackPlugin({
+            template: './src/index.html',
+        })
+    ];
+
+    if (env.analyze) {
+        plugins.push(new BundleAnalyzerPlugin())
+    }
+
+    return plugins;
+}
