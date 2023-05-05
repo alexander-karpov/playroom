@@ -30,22 +30,22 @@ export abstract class SpawnSystem extends System {
         void loadGLTF('Spaceship5.glb').then((gltf) => {
             this.model = gltf.scene.children[0];
         });
+
+        setInterval(() => {
+            const expectedEnemies = this.difficulty();
+            const activeEnemies = this.world.count([Enemy, Active]);
+            const missing = expectedEnemies - activeEnemies;
+
+            for (let i = 0; i < missing; i++) {
+                this.spawnEnemy();
+            }
+        }, 5000);
     }
 
     @System.on([Player, Active])
     private onPlayerActive(world: World, id: number) {
         for (const id of this.world.select([Enemy])) {
             ObjectPoolHelper.deactivate(world, this.engine, id);
-        }
-    }
-
-    public override onSometimes(world: World): void {
-        const expectedEnemies = this.difficulty();
-        const activeEnemies = this.world.count([Enemy, Active]);
-        const missing = expectedEnemies - activeEnemies;
-
-        for (let i = 0; i < missing; i++) {
-            this.spawnEnemy();
         }
     }
 

@@ -4,15 +4,8 @@ export class Runtime {
     private readonly inputSystems: System[] = [];
     private readonly updateSystems: System[] = [];
     private readonly outputSystems: System[] = [];
-    private readonly sometimesSystems: System[] = [];
 
-    private nextSometimesHandlerIndex = 0;
-    private sinceLastSometimesCallSec = 0;
-
-    public constructor(
-        private readonly world: World,
-        private readonly timeBetweenSometimesCallsSec = 5
-    ) {}
+    public constructor(private readonly world: World) {}
 
     public addSystem(system: System) {
         this.registerSystemByHandlers(system);
@@ -21,7 +14,6 @@ export class Runtime {
 
     public update(deltaS: number): void {
         this.callRuntimeHandlers(deltaS);
-        this.callSometimesHandlers(deltaS);
         this.world.applyChanges();
     }
 
@@ -39,20 +31,6 @@ export class Runtime {
         }
     }
 
-    private callSometimesHandlers(timeDeltaS: number): void {
-        this.sinceLastSometimesCallSec += timeDeltaS;
-
-        if (
-            this.sinceLastSometimesCallSec >
-            this.timeBetweenSometimesCallsSec / this.sometimesSystems.length
-        ) {
-            this.nextSometimesHandlerIndex %= this.sometimesSystems.length;
-            this.sometimesSystems[this.nextSometimesHandlerIndex]!.onSometimes(this.world);
-            this.nextSometimesHandlerIndex += 1;
-            this.sinceLastSometimesCallSec = 0;
-        }
-    }
-
     /**
      * Помещает систему в наборы наличию обработчика
      */
@@ -67,10 +45,6 @@ export class Runtime {
 
         if (this.isSystemOverridesHandler(system, 'onOutput')) {
             this.outputSystems.push(system);
-        }
-
-        if (this.isSystemOverridesHandler(system, 'onSometimes')) {
-            this.sometimesSystems.push(system);
         }
     }
 

@@ -42,10 +42,6 @@ export abstract class System {
         throw new Error('Not implemented');
     }
 
-    public onSometimes(world: World): void {
-        throw new Error('Not implemented');
-    }
-
     public uploadSubscriptionToWorld(world: World): void {
         if (this.subscriptionList == null) {
             throw new Error('Subscriptions already uploaded to world');
