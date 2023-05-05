@@ -73,7 +73,7 @@ export class HudSystem extends System {
         root.render(<Hud />);
     }
 
-    public override onSimulate(world: World, deltaSec: number): void {
+    public override onUpdate(world: World, deltaSec: number): void {
         for (const id of this.world.select([Player, Ship])) {
             const { health, maxHealth } = this.world.get(id, Ship);
 

@@ -35,7 +35,7 @@ export class PlayerControllerSystem extends System {
         }
     }
 
-    public override onSimulate(world: World, deltaS: number): void {
+    public override onUpdate(world: World, deltaS: number): void {
         for (const joystickId of world.select([Joystick])) {
             const joystick = world.get(joystickId, Joystick);
 

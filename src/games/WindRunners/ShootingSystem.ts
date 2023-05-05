@@ -34,7 +34,7 @@ export class ShootingSystem extends System {
         world.detach(Hit, id);
     }
 
-    public override onSimulate(world: World, deltaSec: number): void {
+    public override onUpdate(world: World, deltaSec: number): void {
         for (const gunId of world.select([Gun, GameObject, Active])) {
             const gun = world.get(gunId, Gun);
 

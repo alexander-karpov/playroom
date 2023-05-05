@@ -22,7 +22,7 @@ export class SurvivalSpawnSystem extends SpawnSystem {
         });
     }
 
-    public override onSimulate(world: World, deltaSec: number): void {
+    public override onUpdate(world: World, deltaSec: number): void {
         this.survivalTimeSec += deltaSec;
     }
 

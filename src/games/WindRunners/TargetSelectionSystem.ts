@@ -22,7 +22,7 @@ export class TargetSelectionSystem extends System {
         scene.add(this.targetMarker);
     }
 
-    public override onSimulate(world: World, deltaSec: number): void {
+    public override onUpdate(world: World, deltaSec: number): void {
         this.selectTarget(world);
 
         this.targetMarker.visible = false;

@@ -10,7 +10,7 @@ export class ShipSystem extends System {
     private readonly screenNormal = new THREE.Vector3(0, 0, 1);
     private readonly movement = new THREE.Vector3(0, 0, 0);
 
-    public override onSimulate(world: World, deltaS: number): void {
+    public override onUpdate(world: World, deltaS: number): void {
         for (const id of world.select([Ship, GameObject, RigibBody, Active])) {
             const { object3d } = world.get(id, GameObject);
             const { body } = world.get(id, RigibBody);

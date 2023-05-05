@@ -34,7 +34,7 @@ export abstract class System {
         throw new Error('Not implemented');
     }
 
-    public onSimulate(world: World, deltaSec: number): void {
+    public onUpdate(world: World, deltaSec: number): void {
         throw new Error('Not implemented');
     }
 

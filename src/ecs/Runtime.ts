@@ -2,7 +2,7 @@ import { type World, System } from './index';
 
 export class Runtime {
     private readonly inputSystems: System[] = [];
-    private readonly simulateSystems: System[] = [];
+    private readonly updateSystems: System[] = [];
     private readonly outputSystems: System[] = [];
     private readonly sometimesSystems: System[] = [];
 
@@ -30,8 +30,8 @@ export class Runtime {
             system.onInput(this.world, deltaS);
         }
 
-        for (const system of this.simulateSystems) {
-            system.onSimulate(this.world, deltaS);
+        for (const system of this.updateSystems) {
+            system.onUpdate(this.world, deltaS);
         }
 
         for (const system of this.outputSystems) {
@@ -61,8 +61,8 @@ export class Runtime {
             this.inputSystems.push(system);
         }
 
-        if (this.isSystemOverridesHandler(system, 'onSimulate')) {
-            this.simulateSystems.push(system);
+        if (this.isSystemOverridesHandler(system, 'onUpdate')) {
+            this.updateSystems.push(system);
         }
 
         if (this.isSystemOverridesHandler(system, 'onOutput')) {

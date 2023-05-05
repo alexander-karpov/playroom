@@ -44,7 +44,7 @@ export class PlayerDamageSystem extends System {
         }
     }
 
-    public override onSimulate(world: World, deltaSec: number): void {
+    public override onUpdate(world: World, deltaSec: number): void {
         this.regenHealth(deltaSec);
     }
 

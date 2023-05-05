@@ -34,7 +34,7 @@ export class EnemyControllerSystem extends System {
         }
     }
 
-    public override onSimulate(world: World, deltaS: number): void {
+    public override onUpdate(world: World, deltaS: number): void {
         for (const enemyId of world.select([Enemy, Ship, Active])) {
             const enemyGo = world.get(enemyId, GameObject);
             const enemy = world.get(enemyId, Enemy);
