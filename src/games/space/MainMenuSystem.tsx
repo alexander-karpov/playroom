@@ -57,6 +57,12 @@ const Message = styled.div`
     padding: 0 8px 12px 8px;
 `;
 
+const TouchGuide = styled.div`
+    width: 180px;
+    height: 90px;
+    background-image: url('./assets/sprites/touch_guide.gif');
+    filter: invert(1);
+`;
 
 const MainMenu: React.FC<{ onStart: () => void }> = ({ onStart }) => {
     const [maxScore, setMaxScore] = useState(window.localStorage.getItem('kukuruku_max_space_score'));
@@ -73,10 +79,19 @@ const MainMenu: React.FC<{ onStart: () => void }> = ({ onStart }) => {
         };
     });
 
+
+
     return (
         <Plate>
             <MainMenuStyles />
-            {(maxScore != null) ? <Message>Рекорд {maxScore}</Message> : undefined}
+
+            {(maxScore != null) ?
+                <Message>Рекорд {maxScore}</Message>
+                : <>
+                    <TouchGuide />
+                    <Message>Нажмите на экран для управления кораблём</Message>
+                </>
+            }
             <StartButton children="Начать игру" onClick={onStart} />
         </Plate>
     );
