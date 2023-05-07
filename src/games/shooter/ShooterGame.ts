@@ -5,8 +5,13 @@ import type GUI from 'lil-gui';
 import { Game } from '../../Game';
 import { FpsCameraSystem } from './FpsCameraSystem';
 import { SceneSystem } from './SceneSystem';
+import type { HavokPhysicsWithBindings } from '@babylonjs/havok';
 
 export class ShooterGame extends Game {
+    public constructor(private readonly havok: HavokPhysicsWithBindings) {
+        super();
+    }
+
     protected override configureSystems(
         renderer: THREE.WebGLRenderer,
         composer: EffectComposer,
@@ -22,7 +27,7 @@ export class ShooterGame extends Game {
         const systemsRuntime = new Runtime(world);
 
         for (const system of [
-            new SceneSystem(world, scene),
+            new SceneSystem(world, scene, this.havok),
             new FpsCameraSystem(world, camera, renderer),
         ]) {
             systemsRuntime.addSystem(system);

@@ -24,8 +24,8 @@ export class HitSystem extends System {
         let shipBody: Body | undefined;
         let projectileBody: Body | undefined;
 
-        const idA = readEntityId(bodyA.plugin);
-        const idB = readEntityId(bodyB.plugin);
+        const idA = readEntityId<number>(bodyA.plugin);
+        const idB = readEntityId<number>(bodyB.plugin);
 
         if (idA != null && idB != null) {
             if (

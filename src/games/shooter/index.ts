@@ -1,3 +1,8 @@
 import { ShooterGame } from './ShooterGame';
+import HavokPhysics from '@babylonjs/havok';
 
-new ShooterGame().run();
+void (async () => {
+    const havokInterface = await HavokPhysics();
+
+    new ShooterGame(havokInterface).run();
+})();
