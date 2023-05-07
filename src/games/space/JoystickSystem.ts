@@ -32,8 +32,6 @@ export class JoystickSystem extends System {
 
             joystick.direction ??= new THREE.Vector2();
             joystick.direction.set(0, 0);
-
-            subscribeOnPointerMoveAndEnd();
         }
 
         const onMove = (ev: PointerEvent) => {
@@ -57,29 +55,16 @@ export class JoystickSystem extends System {
                     break;
                 }
             }
-
-            unsubscribeOnPointerMoveAndEnd();
         };
 
         this.renderer.domElement.addEventListener('pointerdown', onStart);
 
-        const subscribeOnPointerMoveAndEnd = () => {
-            this.renderer.domElement.addEventListener('pointermove', onMove);
+        this.renderer.domElement.addEventListener('pointermove', onMove);
 
-            this.renderer.domElement.addEventListener('pointerup', onEnd);
-            this.renderer.domElement.addEventListener('pointerleave', onEnd);
-            this.renderer.domElement.addEventListener('pointerout', onEnd);
-            this.renderer.domElement.addEventListener('pointercancel', onEnd);
-        };
-
-        const unsubscribeOnPointerMoveAndEnd = () => {
-            this.renderer.domElement.removeEventListener('pointermove', onMove);
-
-            this.renderer.domElement.removeEventListener('pointerup', onEnd);
-            this.renderer.domElement.removeEventListener('pointerleave', onEnd);
-            this.renderer.domElement.removeEventListener('pointerout', onEnd);
-            this.renderer.domElement.removeEventListener('pointercancel', onEnd);
-        };
+        this.renderer.domElement.addEventListener('pointerup', onEnd);
+        this.renderer.domElement.addEventListener('pointerleave', onEnd);
+        this.renderer.domElement.addEventListener('pointerout', onEnd);
+        this.renderer.domElement.addEventListener('pointercancel', onEnd);
     }
 
     private changeMovingJoystickState(joystick: Joystick, x: number, y: number) {
@@ -100,10 +85,3 @@ export class JoystickSystem extends System {
         }
     }
 }
-
-// TODO
-
-// наверняка событие pointermove не отправляется когда мышка не нажата
-// и соотв. отписываться не нужно
-
-// возможно стоит выставить useCapture, хуже не будет
