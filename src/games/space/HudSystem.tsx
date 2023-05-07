@@ -14,8 +14,8 @@ const HudStyles = createGlobalStyle`
 .Hud {
     position: absolute;
     display: flex;
-    justify-content: space-around;
-    bottom: 18px;
+    justify-content: center;
+    top: 18px;
     width: 100%;
     user-select: none;
     touch-action: none;
@@ -26,6 +26,7 @@ const HudStyles = createGlobalStyle`
 
 const Hud: React.FC = () => {
     const healthBarRef = useRef<HTMLDivElement>(null);
+    const scoreRef = useRef<HTMLDivElement>(null);
 
     function updateHealth(percent: number) {
         if (healthBarRef.current) {
@@ -33,18 +34,29 @@ const Hud: React.FC = () => {
         }
     }
 
+    function updateScore(score: number) {
+        if (scoreRef.current) {
+            scoreRef.current.textContent = score.toString();
+        }
+    }
+
     useEffect(() => {
         emitter.on('health', updateHealth);
+        emitter.on('score', updateScore);
 
         return () => {
             emitter.off('health', updateHealth);
+            emitter.off('score', updateScore);
         };
     });
 
     return (
         <>
             <HudStyles />
+            <HZ />
             <HealthBar ref={healthBarRef} />
+            <Score ref={scoreRef} children="Счёт" />
+
         </>
     );
 };
@@ -58,8 +70,29 @@ const HealthBar = styled.div`
     border: 1px solid rgba(255, 255, 255, .8);
 `;
 
+const Score = styled.div`
+    box-sizing: border-box;
+    flex-grow: 0;
+    height: 10px;
+    line-height: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: sans-serif;
+    border-left: 2px solid  rgba(255, 255, 255, .8);
+    margin-left: 12px;
+    padding-left: 12px;
+    letter-spacing: 2px;
+`;
+
+const HZ = styled.div`
+    box-sizing: border-box;
+    flex-grow: 0;
+    height: 10px;
+`;
+
 export class HudSystem extends System {
-    private lastUpdatedHealthPercent = 0;
+    private lastUpdatedHealthPercent = -1;
+    private lastUpdatedScore = 0;
 
     public constructor(private readonly world: World) {
         super();
@@ -76,12 +109,18 @@ export class HudSystem extends System {
     public override onUpdate(world: World, deltaSec: number): void {
         for (const id of this.world.select([Player, Ship])) {
             const { health, maxHealth } = this.world.get(id, Ship);
+            const { score } = this.world.get(id, Player);
 
             const healthPercent = 100 * (health / maxHealth);
 
             if (healthPercent !== this.lastUpdatedHealthPercent) {
                 this.lastUpdatedHealthPercent = healthPercent;
                 emitter.emit('health', healthPercent);
+            }
+
+            if (score !== this.lastUpdatedScore) {
+                this.lastUpdatedScore = score;
+                emitter.emit('score', score);
             }
         }
     }

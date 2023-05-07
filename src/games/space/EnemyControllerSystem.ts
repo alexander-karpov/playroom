@@ -36,12 +36,12 @@ export class EnemyControllerSystem extends System {
 
         ship.health -= 1;
 
-        const sound = world.attach(id, Sound);
+        const sound = world.has(Sound, id) ? world.get(id, Sound) : world.attach(id, Sound);
         sound.track = choose(hitSoundtracks);
 
         if (ship.health <= 0) {
             setTimeout(() => {
-                const sound = world.attach(id, Sound);
+                const sound = world.has(Sound, id) ? world.get(id, Sound) : world.attach(id, Sound);
                 sound.track = SoundTrack.Explosion02;
             }, 1);
             world.attach(id, Explosion);

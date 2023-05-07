@@ -21,6 +21,7 @@ import { PlayerDamageSystem } from './PlayerDamageSystem';
 import { AudioSystem } from '~/systems/AudioSystem';
 import { ProjectionUtil } from '~/utils/ProjectionUtil';
 import { ExplosionsSystem } from './ExplosionsSystem';
+import { ScoreSystem } from './ScoreSystem';
 
 export class SpaceGame extends Game {
     protected override configureSystems(
@@ -66,6 +67,7 @@ export class SpaceGame extends Game {
             new HudSystem(world),
             new AudioSystem(world),
             new ExplosionsSystem(world, scene),
+            new ScoreSystem(world, scene),
         ]) {
             systemsRuntime.addSystem(system);
         }
