@@ -65,6 +65,10 @@ export abstract class SpawnSystem extends System {
     }
 
     private spawn() {
+        for (const id of this.world.selectExcept([Player], [Active])) {
+            return;
+        }
+
         const expectedEnemies = this.difficulty();
         const activeEnemies = this.world.count([Enemy, Active]);
         const missing = expectedEnemies - activeEnemies;

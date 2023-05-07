@@ -22,6 +22,7 @@ import { AudioSystem } from '~/systems/AudioSystem';
 import { ProjectionUtil } from '~/utils/ProjectionUtil';
 import { ExplosionsSystem } from './ExplosionsSystem';
 import { ScoreSystem } from './ScoreSystem';
+import { MainMenuSystem } from './MainMenuSystem';
 
 export class SpaceGame extends Game {
     protected override configureSystems(
@@ -68,6 +69,7 @@ export class SpaceGame extends Game {
             new AudioSystem(world),
             new ExplosionsSystem(world, scene),
             new ScoreSystem(world, scene),
+            new MainMenuSystem(world, engine),
         ]) {
             systemsRuntime.addSystem(system);
         }
@@ -88,7 +90,7 @@ export class SpaceGame extends Game {
             camera.updateProjectionMatrix();
         });
 
-        camera.position.setZ(2000);
+        camera.position.setZ(1500);
 
         return camera;
     }

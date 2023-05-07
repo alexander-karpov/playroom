@@ -55,13 +55,9 @@ export class PlayerDamageSystem extends System {
             if (world.has(Active, id)) {
                 world.detach(id, Active);
                 Body.setPosition(body, { x: 0, y: 0 });
+                ship.health = ship.maxHealth;
                 ObjectPoolHelper.deactivate(world, this.engine, id);
             }
-
-            setTimeout(() => {
-                ObjectPoolHelper.activate(world, this.engine, id);
-                ship.health = ship.maxHealth;
-            }, 1000);
         }
     }
 

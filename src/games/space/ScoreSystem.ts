@@ -4,6 +4,7 @@ import type * as THREE from 'three';
 import { Enemy } from './Enemy';
 import { Explosion } from './Explosion';
 import { Player } from './Player';
+import { Active } from '~/components';
 
 export class ScoreSystem extends System {
     private score: number = 0;
@@ -26,6 +27,16 @@ export class ScoreSystem extends System {
             window.localStorage.setItem(this.maxScoreKey, String(this.maxScore));
         }
 
+        this.updateEntity();
+    }
+
+    @System.on([Player, Active])
+    private onPlayerActive(world: World, id: number) {
+        this.score = 0;
+        this.updateEntity();
+    }
+
+    private updateEntity() {
         for (const id of this.world.select([Player])) {
             const player = this.world.get(id, Player);
 

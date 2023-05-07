@@ -44,7 +44,6 @@ export class SceneSystem extends System {
 
     private addPlayer(gltf: GLTF, world: World) {
         const [id] = world.newEntity(Player);
-        world.attach(id, Active);
 
         const go = world.attach(id, GameObject);
         go.object3d = new Object3D();
