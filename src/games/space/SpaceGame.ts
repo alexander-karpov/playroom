@@ -20,6 +20,7 @@ import { HudSystem } from './HudSystem';
 import { PlayerDamageSystem } from './PlayerDamageSystem';
 import { AudioSystem } from '~/systems/AudioSystem';
 import { ProjectionUtil } from '~/utils/ProjectionUtil';
+import { ExplosionsSystem } from './ExplosionsSystem';
 
 export class SpaceGame extends Game {
     protected override configureSystems(
@@ -64,6 +65,7 @@ export class SpaceGame extends Game {
             new SurvivalSpawnSystem(world, scene, engine),
             new HudSystem(world),
             new AudioSystem(world),
+            new ExplosionsSystem(world, scene),
         ]) {
             systemsRuntime.addSystem(system);
         }

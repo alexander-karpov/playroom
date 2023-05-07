@@ -32,14 +32,10 @@ export abstract class SpawnSystem extends System {
         });
 
         setInterval(() => {
-            const expectedEnemies = this.difficulty();
-            const activeEnemies = this.world.count([Enemy, Active]);
-            const missing = expectedEnemies - activeEnemies;
+            this.spawn();
+        }, 10000);
 
-            for (let i = 0; i < missing; i++) {
-                this.spawnEnemy();
-            }
-        }, 3000);
+        this.spawn();
     }
 
     @System.on([Player, Active])
@@ -66,6 +62,16 @@ export abstract class SpawnSystem extends System {
         }
 
         return this.createEnemy(originalModel);
+    }
+
+    private spawn() {
+        const expectedEnemies = this.difficulty();
+        const activeEnemies = this.world.count([Enemy, Active]);
+        const missing = expectedEnemies - activeEnemies;
+
+        for (let i = 0; i < missing; i++) {
+            this.spawnEnemy();
+        }
     }
 
     private reconfigure(id: number) {

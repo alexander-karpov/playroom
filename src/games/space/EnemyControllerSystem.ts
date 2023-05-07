@@ -9,6 +9,7 @@ import { ObjectPoolHelper } from './ObjectPoolHelper';
 import { Target } from './Target';
 import { SoundTrack } from '~/systems/AudioSystem';
 import { choose } from '~/utils/choose';
+import { Explosion } from './Explosion';
 
 const hitSoundtracks = [
     SoundTrack.BulletMetalHit01,
@@ -43,6 +44,7 @@ export class EnemyControllerSystem extends System {
                 const sound = world.attach(id, Sound);
                 sound.track = SoundTrack.Explosion02;
             }, 1);
+            world.attach(id, Explosion);
 
             ObjectPoolHelper.deactivate(world, this.engine, id);
 

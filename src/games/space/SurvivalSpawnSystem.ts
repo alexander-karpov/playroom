@@ -27,6 +27,6 @@ export class SurvivalSpawnSystem extends SpawnSystem {
     }
 
     protected override difficulty(): number {
-        return Math.floor(this.survivalTimeSec);
+        return Math.floor(this.survivalTimeSec) / 3 + 2;
     }
 }

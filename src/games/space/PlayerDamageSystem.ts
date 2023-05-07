@@ -2,11 +2,21 @@ import type * as THREE from 'three';
 import { System, type World } from '~/ecs';
 import { Player } from './Player';
 import { Ship } from './Ship';
-import { Active, RigibBody } from '~/components';
+import { Active, RigibBody, Sound } from '~/components';
 import { Target } from './Target';
 import { Hit } from './Hit';
 import { ObjectPoolHelper } from './ObjectPoolHelper';
 import { Body, type Engine } from 'matter-js';
+import { SoundTrack } from '~/systems/AudioSystem';
+import { choose } from '~/utils/choose';
+
+const hitSoundtracks = [
+    SoundTrack.BulletMetalHit01,
+    SoundTrack.BulletMetalHit02,
+    SoundTrack.BulletMetalHit03,
+    SoundTrack.BulletMetalHit04,
+    SoundTrack.BulletMetalHit05,
+];
 
 export class PlayerDamageSystem extends System {
     private lastDamageTimeMs = 0;
@@ -29,6 +39,9 @@ export class PlayerDamageSystem extends System {
 
         ship.health -= 1;
         this.lastDamageTimeMs = Date.now();
+
+        const sound = world.attach(id, Sound);
+        sound.track = choose(hitSoundtracks);
 
         if (ship.health <= 0) {
             if (world.has(Active, id)) {

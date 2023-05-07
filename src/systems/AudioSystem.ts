@@ -47,6 +47,7 @@ export class AudioSystem extends System {
             world.detach(id, Sound);
         });
     }
+
     private allocAudio(): PositionalAudio {
         const ended = this.audios.find((a) => !a.isPlaying);
 

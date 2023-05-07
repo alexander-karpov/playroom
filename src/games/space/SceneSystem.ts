@@ -12,6 +12,7 @@ import { CollisionCategory } from './CollisionCategory';
 import { loadGLTF } from '~/utils/loadGLTF';
 import { createBodyForObject3d } from '~/utils/createBodyForObject3d';
 import { SoundTrack } from '~/systems/AudioSystem';
+import { Explosion } from './Explosion';
 
 export class SceneSystem extends System {
     public constructor(
