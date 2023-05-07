@@ -126,7 +126,7 @@ export class World {
         return this.hasComponentClassId(this.componentClassId(componentClass), entityId);
     }
 
-    public detach(componentClass: ComponentClass, entityId: number): void {
+    public detach(entityId: number, componentClass: ComponentClass): void {
         // TODO: Подумать над механизмом очистки памяти при удалении
         // компонентов. Некоторые К. ссылкаются на сложные структуры
         // и не хорошо держать ссылки на них

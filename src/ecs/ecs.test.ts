@@ -42,7 +42,7 @@ describe('ECS / World', () => {
 
             expect(world.has(CompB, e)).toBe(true);
 
-            world.detach(CompB, e);
+            world.detach(e, CompB);
 
             expect(world.has(CompB, e)).toBe(true);
 
@@ -62,7 +62,7 @@ describe('ECS / World', () => {
 
             world.onAttach([CompA], (w, e) => {
                 world.attach(e, CompB);
-                world.detach(CompB, e);
+                world.detach(e, CompB);
             });
 
             const [e] = world.newEntity(CompA);
@@ -149,12 +149,12 @@ describe('ECS / World', () => {
 
         expect(calledTimes).toBe(0);
 
-        world.detach(CompC, entity);
+        world.detach(entity, CompC);
         world.applyChanges();
 
         expect(calledTimes).toBe(0);
 
-        world.detach(CompB, entity);
+        world.detach(entity, CompB);
         world.applyChanges();
 
         expect(calledTimes).toBe(1);

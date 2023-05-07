@@ -3,5 +3,4 @@ import { type SoundTrack } from '~/systems/AudioSystem';
 
 export class Sound {
     public track?: SoundTrack;
-    public audio?: THREE.PositionalAudio;
 }

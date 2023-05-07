@@ -39,7 +39,7 @@ export abstract class SpawnSystem extends System {
             for (let i = 0; i < missing; i++) {
                 this.spawnEnemy();
             }
-        }, 5000);
+        }, 3000);
     }
 
     @System.on([Player, Active])
@@ -131,8 +131,8 @@ export abstract class SpawnSystem extends System {
          */
         const ship = this.world.attach(id, Ship);
         ship.turningSpeed = 3;
-        ship.health = 1;
-        ship.maxHealth = 1;
+        ship.maxHealth = 3;
+        ship.health = ship.maxHealth;
 
         /**
          * Gun

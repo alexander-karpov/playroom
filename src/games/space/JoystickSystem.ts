@@ -53,7 +53,7 @@ export class JoystickSystem extends System {
                 const joystick = world.get(id, Joystick);
 
                 if (joystick.pointerId === ev.pointerId) {
-                    world.detach(Joystick, id);
+                    world.detach(id, Joystick);
                     break;
                 }
             }

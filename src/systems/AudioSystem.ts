@@ -1,18 +1,26 @@
 import { System, type World } from '~/ecs';
 import { Active, GameObject, Sound } from '~/components';
 import * as THREE from 'three';
+import { PositionalAudio } from 'three';
 import { Player } from '~/games/space/Player';
 // TODO неправильная зависимость
 
 export enum SoundTrack {
     TieBasterLong01 = 'tie_blaster_long01.ogg',
     XWingBaster01 = 'lite_blaster01.ogg',
+    BulletMetalHit01 = 'bullet-metal-hit-1.ogg',
+    BulletMetalHit02 = 'bullet-metal-hit-2.ogg',
+    BulletMetalHit03 = 'bullet-metal-hit-3.ogg',
+    BulletMetalHit04 = 'bullet-metal-hit-4.ogg',
+    BulletMetalHit05 = 'bullet-metal-hit-5.ogg',
+    Explosion02 = 'explosion02.ogg',
 }
 
 export class AudioSystem extends System {
     private readonly listener = new THREE.AudioListener();
     private readonly audioLoader = new THREE.AudioLoader();
     private readonly buffers = new Map<string, AudioBuffer>();
+    private readonly audios: THREE.PositionalAudio[] = [];
 
     public constructor(private readonly world: World) {
         super();
@@ -24,41 +32,33 @@ export class AudioSystem extends System {
             object3d.add(this.listener);
         });
 
-        world.onAttach([Sound, GameObject, Active], (world, id) => {
-            this.attachAudioSource(world, id);
-
+        world.onAttach([Sound, GameObject], (world, id) => {
             const sound = world.get(id, Sound);
+            const audio = this.allocAudio();
+            const buffer = this.buffers.get(sound.track!)!;
+            const { object3d } = world.get(id, GameObject);
 
-            if (sound.track && sound.audio) {
-                const buffer = this.buffers.get(sound.track);
+            object3d.add(audio);
 
-                if (buffer) {
-                    sound.audio.stop();
-                    sound.audio.setBuffer(buffer);
-                    sound.audio.play();
-                }
-            }
-        });
+            audio.setLoop(false);
+            audio.setBuffer(buffer);
+            audio.play();
 
-        world.onDetach([Sound, GameObject, Active], (world, id) => {
-            const sound = world.get(id, Sound);
-
-            sound.audio?.stop();
+            world.detach(id, Sound);
         });
     }
+    private allocAudio(): PositionalAudio {
+        const ended = this.audios.find((a) => !a.isPlaying);
 
-    private attachAudioSource(world: World, soundId: number) {
-        const sound = world.get(soundId, Sound);
-
-        if (sound.audio) {
-            return;
+        if (ended) {
+            return ended;
         }
 
-        sound.audio = new THREE.PositionalAudio(this.listener);
-        sound.audio.setRefDistance(128);
+        const audio = new PositionalAudio(this.listener);
+        audio.setRefDistance(128);
 
-        const { object3d } = world.get(soundId, GameObject);
-        object3d.add(sound.audio);
+        this.audios.push(audio);
+        return audio;
     }
 
     private loadAudioBuffers() {

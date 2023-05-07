@@ -23,7 +23,7 @@ export class PlayerDamageSystem extends System {
 
     @System.on([Player, Hit])
     private onPlayerHit(world: World, id: number) {
-        world.detach(Hit, id);
+        world.detach(id, Hit);
         const ship = world.get(id, Ship);
         const { body } = world.get(id, RigibBody);
 
@@ -32,7 +32,7 @@ export class PlayerDamageSystem extends System {
 
         if (ship.health <= 0) {
             if (world.has(Active, id)) {
-                world.detach(Active, id);
+                world.detach(id, Active);
                 Body.setPosition(body, { x: 0, y: 0 });
                 ObjectPoolHelper.deactivate(world, this.engine, id);
             }

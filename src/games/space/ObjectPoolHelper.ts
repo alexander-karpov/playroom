@@ -18,7 +18,7 @@ export class ObjectPoolHelper {
 
     public static deactivate(world: World, engine: Engine, id: number) {
         if (world.has(Active, id)) {
-            world.detach(Active, id);
+            world.detach(id, Active);
         }
 
         const { object3d } = world.get(id, GameObject);

@@ -101,7 +101,7 @@ export class TargetSelectionSystem extends System {
         }
 
         for (const id of currentTarget) {
-            world.detach(Target, id);
+            world.detach(id, Target);
         }
 
         if (nearestEnemyId !== -1) {

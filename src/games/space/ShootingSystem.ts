@@ -31,7 +31,7 @@ export class ShootingSystem extends System {
     @System.on([Projectile, Hit])
     private onProjectileHit(world: World, id: number) {
         ObjectPoolHelper.deactivate(world, this.engine, id);
-        world.detach(Hit, id);
+        world.detach(id, Hit);
     }
 
     public override onUpdate(world: World, deltaSec: number): void {
@@ -116,7 +116,7 @@ export class ShootingSystem extends System {
             -signedAngleBetween(gun.direction, this.rightDirection, this.screenNormal)
         );
 
-        const sound = world.get(id, Sound);
+        const sound = this.world.attach(id, Sound);
         sound.track = gun.sound;
 
         const { object3d } = world.get(id, GameObject);
@@ -156,8 +156,6 @@ export class ShootingSystem extends System {
             friction: 0,
             frictionAir: 0,
         });
-
-        this.world.attach(id, Sound);
 
         return id;
     }
