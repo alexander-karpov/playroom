@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const CompressionPlugin = require("compression-webpack-plugin");
 
 module.exports = (env) => {
     if (!env.game) {
@@ -68,6 +69,10 @@ function getPlugins(env) {
 
     if (env.analyze) {
         plugins.push(new BundleAnalyzerPlugin())
+    }
+
+    if (env.production) {
+        plugins.push(new CompressionPlugin())
     }
 
     return plugins;
