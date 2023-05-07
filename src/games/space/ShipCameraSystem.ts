@@ -21,7 +21,7 @@ export class ShipCameraSystem extends System {
                 this.camera.position.z
             );
 
-            this.camera.position.lerp(this.targetPositionProjection, deltaS * 3);
+            this.camera.position.lerp(this.targetPositionProjection, deltaS * 4);
         }
     }
 }

@@ -12,7 +12,6 @@ import { CollisionCategory } from './CollisionCategory';
 import { loadGLTF } from '~/utils/loadGLTF';
 import { createBodyForObject3d } from '~/utils/createBodyForObject3d';
 import { SoundTrack } from '~/systems/AudioSystem';
-import { Explosion } from './Explosion';
 
 export class SceneSystem extends System {
     public constructor(
@@ -25,7 +24,7 @@ export class SceneSystem extends System {
         /**
          * Light
          */
-        const ambientLight = new THREE.AmbientLight(0x444444); // soft white light
+        const ambientLight = new THREE.AmbientLight(0x888888); // soft white light
         scene.add(ambientLight);
 
         const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -74,6 +73,12 @@ export class SceneSystem extends System {
         const gun = world.attach(id, Gun);
         gun.targetQuery.push(Enemy);
         gun.fireRate = 8;
-        gun.sound = SoundTrack.XWingBaster01;
+        gun.projectileSize = 0.5;
+        gun.sound.push(
+            SoundTrack.LiteBlaster01,
+            SoundTrack.LiteBlaster02,
+            SoundTrack.LiteBlaster03,
+            SoundTrack.LiteBlaster04
+        );
     }
 }

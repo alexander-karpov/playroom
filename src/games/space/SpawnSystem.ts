@@ -34,8 +34,6 @@ export abstract class SpawnSystem extends System {
         setInterval(() => {
             this.spawn();
         }, 10000);
-
-        this.spawn();
     }
 
     @System.on([Player, Active])
@@ -43,6 +41,8 @@ export abstract class SpawnSystem extends System {
         for (const id of this.world.select([Enemy])) {
             ObjectPoolHelper.deactivate(world, this.engine, id);
         }
+
+        this.spawn();
     }
 
     private spawnEnemy() {
@@ -150,7 +150,7 @@ export abstract class SpawnSystem extends System {
         const gun = this.world.attach(id, Gun);
         gun.targetQuery.push(Player);
         gun.fireRate = 1;
-        gun.sound = SoundTrack.TieBasterLong01;
+        gun.sound.push(SoundTrack.TieBasterLong01);
         gun.color.set(0xff6000);
 
         return id;

@@ -11,6 +11,7 @@ import { CollisionCategory } from './CollisionCategory';
 import { ObjectPoolHelper } from './ObjectPoolHelper';
 import { fib } from '~/utils/fib';
 import { SoundTrack } from '~/systems/AudioSystem';
+import { choose } from '~/utils/choose';
 
 export class ShootingSystem extends System {
     private readonly directionToTarget = Vector.create();
@@ -117,10 +118,11 @@ export class ShootingSystem extends System {
         );
 
         const sound = this.world.attach(id, Sound);
-        sound.track = gun.sound;
+        sound.track = choose(gun.sound);
 
         const { object3d } = world.get(id, GameObject);
         ((object3d as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(gun.color);
+        object3d.scale.set(gun.projectileSize, 1, 1);
     }
 
     private findUnusedOrCreateProjectile(world: World): number {

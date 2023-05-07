@@ -7,7 +7,10 @@ import { Player } from '~/games/space/Player';
 
 export enum SoundTrack {
     TieBasterLong01 = 'tie_blaster_long01.ogg',
-    XWingBaster01 = 'lite_blaster01.ogg',
+    LiteBlaster01 = 'lite_blaster01.ogg',
+    LiteBlaster02 = 'lite_blaster02.ogg',
+    LiteBlaster03 = 'lite_blaster03.ogg',
+    LiteBlaster04 = 'lite_blaster04.ogg',
     BulletMetalHit01 = 'bullet-metal-hit-1.ogg',
     BulletMetalHit02 = 'bullet-metal-hit-2.ogg',
     BulletMetalHit03 = 'bullet-metal-hit-3.ogg',

@@ -33,6 +33,10 @@ export abstract class Game {
 
         composer.addPass(new RenderPass(scene, camera));
 
+        // renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        // THREE.LinearSRGBColorSpace;
+        // renderer.toneMappingExposure = 3;
+
         /**
          * Без этого не будет работать Raycaster до первого рендеринга,
          * а это нужно в конструкторах для определения краёв экрана в

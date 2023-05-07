@@ -66,8 +66,10 @@ const TouchGuide = styled.div`
 
 const MainMenu: React.FC<{ onStart: () => void }> = ({ onStart }) => {
     const [maxScore, setMaxScore] = useState(window.localStorage.getItem('kukuruku_max_space_score'));
+    const [score, setScore] = useState(0);
 
-    function update() {
+    function update(props: { score: number }) {
+        setScore(props.score);
         setMaxScore(window.localStorage.getItem('kukuruku_max_space_score'));
     }
 
@@ -84,6 +86,11 @@ const MainMenu: React.FC<{ onStart: () => void }> = ({ onStart }) => {
     return (
         <Plate>
             <MainMenuStyles />
+
+            {(score > 0) ?
+                <Message>Счёт {score}</Message>
+                : undefined
+            }
 
             {(maxScore != null) ?
                 <Message>Рекорд {maxScore}</Message>
@@ -128,7 +135,8 @@ export class MainMenuSystem extends System {
 
     @System.onNot([Player, Active])
     private onNotPlayerActive(world: World, id: number) {
-        emitter.emit('update');
+        const { score } = this.world.get(id, Player);
+        emitter.emit('update', { score });
         this.menuElem.classList.remove('MainMenu_hidden');
     }
 }
