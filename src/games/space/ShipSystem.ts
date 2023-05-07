@@ -10,6 +10,14 @@ export class ShipSystem extends System {
     private readonly screenNormal = new THREE.Vector3(0, 0, 1);
     private readonly movement = new THREE.Vector3(0, 0, 0);
 
+    @System.on([GameObject, Ship])
+    private onGameObjectShip(world: World, id: number) {
+        const { object3d } = world.get(id, GameObject);
+        const { direction } = world.get(id, Ship);
+
+        object3d.quaternion.setFromUnitVectors(this.screenNormal, direction);
+    }
+
     public override onUpdate(world: World, deltaS: number): void {
         for (const id of world.select([Ship, GameObject, RigibBody, Active])) {
             const { object3d } = world.get(id, GameObject);
