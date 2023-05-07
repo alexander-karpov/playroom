@@ -102,7 +102,7 @@ export abstract class SpawnSystem extends System {
          * Enemy
          */
         const [id, enemy] = this.world.newEntity(Enemy);
-        enemy.untilTurnSec = 0.5 + Math.random() * 2;
+        enemy.turnDelaySec = THREE.MathUtils.randFloat(1, 3);
 
         /**
          * GameObject
@@ -136,7 +136,7 @@ export abstract class SpawnSystem extends System {
          * Ship
          */
         const ship = this.world.attach(id, Ship);
-        ship.turningSpeed = 3;
+        ship.turningSpeed = 1;
         ship.maxHealth = 3;
         ship.health = ship.maxHealth;
 

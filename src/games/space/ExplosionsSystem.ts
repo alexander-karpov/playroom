@@ -84,8 +84,6 @@ export class ExplosionsSystem extends System {
 
         const { object3d } = this.world.get(id, GameObject);
         expl.sprite.position.copy(object3d.position);
-        const size = THREE.MathUtils.randFloat(512, 1024);
-        expl.sprite.scale.set(size, size, 1);
 
         expl.play();
     }

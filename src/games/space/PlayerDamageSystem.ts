@@ -9,6 +9,7 @@ import { ObjectPoolHelper } from './ObjectPoolHelper';
 import { Body, type Engine } from 'matter-js';
 import { SoundTrack } from '~/systems/AudioSystem';
 import { choose } from '~/utils/choose';
+import { Explosion } from './Explosion';
 
 const hitSoundtracks = [
     SoundTrack.BulletMetalHit01,
@@ -44,6 +45,13 @@ export class PlayerDamageSystem extends System {
         sound.track = choose(hitSoundtracks);
 
         if (ship.health <= 0) {
+            setTimeout(() => {
+                const sound = world.attach(id, Sound);
+                sound.track = SoundTrack.Explosion02;
+            }, 1);
+
+            world.attach(id, Explosion);
+
             if (world.has(Active, id)) {
                 world.detach(id, Active);
                 Body.setPosition(body, { x: 0, y: 0 });

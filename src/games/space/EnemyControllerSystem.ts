@@ -62,7 +62,7 @@ export class EnemyControllerSystem extends System {
 
             enemy.untilTurnSec += deltaS;
 
-            if (enemy.untilTurnSec > 3) {
+            if (enemy.untilTurnSec > enemy.turnDelaySec) {
                 enemy.untilTurnSec = 0;
 
                 for (const playerId of world.select([Player, Ship])) {
