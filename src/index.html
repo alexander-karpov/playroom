@@ -14,29 +14,23 @@
 
         html,
         body {
-            margin: 0;
+            width: 100%;
             height: 100%;
-        }
-
-        body {
+            padding: 0;
+            margin: 0;
             overflow: hidden;
-            background-color: black;
-            /* background-image: url('./assets/sprites/start_bg.png'); */
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
         }
 
         canvas {
             width: 100%;
             height: 100%;
             display: block;
+            font-size: 0;
 
             /*
                 Чтобы браузер не прерывал события pointer*
                 https://stackoverflow.com/questions/48124372/pointermove-event-not-working-with-touch-why-not
             */
-            touch-action: none;
         }
     </style>
 </head>

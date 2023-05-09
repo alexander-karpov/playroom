@@ -1,97 +1,124 @@
-import type { HP_BodyId, HP_WorldId, HavokPhysicsWithBindings, Quaternion } from '@babylonjs/havok';
-import { Result, Vector3 } from '@babylonjs/havok';
 import { System, type World } from '~/ecs';
+import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
+import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { CreateGround } from '@babylonjs/core/Meshes/Builders/groundBuilder';
+import '@babylonjs/core/Meshes/thinInstanceMesh';
+import type { Scene } from '@babylonjs/core/scene';
+import { PhysicsBody } from '@babylonjs/core/Physics/v2/physicsBody';
 import {
-    BoxGeometry,
-    Mesh,
-    AmbientLight,
-    DirectionalLight,
-    type Scene,
-    MeshStandardMaterial,
-    MathUtils,
-} from 'three';
-import { readEntityId, writeEntityId } from '~/utils/extraProps';
+    PhysicsMotionType,
+    PhysicsShapeType,
+} from '@babylonjs/core/Physics/v2/IPhysicsEnginePlugin';
+import { PhysicsShapeCapsule } from '@babylonjs/core/Physics/v2/physicsShape';
+import { PhysicsAggregate } from '@babylonjs/core/Physics/v2/physicsAggregate';
+import { GridMaterial } from '@babylonjs/materials/grid/gridMaterial';
+import { CreateCapsule } from '@babylonjs/core/Meshes/Builders/capsuleBuilder';
+import { CreateBox } from '@babylonjs/core/Meshes/Builders/boxBuilder';
+import { Character } from './Character';
+import { RigidBody } from './RigidBody';
+import { Bits } from '~/utils/Bits';
+import { Player } from './Player';
 
 export class SceneSystem extends System {
-    private readonly worldId: HP_WorldId;
-
-    public constructor(
-        private readonly world: World,
-        private readonly scene: Scene,
-        private readonly havok: HavokPhysicsWithBindings
-    ) {
+    public constructor(private readonly world: World, private readonly scene: Scene) {
         super();
 
-        /**
-         * Light
-         */
-        const ambientLight = new AmbientLight(0x444444);
-        scene.add(ambientLight);
+        // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+        const light = new HemisphericLight('light1', new Vector3(0, 1, 0), scene);
 
-        const directionalLight = new DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(1, 1, 0.5);
-        scene.add(directionalLight);
+        // Default intensity is 1. Let's dim the light a small amount
+        light.intensity = 0.7;
 
-        const [result, worldId] = this.havok.HP_World_Create();
-        this.worldId = worldId;
+        // Create a grid material
+        const material = new GridMaterial('grid', scene);
 
-        console.log(`
-            create hawok world ${result}
-            worldId ${String(worldId)}
-        `);
+        // Our built-in 'sphere' shape.
+        const box = CreateBox('box1', { size: 1 }, scene);
 
-        const boxGeom = new BoxGeometry(32, 32, 32);
+        box.thinInstanceAddSelf();
+        box.thinInstanceAddSelf();
+        box.thinInstanceAddSelf();
+        box.thinInstanceAddSelf();
+        box.thinInstanceAddSelf();
+        box.thinInstanceAddSelf();
+        box.thinInstanceAddSelf();
+        box.thinInstanceAddSelf();
+        box.thinInstanceAddSelf();
 
-        let i = 0;
-        while (i++ < 100) {
-            const pos: [number, number, number] = [
-                MathUtils.randFloatSpread(2000),
-                MathUtils.randFloatSpread(2000),
-                MathUtils.randFloatSpread(2000),
-            ];
+        // Move the sphere upward 1/2 its height
+        box.position.y = 2;
 
-            const mesh = new Mesh(boxGeom, new MeshStandardMaterial({ color: 0xffffff }));
+        // Affect a material
+        box.material = material;
 
-            mesh.position.set(
-                MathUtils.randFloatSpread(2000),
-                MathUtils.randFloatSpread(2000),
-                MathUtils.randFloatSpread(2000)
-            );
+        // Our built-in 'ground' shape.
+        const ground = CreateGround('ground1', { width: 32, height: 32, subdivisions: 2 }, scene);
 
-            scene.add(mesh);
+        // Affect a material
+        ground.material = material;
 
-            const [, bodyId] = this.havok.HP_Body_Create();
-            const [, shapeId] = this.havok.HP_Shape_CreateBox(
-                pos,
-                mesh.quaternion.toArray() as Quaternion,
-                [32, 32, 32]
-            );
+        const sphereAggregate = new PhysicsAggregate(
+            box,
+            PhysicsShapeType.BOX,
+            { mass: 1, restitution: 0.75 },
+            scene
+        );
 
-            this.havok.HP_Body_SetShape(bodyId, shapeId);
+        setInterval(() => {
+            box.thinInstanceRefreshBoundingInfo();
+        }, 3000);
 
-            this.havok.HP_World_AddBody(this.worldId, bodyId, false);
+        sphereAggregate.body.shape!.filterMembershipMask = Bits.bit(3);
+        sphereAggregate.body.shape!.filterCollideMask = Bits.bit3(1, 2, 3);
 
-            writeEntityId(mesh.userData, bodyId);
-        }
+        // Create a static box shape.
+        const groundAggregate = new PhysicsAggregate(
+            ground,
+            PhysicsShapeType.BOX,
+            { mass: 0 },
+            scene
+        );
+
+        groundAggregate.body.shape!.filterMembershipMask = Bits.bit(1);
+        groundAggregate.body.shape!.filterCollideMask = Bits.bit2(2, 3);
+
+        this.createPlayer();
     }
 
-    public override onOutput(world: World, deltaSec: number): void {
-        this.havok.HP_World_Step(this.worldId, deltaSec);
+    private createPlayer() {
+        const height = 2;
+        const radius = 0.5;
 
-        const [, worldOffset] = this.havok.HP_World_GetBodyBuffer(this.worldId);
+        const node = CreateCapsule(
+            'player',
+            {
+                height: height,
+                radius: radius,
+            },
+            this.scene
+        );
 
-        for (const o of this.scene.children) {
-            if ('isMesh' in o && Boolean(o.isMesh)) {
-                const bodyId = readEntityId<HP_BodyId>(o.userData);
+        node.position.set(-0.2, 10, -0.2);
+        node.material = new GridMaterial('grid2', this.scene);
 
-                if (!bodyId) {
-                    throw new Error('no bodyId');
-                }
+        const body = new PhysicsBody(node, PhysicsMotionType.ANIMATED, false, this.scene);
 
-                const [, trOffset] = this.havok.HP_Body_GetWorldTransformOffset(bodyId);
+        // https://doc.babylonjs.com/features/featuresDeepDive/physics/shapes
+        body.shape = new PhysicsShapeCapsule(
+            new Vector3(0, -(height / 2 - radius), 0),
+            new Vector3(0, height / 2 - radius, 0),
+            radius,
+            this.scene
+        );
 
-                console.log(this.havok.HEAPF32[worldOffset + trOffset]);
-            }
-        }
+        body.shape.filterMembershipMask = Bits.bit(2);
+        body.shape.filterCollideMask = Bits.bit2(1, 3);
+
+        const [id, character] = this.world.newEntity(Character);
+        character.capsuleHeight = height;
+        character.speed = 1;
+        this.world.attach(id, Player);
+        const rb = this.world.attach(id, RigidBody);
+        rb.body = body;
     }
 }

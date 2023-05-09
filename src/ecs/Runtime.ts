@@ -12,8 +12,8 @@ export class Runtime {
         system.uploadSubscriptionToWorld(this.world);
     }
 
-    public update(deltaS: number): void {
-        this.callRuntimeHandlers(deltaS);
+    public update(deltaSec: number): void {
+        this.callRuntimeHandlers(deltaSec);
         this.world.applyChanges();
     }
 
