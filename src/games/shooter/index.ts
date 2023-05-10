@@ -1,17 +1,21 @@
-import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera';
+import { TargetCamera } from '@babylonjs/core/Cameras/targetCamera';
 import { Engine } from '@babylonjs/core/Engines/engine';
-import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
-import { CreateGround } from '@babylonjs/core/Meshes/Builders/groundBuilder';
-import { CreateSphere } from '@babylonjs/core/Meshes/Builders/sphereBuilder';
+import { Quaternion, Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { Scene } from '@babylonjs/core/scene';
-import { HavokPlugin, PhysicsAggregate, PhysicsShapeType } from '@babylonjs/core/Physics';
-import { GridMaterial } from '@babylonjs/materials/grid/gridMaterial';
+import { HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
+import '@babylonjs/core/Physics/joinedPhysicsEngineComponent';
 import HavokPhysics from '@babylonjs/havok';
 import { Runtime, World } from '~/ecs';
 import { SceneSystem } from './SceneSystem';
 import { CharacterControllerSystem } from './CharacterControllerSystem';
 import { PlayerControllerSystem } from './PlayerControllerSystem';
+import { Observable, type Observer } from '@babylonjs/core/Misc/observable';
+import { CameraInputsManager } from '@babylonjs/core/Cameras/cameraInputsManager';
+import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera';
+import { ScreenSizeBlock } from '@babylonjs/core/Materials/Node/Blocks/Fragment/screenSizeBlock';
+import { ZonedFreeCameraMouseInput } from './ZonedFreeCameraMouseInput';
+
+const ss = new ScreenSizeBlock('ScreenSizeBlock01');
 
 // Get the canvas element from the DOM.
 const canvas = document.createElement('canvas');
@@ -25,23 +29,30 @@ const engine = new Engine(canvas);
  */
 const scene = new Scene(engine);
 
-scene.onPointerDown = () => {
-    engine.enterPointerlock();
-};
+// scene.onPointerDown = () => {
+//     engine.enterPointerlock();
+// };
 
 /**
  * Camera
  */
 const camera = new FreeCamera('camera1', new Vector3(0, 2, -10), scene);
+// const camera = new TargetCamera('camera1', new Vector3(0, 2, -10), scene);
 
 camera.inertia = 0;
-camera.angularSensibility = 500;
-// camera.setTarget(Vector3.Zero());
+
+camera.inputs.clear();
+camera.inputs.add(new ZonedFreeCameraMouseInput());
 
 // This attaches the camera to the canvas
 camera.attachControl(canvas, true);
 
-camera.inputs.attached['keyboard']?.detachControl();
+// setInterval(() => {
+//     // console.log(camera.cameraRotation.x);
+//     // camera.cameraRotation.y += Math.PI * 0.05;
+//     // console.log(camera.cameraRotation.x);
+//     camera.inputs.clear();
+// }, 3000);
 
 void (async () => {
     /**
@@ -64,7 +75,7 @@ void (async () => {
     for (const system of [
         new SceneSystem(world, scene),
         new CharacterControllerSystem(world, scene, hk),
-        new PlayerControllerSystem(world, scene, camera),
+        // new PlayerControllerSystem(world, scene, camera),
     ]) {
         systemsRuntime.addSystem(system);
     }

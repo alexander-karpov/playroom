@@ -1,16 +1,8 @@
 import { System, type World } from '~/ecs';
-import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera';
 import { type Engine } from '@babylonjs/core/Engines/engine';
-import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
-import { CreateGround } from '@babylonjs/core/Meshes/Builders/groundBuilder';
-import { CreateSphere } from '@babylonjs/core/Meshes/Builders/sphereBuilder';
 import type { Scene } from '@babylonjs/core/scene';
 import { PhysicsRaycastResult } from '@babylonjs/core/Physics/physicsRaycastResult';
-import { GridMaterial } from '@babylonjs/materials/grid/gridMaterial';
-import HavokPhysics from '@babylonjs/havok';
-import { type PhysicsEngine } from '@babylonjs/core/Physics/v2/physicsEngine';
-import { type Nullable } from '@babylonjs/core/types';
 import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 import { Character } from './Character';
 import { RigidBody } from './RigidBody';
