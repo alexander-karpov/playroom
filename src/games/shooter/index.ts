@@ -1,6 +1,5 @@
-import { TargetCamera } from '@babylonjs/core/Cameras/targetCamera';
 import { Engine } from '@babylonjs/core/Engines/engine';
-import { Quaternion, Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { Scene } from '@babylonjs/core/scene';
 import { HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 import '@babylonjs/core/Physics/joinedPhysicsEngineComponent';
@@ -8,16 +7,8 @@ import HavokPhysics from '@babylonjs/havok';
 import { Runtime, World } from '~/ecs';
 import { SceneSystem } from './SceneSystem';
 import { CharacterControllerSystem } from './CharacterControllerSystem';
-import { PlayerControllerSystem } from './PlayerControllerSystem';
-import { Observable, type Observer } from '@babylonjs/core/Misc/observable';
-import { CameraInputsManager } from '@babylonjs/core/Cameras/cameraInputsManager';
-import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera';
-import { ScreenSizeBlock } from '@babylonjs/core/Materials/Node/Blocks/Fragment/screenSizeBlock';
-import { JoystickAxis, VirtualJoystick } from '@babylonjs/core/Misc/virtualJoystick';
-import { ZonedFreeCameraMouseInput } from './ZonedFreeCameraMouseInput';
 import { Vector2 } from 'three';
-
-const ss = new ScreenSizeBlock('ScreenSizeBlock01');
+import { ShooterCamera } from './ShooterCamera';
 
 // Get the canvas element from the DOM.
 const canvas = document.createElement('canvas');
@@ -38,36 +29,32 @@ const scene = new Scene(engine);
 /**
  * Camera
  */
-// const camera = new FreeCamera('camera1', new Vector3(0, 2, -10), scene);
-const camera = new TargetCamera('camera1', new Vector3(0, 2, -10), scene);
-
-camera.inertia = 0;
+export const camera = new ShooterCamera('camera1', new Vector3(0, 2, -10), scene);
 
 // camera.inputs.clear();
 // camera.inputs.add(new ZonedFreeCameraMouseInput());
 
 // // This attaches the camera to the canvas
-// camera.attachControl(canvas, true);
+camera.attachControl(canvas, true);
 
-// @ts-expect-error Переопределяем приватные методы
-class InvisibleVirtualJoystick extends VirtualJoystick {
-    private override _drawPuck() {}
-    private override _drawVirtualJoystick() {}
+// class InvisibleVirtualJoystick extends VirtualJoystick {
+//     private override _drawPuck() {}
+//     private override _drawVirtualJoystick() {}
 
-    private override _onPointerDown(e: PointerEvent) {
-        this.deltaPosition.set(0, 0, 0);
+//     private override _onPointerDown(e: PointerEvent) {
+//         this.deltaPosition.set(0, 0, 0);
 
-        // @ts-expect-error Вызов приватного метода
-        (super._onPointerDown as (e: PointerEvent) => void)(e);
-    }
-}
+//         // @ts-expect-error Вызов приватного метода
+//         (super._onPointerDown as (e: PointerEvent) => void)(e);
+//     }
+// }
 
-const leftJoystick = new VirtualJoystick(true);
-const rightJoystick = new InvisibleVirtualJoystick(false, {
-    // puckSize: ,
-    // containerSize: 0,
-    limitToContainer: false,
-});
+// const leftJoystick = new VirtualJoystick(true);
+// const rightJoystick = new InvisibleVirtualJoystick(false, {
+//     // puckSize: ,
+//     // containerSize: 0,
+//     limitToContainer: false,
+// });
 
 // setInterval(() => {
 //     // console.log(camera.cameraRotation.x);
@@ -104,7 +91,7 @@ void (async () => {
 
     const lastJoystickValue = new Vector2(0, 0);
     const currentPos = new Vector2(0, 0);
-    rightJoystick.setJoystickSensibility(1);
+    // rightJoystick.setJoystickSensibility(1);
 
     /**
      * Loop
@@ -112,18 +99,18 @@ void (async () => {
     engine.runRenderLoop(() => {
         systemsRuntime.update(engine.getDeltaTime() / 1000);
 
-        if (rightJoystick.pressed) {
-            lastJoystickValue.copy(currentPos);
-            currentPos.set(rightJoystick.deltaPosition.x, rightJoystick.deltaPosition.y);
+        // if (rightJoystick.pressed) {
+        //     lastJoystickValue.copy(currentPos);
+        //     currentPos.set(rightJoystick.deltaPosition.x, rightJoystick.deltaPosition.y);
 
-            const dy = rightJoystick.deltaPosition.y - lastJoystickValue.y;
-            const dx = rightJoystick.deltaPosition.x - lastJoystickValue.x;
+        //     const dy = rightJoystick.deltaPosition.y - lastJoystickValue.y;
+        //     const dx = rightJoystick.deltaPosition.x - lastJoystickValue.x;
 
-            camera.cameraRotation.set(-dy * engine.getDeltaTime(), dx * engine.getDeltaTime());
-        } else {
-            lastJoystickValue.set(0, 0);
-            currentPos.set(0, 0);
-        }
+        //     camera.cameraRotation.set(-dy * engine.getDeltaTime(), dx * engine.getDeltaTime());
+        // } else {
+        //     lastJoystickValue.set(0, 0);
+        //     currentPos.set(0, 0);
+        // }
 
         scene.render();
     });
