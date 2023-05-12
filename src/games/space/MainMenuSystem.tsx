@@ -8,6 +8,7 @@ import { Active } from '~/components';
 import { ObjectPoolHelper } from './ObjectPoolHelper';
 import { type Engine } from 'matter-js';
 import { TinyEmitter } from 'tiny-emitter';
+import { MAX_SCORE_KEY } from './ScoreSystem';
 
 const emitter = new TinyEmitter();
 
@@ -65,23 +66,23 @@ const TouchGuide = styled.div`
 `;
 
 const MainMenu: React.FC<{ onStart: () => void }> = ({ onStart }) => {
-    const [maxScore, setMaxScore] = useState(window.localStorage.getItem('kukuruku_max_space_score'));
+    const savedMaxScore = window.localStorage.getItem(MAX_SCORE_KEY);
+
+    const [maxScore, setMaxScore] = useState((savedMaxScore != null) ? Number(savedMaxScore) : 0);
     const [score, setScore] = useState(0);
 
-    function update(props: { score: number }) {
+    function update(props: { score: number, maxScore: number }) {
         setScore(props.score);
-        setMaxScore(window.localStorage.getItem('kukuruku_max_space_score'));
+        setMaxScore(props.maxScore);
     }
 
     useEffect(() => {
         emitter.on('update', update);
 
         return () => {
-            emitter.off('health', update);
+            emitter.off('update', update);
         };
     });
-
-
 
     return (
         <Plate>
@@ -135,8 +136,8 @@ export class MainMenuSystem extends System {
 
     @System.onNot([Player, Active])
     private onNotPlayerActive(world: World, id: number) {
-        const { score } = this.world.get(id, Player);
-        emitter.emit('update', { score });
+        const { score, maxScore } = this.world.get(id, Player);
+        emitter.emit('update', { score, maxScore });
         this.menuElem.classList.remove('MainMenu_hidden');
     }
 }

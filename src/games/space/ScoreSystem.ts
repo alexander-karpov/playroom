@@ -6,16 +6,17 @@ import { Explosion } from './Explosion';
 import { Player } from './Player';
 import { Active } from '~/components';
 
+export const MAX_SCORE_KEY = 'kukuruku_max_space_score';
+
 export class ScoreSystem extends System {
     private score: number = 0;
     private maxScore: number;
 
-    private readonly maxScoreKey: string = 'kukuruku_max_space_score';
-
     public constructor(protected readonly world: World, protected readonly scene: THREE.Scene) {
         super();
 
-        this.maxScore = Number(window.localStorage.getItem(this.maxScoreKey) ?? 0);
+        this.maxScore = Number(window.localStorage.getItem(MAX_SCORE_KEY) ?? 0);
+        this.updateEntity();
     }
 
     @System.on([Enemy, Explosion])
@@ -24,7 +25,7 @@ export class ScoreSystem extends System {
 
         if (this.score > this.maxScore) {
             this.maxScore = this.score;
-            window.localStorage.setItem(this.maxScoreKey, String(this.maxScore));
+            window.localStorage.setItem(MAX_SCORE_KEY, String(this.maxScore));
         }
 
         this.updateEntity();
@@ -41,6 +42,7 @@ export class ScoreSystem extends System {
             const player = this.world.get(id, Player);
 
             player.score = this.score;
+            player.maxScore = this.maxScore;
         }
     }
 }
