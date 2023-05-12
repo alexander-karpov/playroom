@@ -50,7 +50,9 @@ const Plate = styled.div`
 const StartButton = styled.div`
     box-sizing: border-box;
     border-radius: 5px;
-    border: 1px solid rgba(255, 255, 255, .8);
+    border: 1px solid rgba(255, 255, 255, .7);
+    background-color: 1px solid rgba(255, 255, 255, .8);
+    color: black;
     padding: 8px 12px;
 `;
 
@@ -70,10 +72,14 @@ const MainMenu: React.FC<{ onStart: () => void }> = ({ onStart }) => {
 
     const [maxScore, setMaxScore] = useState((savedMaxScore != null) ? Number(savedMaxScore) : 0);
     const [score, setScore] = useState(0);
+    const [letsPlayText, setLetsPlayText] = useState('Начать игру');
+
 
     function update(props: { score: number, maxScore: number }) {
         setScore(props.score);
         setMaxScore(props.maxScore);
+
+        setLetsPlayText('Попробовать ещё раз');
     }
 
     useEffect(() => {
@@ -93,14 +99,14 @@ const MainMenu: React.FC<{ onStart: () => void }> = ({ onStart }) => {
                 : undefined
             }
 
-            {(maxScore != null) ?
+            {(maxScore !== 0) ?
                 <Message>Рекорд {maxScore}</Message>
                 : <>
-                    <TouchGuide />
+                    <TouchGuide onClick={onStart} />
                     <Message>Нажмите на экран для управления кораблём</Message>
                 </>
             }
-            <StartButton children="Начать игру" onClick={onStart} />
+            <StartButton children={letsPlayText} onClick={onStart} />
         </Plate>
     );
 };
