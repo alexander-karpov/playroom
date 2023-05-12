@@ -1,7 +1,6 @@
 import { type TargetCamera } from '@babylonjs/core/Cameras/targetCamera';
-import { TmpVectors, Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { TmpVectors, Vector2, Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { BaseCameraPointersInput } from '@babylonjs/core/Cameras/Inputs/BaseCameraPointersInput';
-import { Vector2 } from 'three';
 import { type PointerTouch } from '@babylonjs/core/Events/pointerEvents';
 import { type Nullable } from '@babylonjs/core/types';
 import { type IPointerEvent } from '@babylonjs/core/Events/deviceInputEvents';
@@ -108,7 +107,7 @@ export class ShooterCameraPointersInput extends BaseCameraPointersInput {
             dx * this.angularSensibilityX
         );
 
-        this.previousRotationPoint.copy(this.rotationPoint);
+        this.previousRotationPoint.copyFrom(this.rotationPoint);
     }
 
     private applyMovement() {

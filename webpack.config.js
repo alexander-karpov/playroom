@@ -67,7 +67,7 @@ function getPlugins(env) {
         })
     ];
 
-    if (env.analyze) {
+    if (env.analyzer) {
         plugins.push(new BundleAnalyzerPlugin())
     }
 
