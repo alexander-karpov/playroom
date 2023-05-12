@@ -6,10 +6,10 @@ import { type Nullable } from '@babylonjs/core/types';
 import { type IPointerEvent } from '@babylonjs/core/Events/deviceInputEvents';
 
 export class ShooterCameraPointersInput extends BaseCameraPointersInput {
-    public angularSensibilityX = 0.0032;
-    public angularSensibilityY = 0.0018;
+    public angularSensibilityX = 0.0064;
+    public angularSensibilityY = 0.0036;
 
-    public movementSpeed = 0.3;
+    public movementSpeed = 0.2;
 
     private halfScreenWidth: number;
 

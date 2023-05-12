@@ -9,8 +9,11 @@ import { ObjectPoolHelper } from './ObjectPoolHelper';
 import { type Engine } from 'matter-js';
 import { TinyEmitter } from 'tiny-emitter';
 import { MAX_SCORE_KEY } from './ScoreSystem';
+import { initYandexSdk } from '~/yandexSdk';
 
 const emitter = new TinyEmitter();
+
+const yaSdk = initYandexSdk();
 
 const MainMenuStyles = createGlobalStyle`
 .MainMenu {
@@ -51,7 +54,7 @@ const StartButton = styled.div`
     box-sizing: border-box;
     border-radius: 5px;
     border: 1px solid rgba(255, 255, 255, .7);
-    background-color: 1px solid rgba(255, 255, 255, .8);
+    background: rgba(255, 255, 255, .8);
     color: black;
     padding: 8px 12px;
 `;
@@ -79,7 +82,7 @@ const MainMenu: React.FC<{ onStart: () => void }> = ({ onStart }) => {
         setScore(props.score);
         setMaxScore(props.maxScore);
 
-        setLetsPlayText('Попробовать ещё раз');
+        setLetsPlayText('Попробовать снова?');
     }
 
     useEffect(() => {
@@ -102,7 +105,7 @@ const MainMenu: React.FC<{ onStart: () => void }> = ({ onStart }) => {
             {(maxScore !== 0) ?
                 <Message>Рекорд {maxScore}</Message>
                 : <>
-                    <TouchGuide onClick={onStart} />
+                    <TouchGuide />
                     <Message>Нажмите на экран для управления кораблём</Message>
                 </>
             }
@@ -144,6 +147,13 @@ export class MainMenuSystem extends System {
     private onNotPlayerActive(world: World, id: number) {
         const { score, maxScore } = this.world.get(id, Player);
         emitter.emit('update', { score, maxScore });
-        this.menuElem.classList.remove('MainMenu_hidden');
+
+        setTimeout(() => {
+            if (score > 24) {
+                void yaSdk.then(sdk => sdk.adv.showFullscreenAdv());
+            }
+
+            this.menuElem.classList.remove('MainMenu_hidden');
+        }, 1000);
     }
 }
