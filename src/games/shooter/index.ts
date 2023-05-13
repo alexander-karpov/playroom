@@ -8,6 +8,7 @@ import { Runtime, World } from '~/ecs';
 import { SceneSystem } from './SceneSystem';
 import { CharacterControllerSystem } from './CharacterControllerSystem';
 import { ShooterCamera } from './ShooterCamera';
+import { PlayerControllerSystem } from './PlayerControllerSystem';
 
 // Get the canvas element from the DOM.
 const canvas = document.createElement('canvas');
@@ -47,8 +48,8 @@ void (async () => {
 
     for (const system of [
         new SceneSystem(world, scene),
+        new PlayerControllerSystem(world, scene, camera),
         new CharacterControllerSystem(world, scene, hk),
-        // new PlayerControllerSystem(world, scene, camera),
     ]) {
         systemsRuntime.addSystem(system);
     }

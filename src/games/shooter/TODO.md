@@ -2,7 +2,18 @@ Octree https://github.com/vanruesc/linear-octree
 Threejs fps https://github.com/mrdoob/three.js/blob/master/examples/games_fps.html
 Havok https://www.npmjs.com/package/@babylonjs/havok
 
-# Фичи
+# TODO
+
+-   Брать предметы в руки
+-   Брать пистолет и стрелять из него
+
+# Мета
+
+-   Хоррор. Враги сгорают на свету. Надо лазать в темноте и светить на них
+-   Хоррор. Враги живут своей жизнью и дерутся друг с другом. Тебе надо не попадаться им на глаза как в трейлере Silent Hill 2
+-   Лабиринт как в кино Лабиринт
+
+# Технические
 
 -   Сделать старт игры до загрузки havok
 -   Подключить опцыональное использование WebGPU

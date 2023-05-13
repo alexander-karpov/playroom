@@ -114,10 +114,21 @@ export class SceneSystem extends System {
         body.shape.filterMembershipMask = Bits.bit(2);
         body.shape.filterCollideMask = Bits.bit2(1, 3);
 
+        /**
+         * Character
+         */
         const [id, character] = this.world.newEntity(Character);
         character.capsuleHeight = height;
-        character.speed = 1;
-        this.world.attach(id, Player);
+
+        /**
+         * Player
+         */
+        const player = this.world.attach(id, Player);
+        player.speed = 5;
+
+        /**
+         * RigidBody
+         */
         const rb = this.world.attach(id, RigidBody);
         rb.body = body;
     }

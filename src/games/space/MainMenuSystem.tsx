@@ -154,6 +154,6 @@ export class MainMenuSystem extends System {
             }
 
             this.menuElem.classList.remove('MainMenu_hidden');
-        }, 1000);
+        }, 2000);
     }
 }

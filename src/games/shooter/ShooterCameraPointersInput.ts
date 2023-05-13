@@ -9,9 +9,12 @@ export class ShooterCameraPointersInput extends BaseCameraPointersInput {
     public angularSensibilityX = 0.0064;
     public angularSensibilityY = 0.0036;
 
-    public movementSpeed = 0.2;
+    public readonly movement = new Vector3();
+    public tilt: number = 0;
 
-    private halfScreenWidth: number;
+    private halfScreenWidth: number = 0;
+    private screenHeight: number = 0;
+    private readonly titlHeightPart = 8;
 
     private rotationPointerId = -1;
     private readonly previousRotationPoint = new Vector2(0, 0);
@@ -20,19 +23,17 @@ export class ShooterCameraPointersInput extends BaseCameraPointersInput {
     private movementPointerId = -1;
     private readonly startMovementPoint = new Vector2(0, 0);
     private readonly movementPoint = new Vector2(0, 0);
-    private maxMovementTiltSq: number;
 
     public constructor(public override camera: TargetCamera) {
         super();
 
-        const titlHeightPart = 8;
-        this.halfScreenWidth = window.innerWidth / 2;
-        this.maxMovementTiltSq = Math.pow(window.innerHeight / titlHeightPart, 2);
-
-        window.addEventListener('resize', () => {
+        const onResize = () => {
             this.halfScreenWidth = window.innerWidth / 2;
-            this.maxMovementTiltSq = Math.pow(window.innerHeight / titlHeightPart, 2);
-        });
+            this.screenHeight = window.innerHeight;
+        };
+
+        onResize();
+        window.addEventListener('resize', onResize);
     }
 
     public checkInputs() {
@@ -41,7 +42,9 @@ export class ShooterCameraPointersInput extends BaseCameraPointersInput {
         }
 
         if (this.movementPointerId !== -1) {
-            this.applyMovement();
+            this.updateMovement();
+        } else {
+            this.resetMovement();
         }
     }
 
@@ -117,9 +120,8 @@ export class ShooterCameraPointersInput extends BaseCameraPointersInput {
         this.previousRotationPoint.copyFrom(this.rotationPoint);
     }
 
-    private applyMovement() {
+    private updateMovement() {
         const localDirection = TmpVectors.Vector3[0];
-        const transformedDirection = TmpVectors.Vector3[1];
 
         localDirection.set(
             this.movementPoint.x - this.startMovementPoint.x,
@@ -127,19 +129,22 @@ export class ShooterCameraPointersInput extends BaseCameraPointersInput {
             -(this.movementPoint.y - this.startMovementPoint.y)
         );
 
-        const tiltFactor = Math.min(1, localDirection.lengthSquared() / this.maxMovementTiltSq);
+        const tiltRadius = this.screenHeight / this.titlHeightPart;
+        this.tilt = Math.min(1, localDirection.length() / tiltRadius);
 
         this.camera.getViewMatrix().invertToRef(this.camera._cameraTransformMatrix);
         Vector3.TransformNormalToRef(
             localDirection,
             this.camera._cameraTransformMatrix,
-            transformedDirection
+            this.movement
         );
 
-        transformedDirection.y = 0;
-        transformedDirection.normalize();
-        transformedDirection.scaleInPlace(this.movementSpeed * tiltFactor);
+        this.movement.y = 0;
+        this.movement.normalize();
+    }
 
-        this.camera.cameraDirection.addInPlace(transformedDirection);
+    private resetMovement() {
+        this.tilt = 0;
+        this.movement.setAll(0);
     }
 }

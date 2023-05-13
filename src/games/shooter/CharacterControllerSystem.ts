@@ -1,20 +1,17 @@
 import { System, type World } from '~/ecs';
-import { type Engine } from '@babylonjs/core/Engines/engine';
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { TmpVectors, type Vector3 } from '@babylonjs/core/Maths/math.vector';
 import type { Scene } from '@babylonjs/core/scene';
 import { PhysicsRaycastResult } from '@babylonjs/core/Physics/physicsRaycastResult';
 import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 import { Character } from './Character';
 import { RigidBody } from './RigidBody';
 import { Bits } from '~/utils/Bits';
+import { Epsilon } from '@babylonjs/core/Maths/math.constants';
 
 const GRAVITY = 9.8; //30;
 
 export class CharacterControllerSystem extends System {
-    private readonly engine: Engine;
     private readonly raycastResult = new PhysicsRaycastResult();
-    private readonly groundProbe = new Vector3();
-    private readonly velocity = new Vector3();
 
     public constructor(
         private readonly world: World,
@@ -22,25 +19,26 @@ export class CharacterControllerSystem extends System {
         private readonly physEngine: HavokPlugin
     ) {
         super();
-
-        this.engine = this.scene.getEngine();
     }
 
     public override onUpdate(world: World, deltaSec: number): void {
-        const fixingGroundingDiff = 0.02;
-        const damping = Math.exp(-4 * this.engine.getTimeStep()) - 1;
-
         for (const id of this.world.select([Character, RigidBody])) {
-            const { capsuleHeight, direction, speed } = this.world.get(id, Character);
+            const character = this.world.get(id, Character);
+            const { capsuleHeight, direction, speed } = character;
             const { body } = this.world.get(id, RigidBody);
 
-            this.groundProbe.copyFrom(body.transformNode.position);
-            this.groundProbe.y -= capsuleHeight / 2 + 0.1;
+            const groundProbe = TmpVectors.Vector3[0];
+            const velocity = TmpVectors.Vector3[1];
 
+            groundProbe.copyFrom(body.transformNode.position);
+            groundProbe.y = capsuleHeight / 2 + 0.1;
+
+            // TODO: заменить когда метод появится
+            // https://github.com/BabylonJS/Babylon.js/issues/13795
             raycast2(
                 this.physEngine,
                 body.transformNode.position,
-                this.groundProbe,
+                groundProbe,
                 this.raycastResult,
                 Bits.bit(2),
                 Bits.bit(1)
@@ -48,31 +46,28 @@ export class CharacterControllerSystem extends System {
 
             const isGrounded = this.raycastResult.hasHit;
 
-            body.getLinearVelocityToRef(this.velocity);
-            this.velocity.x = direction.x * speed;
-            this.velocity.z = direction.z * speed;
-
             if (!isGrounded) {
-                this.velocity.y -= GRAVITY * deltaSec;
+                character.verticalVelocity -= GRAVITY * deltaSec;
             } else {
-                const yFeet = body.transformNode.position.y - capsuleHeight / 2;
-                const yDiff = this.raycastResult.hitPointWorld.y - yFeet;
+                character.verticalVelocity = 0;
 
-                if (Math.abs(yDiff) > fixingGroundingDiff) {
+                if (
+                    Math.abs(this.raycastResult.hitPointWorld.y - body.transformNode.position.y) >
+                    Epsilon
+                ) {
+                    // Точное приземление
+                    body.transformNode.position.y = this.raycastResult.hitPointWorld.y;
                     body.disablePreStep = false;
 
-                    body.transformNode.position.y += yDiff * Math.min(1, deltaSec * 5);
-
                     this.scene.onAfterRenderObservable.addOnce(() => {
-                        // Turn disablePreStep on again for maximum performance
                         body.disablePreStep = true;
                     });
                 }
-
-                this.velocity.y = 0;
             }
 
-            body.setLinearVelocity(this.velocity);
+            velocity.copyFrom(direction).scaleInPlace(speed);
+            velocity.y = character.verticalVelocity;
+            body.setLinearVelocity(velocity);
         }
     }
 }
@@ -81,6 +76,8 @@ export class CharacterControllerSystem extends System {
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
+// TODO: заменить когда метод появится
+// https://github.com/BabylonJS/Babylon.js/issues/13795
 function raycast2(
     engine: HavokPlugin,
     from: Vector3,
@@ -89,6 +86,7 @@ function raycast2(
     queryMembership: number,
     queryCollideWith: number
 ) {
+    // TODO: исправлено в новой версии
     result.reset();
 
     const query = [

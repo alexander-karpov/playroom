@@ -5,12 +5,13 @@ import type { Scene } from '@babylonjs/core/scene';
 import { Character } from './Character';
 import { RigidBody } from './RigidBody';
 import { Player } from './Player';
+import { type ShooterCamera } from './ShooterCamera';
 
 export class PlayerControllerSystem extends System {
     public constructor(
         private readonly world: World,
         private readonly scene: Scene,
-        private readonly playerCamera: FreeCamera
+        private readonly playerCamera: ShooterCamera
     ) {
         super();
     }
@@ -27,12 +28,12 @@ export class PlayerControllerSystem extends System {
     }
 
     public override onUpdate(world: World, deltaSec: number): void {
-        for (const id of this.world.select([Character, Player, RigidBody])) {
-            const { direction } = this.world.get(id, Character);
-            this.playerCamera.getDirectionToRef(Vector3.Forward(), direction);
+        for (const id of this.world.select([Character, Player])) {
+            const char = this.world.get(id, Character);
+            const player = this.world.get(id, Player);
 
-            direction.y = 0;
-            direction.normalize();
+            char.speed = this.playerCamera.tilt * player.speed;
+            char.direction.copyFrom(this.playerCamera.movement);
         }
     }
 }
