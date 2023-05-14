@@ -7,6 +7,7 @@ import { Character } from './Character';
 import { RigidBody } from './RigidBody';
 import { Bits } from '~/utils/Bits';
 import { Epsilon } from '@babylonjs/core/Maths/math.constants';
+import { FilterCategory } from './FilterCategory';
 
 const GRAVITY = 9.8; //30;
 
@@ -30,8 +31,9 @@ export class CharacterControllerSystem extends System {
             const groundProbe = TmpVectors.Vector3[0];
             const velocity = TmpVectors.Vector3[1];
 
+            const footY = body.transformNode.position.y - capsuleHeight / 2;
             groundProbe.copyFrom(body.transformNode.position);
-            groundProbe.y = capsuleHeight / 2 + 0.1;
+            groundProbe.y = footY - 0.1;
 
             // TODO: заменить когда метод появится
             // https://github.com/BabylonJS/Babylon.js/issues/13795
@@ -40,8 +42,8 @@ export class CharacterControllerSystem extends System {
                 body.transformNode.position,
                 groundProbe,
                 this.raycastResult,
-                Bits.bit(2),
-                Bits.bit(1)
+                Bits.bit(FilterCategory.Character),
+                Bits.bit(FilterCategory.Ground)
             );
 
             const isGrounded = this.raycastResult.hasHit;
@@ -51,12 +53,10 @@ export class CharacterControllerSystem extends System {
             } else {
                 character.verticalVelocity = 0;
 
-                if (
-                    Math.abs(this.raycastResult.hitPointWorld.y - body.transformNode.position.y) >
-                    Epsilon
-                ) {
+                if (Math.abs(this.raycastResult.hitPointWorld.y - footY) > Epsilon) {
                     // Точное приземление
-                    body.transformNode.position.y = this.raycastResult.hitPointWorld.y;
+                    body.transformNode.position.y =
+                        this.raycastResult.hitPointWorld.y + capsuleHeight / 2;
                     body.disablePreStep = false;
 
                     this.scene.onAfterRenderObservable.addOnce(() => {

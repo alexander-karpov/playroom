@@ -6,7 +6,7 @@
         "test": "jest"
     },
     "devDependencies": {
-        "@babylonjs/core": "6.2.0",
+        "@babylonjs/core": "6.3.1",
         "@babylonjs/havok": "1.0.1",
         "@babylonjs/materials": "6.2.0",
         "@types/matter-js": "0.18.2",

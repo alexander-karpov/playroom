@@ -1,6 +1,6 @@
 import { System, type World } from '~/ecs';
 import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { Quaternion, Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { CreateGround } from '@babylonjs/core/Meshes/Builders/groundBuilder';
 import '@babylonjs/core/Meshes/thinInstanceMesh';
 import type { Scene } from '@babylonjs/core/scene';
@@ -9,15 +9,16 @@ import {
     PhysicsMotionType,
     PhysicsShapeType,
 } from '@babylonjs/core/Physics/v2/IPhysicsEnginePlugin';
-import { PhysicsShapeCapsule } from '@babylonjs/core/Physics/v2/physicsShape';
+import { PhysicsShapeBox, PhysicsShapeCapsule } from '@babylonjs/core/Physics/v2/physicsShape';
 import { PhysicsAggregate } from '@babylonjs/core/Physics/v2/physicsAggregate';
-import { GridMaterial } from '@babylonjs/materials/grid/gridMaterial';
+import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
 import { CreateCapsule } from '@babylonjs/core/Meshes/Builders/capsuleBuilder';
 import { CreateBox } from '@babylonjs/core/Meshes/Builders/boxBuilder';
 import { Character } from './Character';
 import { RigidBody } from './RigidBody';
 import { Bits } from '~/utils/Bits';
 import { Player } from './Player';
+import { FilterCategory } from './FilterCategory';
 
 export class SceneSystem extends System {
     public constructor(private readonly world: World, private readonly scene: Scene) {
@@ -30,10 +31,11 @@ export class SceneSystem extends System {
         light.intensity = 0.7;
 
         // Create a grid material
-        const material = new GridMaterial('grid', scene);
+        const material = new StandardMaterial('grid', scene);
 
         // Our built-in 'sphere' shape.
         const box = CreateBox('box1', { size: 1 }, scene);
+        // box.position.y = 2;
 
         box.thinInstanceAddSelf();
         box.thinInstanceAddSelf();
@@ -44,18 +46,15 @@ export class SceneSystem extends System {
         box.thinInstanceAddSelf();
         box.thinInstanceAddSelf();
         box.thinInstanceAddSelf();
-
-        // Move the sphere upward 1/2 its height
-        box.position.y = 2;
 
         // Affect a material
         box.material = material;
 
         // Our built-in 'ground' shape.
-        const ground = CreateGround('ground1', { width: 32, height: 32, subdivisions: 2 }, scene);
+        // const ground = CreateGround('ground1', { width: 32, height: 32, subdivisions: 2 }, scene);
 
-        // Affect a material
-        ground.material = material;
+        // // Affect a material
+        // ground.material = material;
 
         const sphereAggregate = new PhysicsAggregate(
             box,
@@ -64,24 +63,31 @@ export class SceneSystem extends System {
             scene
         );
 
+        sphereAggregate.body.disablePreStep = false;
+
         setInterval(() => {
             box.thinInstanceRefreshBoundingInfo();
         }, 3000);
 
-        sphereAggregate.body.shape!.filterMembershipMask = Bits.bit(3);
-        sphereAggregate.body.shape!.filterCollideMask = Bits.bit3(1, 2, 3);
-
-        // Create a static box shape.
-        const groundAggregate = new PhysicsAggregate(
-            ground,
-            PhysicsShapeType.BOX,
-            { mass: 0 },
-            scene
+        sphereAggregate.body.shape!.filterMembershipMask = Bits.bits(FilterCategory.Thing);
+        sphereAggregate.body.shape!.filterCollideMask = Bits.bits(
+            FilterCategory.Ground,
+            FilterCategory.Character,
+            FilterCategory.Thing
         );
 
-        groundAggregate.body.shape!.filterMembershipMask = Bits.bit(1);
-        groundAggregate.body.shape!.filterCollideMask = Bits.bit2(2, 3);
+        // // Create a static box shape.
+        // const groundAggregate = new PhysicsAggregate(
+        //     ground,
+        //     PhysicsShapeType.BOX,
+        //     { mass: 0 },
+        //     scene
+        // );
 
+        // groundAggregate.body.shape!.filterMembershipMask = Bits.bit(1);
+        // groundAggregate.body.shape!.filterCollideMask = Bits.bit2(2, 3);
+
+        this.createGround();
         this.createPlayer();
     }
 
@@ -98,21 +104,8 @@ export class SceneSystem extends System {
             this.scene
         );
 
-        node.position.set(-0.2, 10, -0.2);
-        node.material = new GridMaterial('grid2', this.scene);
-
-        const body = new PhysicsBody(node, PhysicsMotionType.ANIMATED, false, this.scene);
-
-        // https://doc.babylonjs.com/features/featuresDeepDive/physics/shapes
-        body.shape = new PhysicsShapeCapsule(
-            new Vector3(0, -(height / 2 - radius), 0),
-            new Vector3(0, height / 2 - radius, 0),
-            radius,
-            this.scene
-        );
-
-        body.shape.filterMembershipMask = Bits.bit(2);
-        body.shape.filterCollideMask = Bits.bit2(1, 3);
+        node.position.set(-0.1, 10, -0.1);
+        node.material = new StandardMaterial('player', this.scene);
 
         /**
          * Character
@@ -129,7 +122,50 @@ export class SceneSystem extends System {
         /**
          * RigidBody
          */
+        const body = new PhysicsBody(node, PhysicsMotionType.ANIMATED, false, this.scene);
+
         const rb = this.world.attach(id, RigidBody);
         rb.body = body;
+
+        // https://doc.babylonjs.com/features/featuresDeepDive/physics/shapes
+        body.shape = new PhysicsShapeCapsule(
+            new Vector3(0, -(height / 2 - radius), 0),
+            new Vector3(0, height / 2 - radius, 0),
+            radius,
+            this.scene
+        );
+
+        body.setMassProperties({
+            mass: 1,
+        });
+    }
+
+    private createGround() {
+        const width = 16;
+        const height = 1;
+        const depth = 16;
+
+        /**
+         * Mesh
+         */
+        const node = CreateBox('ground', { width, height, depth }, this.scene);
+
+        node.material = new StandardMaterial('ground', this.scene);
+        node.position = new Vector3(0, -5, 0);
+
+        /**
+         * PhysicsBody
+         */
+        const body = new PhysicsBody(node, PhysicsMotionType.STATIC, false, this.scene);
+        body.shape = new PhysicsShapeBox(
+            new Vector3(0, 0, 0),
+            new Quaternion(0, 0, 0, 1),
+            new Vector3(width, height, depth),
+            this.scene
+        );
+        body.transformNode = node;
+
+        body.shape.filterMembershipMask = Bits.bits(FilterCategory.Ground);
+        body.shape.filterCollideMask = Bits.bits(FilterCategory.Character, FilterCategory.Thing);
     }
 }

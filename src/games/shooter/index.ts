@@ -9,6 +9,7 @@ import { SceneSystem } from './SceneSystem';
 import { CharacterControllerSystem } from './CharacterControllerSystem';
 import { ShooterCamera } from './ShooterCamera';
 import { PlayerControllerSystem } from './PlayerControllerSystem';
+import { ArcRotateCamera } from '@babylonjs/core/Cameras/arcRotateCamera';
 
 // Get the canvas element from the DOM.
 const canvas = document.createElement('canvas');
@@ -25,8 +26,17 @@ const scene = new Scene(engine);
 /**
  * Camera
  */
-export const camera = new ShooterCamera('camera1', new Vector3(0, 2, -10), scene);
+const camera = new ShooterCamera('camera1', new Vector3(0, 2, -10), scene);
 camera.attachControl(canvas);
+
+const debugCamera = new ArcRotateCamera('debugCamera', 0, Math.PI / 2, 5, Vector3.Zero(), scene);
+
+debugCamera.attachControl(canvas);
+debugCamera.radius = 32;
+debugCamera.lowerRadiusLimit = 2;
+debugCamera.upperRadiusLimit = 32;
+
+scene.activeCamera = debugCamera;
 
 void (async () => {
     /**
