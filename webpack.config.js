@@ -50,7 +50,6 @@ module.exports = (env) => {
             ],
         },
         optimization: {
-            runtimeChunk: 'single',
             usedExports: true,
             sideEffects: true,
             providedExports: true,

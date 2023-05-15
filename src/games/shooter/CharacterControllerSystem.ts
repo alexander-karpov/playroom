@@ -1,4 +1,4 @@
-import { System, type World } from '~/ecs';
+import { type World } from '~/ecs';
 import { TmpVectors, type Vector3 } from '@babylonjs/core/Maths/math.vector';
 import type { Scene } from '@babylonjs/core/scene';
 import { PhysicsRaycastResult } from '@babylonjs/core/Physics/physicsRaycastResult';
@@ -8,10 +8,11 @@ import { RigidBody } from './RigidBody';
 import { Bits } from '~/utils/Bits';
 import { Epsilon } from '@babylonjs/core/Maths/math.constants';
 import { FilterCategory } from './FilterCategory';
+import { ShooterSystem } from './ShooterSystem';
 
 const GRAVITY = 9.8; //30;
 
-export class CharacterControllerSystem extends System {
+export class CharacterControllerSystem extends ShooterSystem {
     private readonly raycastResult = new PhysicsRaycastResult();
 
     public constructor(

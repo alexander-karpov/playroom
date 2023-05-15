@@ -1,14 +1,15 @@
-import { type World, System } from './index';
+import { type World, type System } from './index';
 
-export class Runtime {
-    private readonly inputSystems: System[] = [];
-    private readonly updateSystems: System[] = [];
-    private readonly outputSystems: System[] = [];
+export class Runtime<TSystem extends System = System> {
+    private readonly systems: TSystem[] = [];
+    private readonly inputSystems: TSystem[] = [];
+    private readonly updateSystems: TSystem[] = [];
+    private readonly outputSystems: TSystem[] = [];
 
     public constructor(private readonly world: World) {}
 
-    public addSystem(system: System) {
-        this.registerSystemByHandlers(system);
+    public addSystem(system: TSystem) {
+        this.registerSystem(system);
         system.uploadSubscriptionToWorld(this.world);
     }
 
@@ -17,6 +18,13 @@ export class Runtime {
         this.world.applyChanges();
     }
 
+    public forEach(fn: (system: TSystem) => void): void {
+        this.systems.forEach(fn);
+    }
+
+    // TODO: Возможно стоит заменить циклы вызовов
+    // на формирование динамической лямбды с вложенными вызовами
+    // как это сделано в камерах babylonjs c checkInputs
     private callRuntimeHandlers(deltaS: number): void {
         for (const system of this.inputSystems) {
             system.onInput(this.world, deltaS);
@@ -34,7 +42,9 @@ export class Runtime {
     /**
      * Помещает систему в наборы наличию обработчика
      */
-    private registerSystemByHandlers(system: System): void {
+    private registerSystem(system: TSystem): void {
+        this.systems.push(system);
+
         if (this.isSystemOverridesHandler(system, 'onInput')) {
             this.inputSystems.push(system);
         }
@@ -48,7 +58,7 @@ export class Runtime {
         }
     }
 
-    private isSystemOverridesHandler(system: System, methodName: keyof System): boolean {
-        return system[methodName] !== System.prototype[methodName];
+    private isSystemOverridesHandler(system: TSystem, methodName: keyof TSystem): boolean {
+        return Object.prototype.hasOwnProperty.call(system, methodName);
     }
 }

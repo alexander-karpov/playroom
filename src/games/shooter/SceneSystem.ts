@@ -1,7 +1,6 @@
-import { System, type World } from '~/ecs';
+import { type World } from '~/ecs';
 import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
 import { Quaternion, Vector3 } from '@babylonjs/core/Maths/math.vector';
-import { CreateGround } from '@babylonjs/core/Meshes/Builders/groundBuilder';
 import '@babylonjs/core/Meshes/thinInstanceMesh';
 import type { Scene } from '@babylonjs/core/scene';
 import { PhysicsBody } from '@babylonjs/core/Physics/v2/physicsBody';
@@ -19,8 +18,9 @@ import { RigidBody } from './RigidBody';
 import { Bits } from '~/utils/Bits';
 import { Player } from './Player';
 import { FilterCategory } from './FilterCategory';
+import { ShooterSystem } from './ShooterSystem';
 
-export class SceneSystem extends System {
+export class SceneSystem extends ShooterSystem {
     public constructor(private readonly world: World, private readonly scene: Scene) {
         super();
 

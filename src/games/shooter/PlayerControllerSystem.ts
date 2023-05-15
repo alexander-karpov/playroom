@@ -1,13 +1,12 @@
 import { System, type World } from '~/ecs';
-import { type FreeCamera } from '@babylonjs/core/Cameras/freeCamera';
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
 import type { Scene } from '@babylonjs/core/scene';
 import { Character } from './Character';
 import { RigidBody } from './RigidBody';
 import { Player } from './Player';
 import { type ShooterCamera } from './ShooterCamera';
+import { ShooterSystem } from './ShooterSystem';
 
-export class PlayerControllerSystem extends System {
+export class PlayerControllerSystem extends ShooterSystem {
     public constructor(
         private readonly world: World,
         private readonly scene: Scene,

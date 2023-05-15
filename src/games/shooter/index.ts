@@ -9,41 +9,33 @@ import { SceneSystem } from './SceneSystem';
 import { CharacterControllerSystem } from './CharacterControllerSystem';
 import { ShooterCamera } from './ShooterCamera';
 import { PlayerControllerSystem } from './PlayerControllerSystem';
-import { ArcRotateCamera } from '@babylonjs/core/Cameras/arcRotateCamera';
-
-// Get the canvas element from the DOM.
-const canvas = document.createElement('canvas');
-document.body.appendChild(canvas);
-
-// Associate a Babylon Engine to it.
-const engine = new Engine(canvas);
-
-/**
- * Scene
- */
-const scene = new Scene(engine);
-
-/**
- * Camera
- */
-const camera = new ShooterCamera('camera1', new Vector3(0, 2, -10), scene);
-camera.attachControl(canvas);
-
-const debugCamera = new ArcRotateCamera('debugCamera', 0, Math.PI / 2, 5, Vector3.Zero(), scene);
-
-debugCamera.attachControl(canvas);
-debugCamera.radius = 32;
-debugCamera.lowerRadiusLimit = 2;
-debugCamera.upperRadiusLimit = 32;
-
-scene.activeCamera = debugCamera;
+import { type ShooterSystem } from './ShooterSystem';
 
 void (async () => {
+    // Get the canvas element from the DOM.
+    const canvas = document.createElement('canvas');
+    document.body.appendChild(canvas);
+
+    // Associate a Babylon Engine to it.
+    const engine = new Engine(canvas);
+
+    /**
+     * Scene
+     */
+    const scene = new Scene(engine);
+
+    /**
+     * Camera
+     */
+    const camera = new ShooterCamera('camera1', new Vector3(0, 2, -10), scene);
+    camera.attachControl(canvas);
+
     /**
      * Physics
      */
 
     const havokInstance = await HavokPhysics();
+
     const hk = new HavokPlugin(true, havokInstance);
 
     // enable physics in the scene with a gravity
@@ -54,7 +46,7 @@ void (async () => {
      */
     const world = new World();
 
-    const systemsRuntime = new Runtime(world);
+    const systemsRuntime = new Runtime<ShooterSystem>(world);
 
     for (const system of [
         new SceneSystem(world, scene),
@@ -65,7 +57,42 @@ void (async () => {
     }
 
     /**
-     * Loop
+     * Resize
+     */
+    window.addEventListener('resize', function () {
+        engine.resize();
+    });
+
+    /**
+     * Debug
+     */
+    if (process.env['NODE_ENV'] !== 'production') {
+        const { GUI } = await import('lil-gui');
+        const lil = new GUI({ title: 'Настройки' });
+
+        const { DebugCameraSystem } = await import('./DebugCameraSystem');
+
+        systemsRuntime.addSystem(new DebugCameraSystem(world, scene));
+        systemsRuntime.forEach((s) => s.onDebug(lil));
+    }
+
+    /**
+     * Unhandled Errors
+     */
+    if (process.env['NODE_ENV'] !== 'production') {
+        window.onerror = function onUnhandledError(
+            event: Event | string,
+            source?: string,
+            lineno?: number,
+            colno?: number,
+            error?: Error
+        ) {
+            alert(`${event.toString()}\nsource ${source ?? ''}\nerror ${error?.message ?? ''}`);
+        };
+    }
+
+    /**
+     * Run render loop
      */
     engine.runRenderLoop(() => {
         systemsRuntime.update(engine.getDeltaTime() / 1000);
@@ -73,25 +100,3 @@ void (async () => {
         scene.render();
     });
 })();
-
-/**
- * Resize
- */
-window.addEventListener('resize', function () {
-    engine.resize();
-});
-
-/**
- * Unhandled Errors
- */
-if (process.env['NODE_ENV'] !== 'production') {
-    window.onerror = function onUnhandledError(
-        event: Event | string,
-        source?: string,
-        lineno?: number,
-        colno?: number,
-        error?: Error
-    ) {
-        alert(`${event.toString()}\nsource ${source ?? ''}\nerror ${error?.message ?? ''}`);
-    };
-}
