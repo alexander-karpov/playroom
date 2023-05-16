@@ -6,8 +6,8 @@ import { type Nullable } from '@babylonjs/core/types';
 import { type IPointerEvent } from '@babylonjs/core/Events/deviceInputEvents';
 
 export class ShooterCameraPointersInput extends BaseCameraPointersInput {
-    public angularSensibilityX = 0.0064;
-    public angularSensibilityY = 0.0036;
+    public angularSensibilityX = 0.0032;
+    public angularSensibilityY = 0.0032;
 
     public readonly movement = new Vector3();
     public tilt: number = 0;
@@ -104,12 +104,11 @@ export class ShooterCameraPointersInput extends BaseCameraPointersInput {
     private applyRotation() {
         const delta = TmpVectors.Vector2[0];
         delta.copyFrom(this.rotationPoint).subtractInPlace(this.previousRotationPoint);
-        const magnitude = delta.length();
 
-        if (magnitude > 0) {
-            const speed = magnitude / this.camera.getEngine().getDeltaTime();
+        if (delta.lengthSquared() > 0) {
+            const speed = delta.length() / this.camera.getEngine().getDeltaTime();
 
-            delta.scaleInPlace(Math.sqrt(speed));
+            delta.scaleInPlace(Math.max(1, Math.sqrt(speed)));
 
             delta.x *= this.angularSensibilityX;
             delta.y *= this.angularSensibilityY;

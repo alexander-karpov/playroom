@@ -9,10 +9,12 @@ import { nameof } from '~/utils/nameof';
 
 export class DebugCameraSystem extends ShooterSystem {
     private readonly debugCamera: ArcRotateCamera;
-    private gameCamera: Camera | null = null;
+    private gameCamera: Camera | null;
 
     public constructor(private readonly world: World, private readonly scene: Scene) {
         super();
+
+        this.gameCamera = this.scene.activeCamera;
 
         this.debugCamera = new ArcRotateCamera(
             'debugCamera',
@@ -23,7 +25,6 @@ export class DebugCameraSystem extends ShooterSystem {
             this.scene
         );
 
-        this.debugCamera.attachControl(this.scene.getEngine().getRenderingCanvas());
         this.debugCamera.radius = 32;
         this.debugCamera.lowerRadiusLimit = 2;
         this.debugCamera.upperRadiusLimit = 64;
@@ -40,8 +41,14 @@ export class DebugCameraSystem extends ShooterSystem {
                 if (value) {
                     this.gameCamera = this.scene.activeCamera;
                     this.scene.activeCamera = this.debugCamera;
+
+                    this.gameCamera?.detachControl();
+                    this.debugCamera.attachControl();
                 } else {
                     this.scene.activeCamera = this.gameCamera;
+
+                    this.debugCamera.detachControl();
+                    this.gameCamera?.attachControl();
                 }
             });
     }

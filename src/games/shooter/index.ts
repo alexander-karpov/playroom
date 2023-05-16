@@ -10,6 +10,7 @@ import { CharacterControllerSystem } from './CharacterControllerSystem';
 import { ShooterCamera } from './ShooterCamera';
 import { PlayerControllerSystem } from './PlayerControllerSystem';
 import { type ShooterSystem } from './ShooterSystem';
+import { HandsSystem } from './HandsSystem';
 
 void (async () => {
     // Get the canvas element from the DOM.
@@ -28,7 +29,7 @@ void (async () => {
      * Camera
      */
     const camera = new ShooterCamera('camera1', new Vector3(0, 2, -10), scene);
-    camera.attachControl(canvas);
+    camera.attachControl(undefined);
 
     /**
      * Physics
@@ -52,6 +53,7 @@ void (async () => {
         new SceneSystem(world, scene),
         new PlayerControllerSystem(world, scene, camera),
         new CharacterControllerSystem(world, scene, hk),
+        new HandsSystem(world, scene, hk),
     ]) {
         systemsRuntime.addSystem(system);
     }
