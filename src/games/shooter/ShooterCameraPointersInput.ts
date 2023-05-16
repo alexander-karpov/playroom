@@ -8,9 +8,7 @@ import { type IPointerEvent } from '@babylonjs/core/Events/deviceInputEvents';
 export class ShooterCameraPointersInput extends BaseCameraPointersInput {
     public angularSensibilityX = 0.0032;
     public angularSensibilityY = 0.0032;
-
-    public readonly movement = new Vector3();
-    public tilt: number = 0;
+    public movementSpeed = 0.2;
 
     private halfScreenWidth: number = 0;
     private screenHeight: number = 0;
@@ -22,7 +20,9 @@ export class ShooterCameraPointersInput extends BaseCameraPointersInput {
 
     private movementPointerId = -1;
     private readonly startMovementPoint = new Vector2(0, 0);
+    private readonly previousMovementPoint = new Vector2(0, 0);
     private readonly movementPoint = new Vector2(0, 0);
+    private readonly movement = new Vector3();
 
     public constructor(public override camera: TargetCamera) {
         super();
@@ -42,9 +42,7 @@ export class ShooterCameraPointersInput extends BaseCameraPointersInput {
         }
 
         if (this.movementPointerId !== -1) {
-            this.updateMovement();
-        } else {
-            this.resetMovement();
+            this.applyMovement();
         }
     }
 
@@ -54,7 +52,6 @@ export class ShooterCameraPointersInput extends BaseCameraPointersInput {
         }
 
         if (point.pointerId === this.rotationPointerId) {
-            // TODO: добавить ускорение при быстром движении
             this.rotationPoint.set(point.x, point.y);
         }
 
@@ -87,7 +84,9 @@ export class ShooterCameraPointersInput extends BaseCameraPointersInput {
             this.movementPointerId = evt.pointerId;
 
             this.startMovementPoint.set(evt.x, evt.y);
+            this.previousMovementPoint.set(evt.x, evt.y);
             this.movementPoint.set(evt.x, evt.y);
+            this.movement.set(0, 0, 0);
         }
     }
 
@@ -119,6 +118,17 @@ export class ShooterCameraPointersInput extends BaseCameraPointersInput {
         this.previousRotationPoint.copyFrom(this.rotationPoint);
     }
 
+    private applyMovement() {
+        if (!this.movementPoint.equals(this.previousMovementPoint)) {
+            this.updateMovement();
+            this.previousMovementPoint.copyFrom(this.movementPoint);
+        }
+
+        this.camera.cameraDirection
+            .copyFrom(this.movement)
+            .scale(this.camera.getEngine().getDeltaTime());
+    }
+
     private updateMovement() {
         const localDirection = TmpVectors.Vector3[0];
 
@@ -129,9 +139,12 @@ export class ShooterCameraPointersInput extends BaseCameraPointersInput {
         );
 
         const tiltRadius = this.screenHeight / this.titlHeightPart;
-        this.tilt = Math.min(1, localDirection.length() / tiltRadius);
+        const tilt = Math.min(1, localDirection.length() / tiltRadius);
+
+        localDirection.normalize();
 
         this.camera.getViewMatrix().invertToRef(this.camera._cameraTransformMatrix);
+
         Vector3.TransformNormalToRef(
             localDirection,
             this.camera._cameraTransformMatrix,
@@ -140,10 +153,6 @@ export class ShooterCameraPointersInput extends BaseCameraPointersInput {
 
         this.movement.y = 0;
         this.movement.normalize();
-    }
-
-    private resetMovement() {
-        this.tilt = 0;
-        this.movement.setAll(0);
+        this.movement.scaleInPlace(this.movementSpeed * tilt);
     }
 }

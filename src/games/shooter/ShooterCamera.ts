@@ -16,14 +16,6 @@ export class ShooterCamera extends TargetCamera {
         this.inertia = 0;
     }
 
-    public get movement(): Vector3 {
-        return this.input.movement;
-    }
-
-    public get tilt(): number {
-        return this.input.tilt;
-    }
-
     public override attachControl(ignored: any, noPreventDefault?: boolean) {
         this.inputs.attachElement(false);
     }

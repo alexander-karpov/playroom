@@ -1,10 +1,10 @@
 import { System, type World } from '~/ecs';
 import type { Scene } from '@babylonjs/core/scene';
 import { Character } from './Character';
-import { RigidBody } from './RigidBody';
+import { RigidBody } from '../RigidBody';
 import { Player } from './Player';
-import { type ShooterCamera } from './ShooterCamera';
-import { ShooterSystem } from './ShooterSystem';
+import { type ShooterCamera } from '../ShooterCamera';
+import { ShooterSystem } from '../ShooterSystem';
 
 export class PlayerControllerSystem extends ShooterSystem {
     public constructor(
@@ -31,8 +31,8 @@ export class PlayerControllerSystem extends ShooterSystem {
             const char = this.world.get(id, Character);
             const player = this.world.get(id, Player);
 
-            char.speed = this.playerCamera.tilt * player.speed;
-            char.direction.copyFrom(this.playerCamera.movement);
+            // char.speed = this.playerCamera.tilt * player.speed;
+            // char.direction.copyFrom(this.playerCamera.movement);
         }
     }
 }

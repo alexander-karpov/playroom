@@ -4,12 +4,12 @@ import type { Scene } from '@babylonjs/core/scene';
 import { PhysicsRaycastResult } from '@babylonjs/core/Physics/physicsRaycastResult';
 import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 import { Character } from './Character';
-import { RigidBody } from './RigidBody';
+import { RigidBody } from '../RigidBody';
 import { Bits } from '~/utils/Bits';
 import { Epsilon } from '@babylonjs/core/Maths/math.constants';
-import { FilterCategory } from './FilterCategory';
-import { ShooterSystem } from './ShooterSystem';
-import { raycast2 } from './raycast2';
+import { FilterCategory } from '../FilterCategory';
+import { ShooterSystem } from '../ShooterSystem';
+import { raycast2 } from '../raycast2';
 
 const GRAVITY = 9.8; //30;
 

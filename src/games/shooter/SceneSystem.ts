@@ -13,10 +13,8 @@ import { PhysicsAggregate } from '@babylonjs/core/Physics/v2/physicsAggregate';
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
 import { CreateCapsule } from '@babylonjs/core/Meshes/Builders/capsuleBuilder';
 import { CreateBox } from '@babylonjs/core/Meshes/Builders/boxBuilder';
-import { Character } from './Character';
 import { RigidBody } from './RigidBody';
 import { Bits } from '~/utils/Bits';
-import { Player } from './Player';
 import { FilterCategory } from './FilterCategory';
 import { ShooterSystem } from './ShooterSystem';
 
@@ -88,56 +86,6 @@ export class SceneSystem extends ShooterSystem {
         // groundAggregate.body.shape!.filterCollideMask = Bits.bit2(2, 3);
 
         this.createGround();
-        this.createPlayer();
-    }
-
-    private createPlayer() {
-        const height = 2;
-        const radius = 0.5;
-
-        const node = CreateCapsule(
-            'player',
-            {
-                height: height,
-                radius: radius,
-            },
-            this.scene
-        );
-
-        node.position.set(-0.1, 10, -0.1);
-        node.material = new StandardMaterial('player', this.scene);
-
-        /**
-         * Character
-         */
-        const [id, character] = this.world.newEntity(Character);
-        character.capsuleHeight = height;
-
-        /**
-         * Player
-         */
-        const player = this.world.attach(id, Player);
-        player.speed = 5;
-
-        /**
-         * RigidBody
-         */
-        const body = new PhysicsBody(node, PhysicsMotionType.ANIMATED, false, this.scene);
-
-        const rb = this.world.attach(id, RigidBody);
-        rb.body = body;
-
-        // https://doc.babylonjs.com/features/featuresDeepDive/physics/shapes
-        body.shape = new PhysicsShapeCapsule(
-            new Vector3(0, -(height / 2 - radius), 0),
-            new Vector3(0, height / 2 - radius, 0),
-            radius,
-            this.scene
-        );
-
-        body.setMassProperties({
-            mass: 1,
-        });
     }
 
     private createGround() {

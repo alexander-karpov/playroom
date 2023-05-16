@@ -6,9 +6,7 @@ import '@babylonjs/core/Physics/joinedPhysicsEngineComponent';
 import HavokPhysics from '@babylonjs/havok';
 import { Runtime, World } from '~/ecs';
 import { SceneSystem } from './SceneSystem';
-import { CharacterControllerSystem } from './CharacterControllerSystem';
 import { ShooterCamera } from './ShooterCamera';
-import { PlayerControllerSystem } from './PlayerControllerSystem';
 import { type ShooterSystem } from './ShooterSystem';
 import { HandsSystem } from './HandsSystem';
 
@@ -28,7 +26,7 @@ void (async () => {
     /**
      * Camera
      */
-    const camera = new ShooterCamera('camera1', new Vector3(0, 2, -10), scene);
+    const camera = new ShooterCamera('playerCamera', new Vector3(0, 1.7, 0), scene);
     camera.attachControl(undefined);
 
     /**
@@ -49,12 +47,7 @@ void (async () => {
 
     const systemsRuntime = new Runtime<ShooterSystem>(world);
 
-    for (const system of [
-        new SceneSystem(world, scene),
-        new PlayerControllerSystem(world, scene, camera),
-        new CharacterControllerSystem(world, scene, hk),
-        new HandsSystem(world, scene, hk),
-    ]) {
+    for (const system of [new SceneSystem(world, scene), new HandsSystem(world, scene, hk)]) {
         systemsRuntime.addSystem(system);
     }
 
