@@ -4,6 +4,7 @@ import { BaseCameraPointersInput } from '@babylonjs/core/Cameras/Inputs/BaseCame
 import { type PointerTouch } from '@babylonjs/core/Events/pointerEvents';
 import { type Nullable } from '@babylonjs/core/types';
 import { type IPointerEvent } from '@babylonjs/core/Events/deviceInputEvents';
+import { Epsilon } from '@babylonjs/core/Maths/math.constants';
 
 export class ShooterCameraPointersInput extends BaseCameraPointersInput {
     public angularSensibilityX = 0.0032;
@@ -104,18 +105,14 @@ export class ShooterCameraPointersInput extends BaseCameraPointersInput {
         const delta = TmpVectors.Vector2[0];
         delta.copyFrom(this.rotationPoint).subtractInPlace(this.previousRotationPoint);
 
-        if (delta.lengthSquared() > 0) {
-            const speed = delta.length() / this.camera.getEngine().getDeltaTime();
-
-            delta.scaleInPlace(Math.max(1, Math.sqrt(speed)));
-
+        if (delta.lengthSquared() > Epsilon) {
             delta.x *= this.angularSensibilityX;
             delta.y *= this.angularSensibilityY;
 
             this.camera.cameraRotation.set(delta.y, delta.x);
-        }
 
-        this.previousRotationPoint.copyFrom(this.rotationPoint);
+            this.previousRotationPoint.copyFrom(this.rotationPoint);
+        }
     }
 
     private applyMovement() {
