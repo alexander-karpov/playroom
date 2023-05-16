@@ -53,7 +53,7 @@ export class HandsSystem extends ShooterSystem {
 
         if (this.raycastResult.hasHit) {
             const impulse = TmpVectors.Vector3[0];
-            impulse.copyFrom(this.ray.direction).scaleInPlace(10);
+            impulse.copyFrom(this.ray.direction).scaleInPlace(20);
 
             this.raycastResult.body?.applyImpulse(
                 impulse,

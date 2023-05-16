@@ -27,7 +27,7 @@ export class DebugCameraSystem extends ShooterSystem {
 
         this.debugCamera.radius = 32;
         this.debugCamera.lowerRadiusLimit = 2;
-        this.debugCamera.upperRadiusLimit = 64;
+        this.debugCamera.upperRadiusLimit = 256;
     }
 
     public override onDebug(gui: GUI): void {

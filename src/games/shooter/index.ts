@@ -26,7 +26,7 @@ void (async () => {
     /**
      * Camera
      */
-    const camera = new ShooterCamera('playerCamera', new Vector3(0, 1.7, 0), scene);
+    const camera = new ShooterCamera('playerCamera', new Vector3(0, 1.6, 0), scene);
     camera.attachControl(undefined);
 
     /**
