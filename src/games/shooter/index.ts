@@ -47,7 +47,10 @@ void (async () => {
 
     const systemsRuntime = new Runtime<ShooterSystem>(world);
 
-    for (const system of [new SceneSystem(world, scene), new HandsSystem(world, scene, hk)]) {
+    for (const system of [
+        new SceneSystem(world, scene),
+        new HandsSystem(world, scene, camera, hk),
+    ]) {
         systemsRuntime.addSystem(system);
     }
 

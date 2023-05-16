@@ -7,8 +7,8 @@ import { type IPointerEvent } from '@babylonjs/core/Events/deviceInputEvents';
 import { Epsilon } from '@babylonjs/core/Maths/math.constants';
 
 export class ShooterCameraPointersInput extends BaseCameraPointersInput {
-    public angularSensibilityX = 0.0032;
-    public angularSensibilityY = 0.0032;
+    public angularSensibilityX = 0.0064;
+    public angularSensibilityY = 0.0064;
     public movementSpeed = 0.2;
 
     private halfScreenWidth: number = 0;

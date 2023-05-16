@@ -95,6 +95,9 @@ export class SceneSystem extends ShooterSystem {
     }
 
     public override onDebug(gui: GUI): void {
+        /**
+         * Player marker
+         */
         const mat = new StandardMaterial('markerMaterial', this.scene);
         mat.diffuseColor = Color3.Red();
 

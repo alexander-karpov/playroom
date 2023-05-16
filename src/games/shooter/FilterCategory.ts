@@ -5,4 +5,5 @@ export enum FilterCategory {
     Ground = 1,
     Character = 2,
     Thing = 3,
+    Hands = 4,
 }
