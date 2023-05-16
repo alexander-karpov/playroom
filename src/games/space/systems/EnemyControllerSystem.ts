@@ -1,15 +1,15 @@
 import { System, type World } from '~/ecs';
-import { Player } from './components/Player';
-import { Ship } from './components/Ship';
-import { Enemy } from './components/Enemy';
+import { Player } from '../components/Player';
+import { Ship } from '../components/Ship';
+import { Enemy } from '../components/Enemy';
 import { Active, GameObject, Sound } from '~/games/space/components';
-import { Hit } from './components/Hit';
+import { Hit } from '../components/Hit';
 import { type Engine } from 'matter-js';
-import { ObjectPoolHelper } from './ObjectPoolHelper';
-import { Target } from './components/Target';
-import { SoundTrack } from '~/systems/AudioSystem';
+import { ObjectPoolHelper } from '../ObjectPoolHelper';
+import { Target } from '../components/Target';
+import { SoundTrack } from '~/games/space/systems/AudioSystem';
 import { choose } from '~/utils/choose';
-import { Explosion } from './components/Explosion';
+import { Explosion } from '../components/Explosion';
 
 const hitSoundtracks = [
     SoundTrack.BulletMetalHit01,

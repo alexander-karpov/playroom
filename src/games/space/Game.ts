@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import GUI from 'lil-gui';
-import { ScreenSizeSource } from './utils/ScreenSizeSource';
+import { ScreenSizeSource } from '../../utils/ScreenSizeSource';
 
 export abstract class Game {
     protected readonly screenSize = new ScreenSizeSource();

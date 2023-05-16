@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
-import { Player } from './components/Player';
+import { Player } from '../components/Player';
 import { GameObject } from '~/games/space/components';
 
 export class ShipCameraSystem extends System {

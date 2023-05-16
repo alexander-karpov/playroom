@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
-import { Player } from './components/Player';
-import { Joystick } from './components/Joystick';
-import { Ship } from './components/Ship';
+import { Player } from '../components/Player';
+import { Joystick } from '../components/Joystick';
+import { Ship } from '../components/Ship';
 import { Active, GameObject } from '~/games/space/components';
-import { Target } from './components/Target';
+import { Target } from '../components/Target';
 import { type Engine } from 'matter-js';
 
 export class PlayerControllerSystem extends System {

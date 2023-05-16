@@ -5,8 +5,8 @@ import { System } from '~/ecs';
 import styled, { createGlobalStyle } from 'styled-components';
 import { TinyEmitter } from 'tiny-emitter';
 import * as THREE from 'three';
-import { Player } from './components/Player';
-import { Ship } from './components/Ship';
+import { Player } from '../components/Player';
+import { Ship } from '../components/Ship';
 
 const emitter = new TinyEmitter();
 

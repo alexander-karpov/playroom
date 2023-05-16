@@ -1,18 +1,18 @@
 import { System, type World } from '~/ecs';
-import { Player } from './components/Player';
+import { Player } from '../components/Player';
 import { Active, GameObject, RigibBody } from '~/games/space/components';
 import { Composite, type Engine, Body, Vector } from 'matter-js';
-import { Enemy } from './components/Enemy';
+import { Enemy } from '../components/Enemy';
 import * as THREE from 'three';
 import { loadGLTF } from '~/utils/loadGLTF';
-import { Ship } from './components/Ship';
+import { Ship } from '../components/Ship';
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils';
 import { createBodyForObject3d } from '~/utils/createBodyForObject3d';
-import { CollisionCategory } from './CollisionCategory';
-import { Gun } from './components/Gun';
-import { ObjectPoolHelper } from './ObjectPoolHelper';
-import { SoundTrack } from '~/systems/AudioSystem';
-import { Explosion } from './components/Explosion';
+import { CollisionCategory } from '../CollisionCategory';
+import { Gun } from '../components/Gun';
+import { ObjectPoolHelper } from '../ObjectPoolHelper';
+import { SoundTrack } from '~/games/space/systems/AudioSystem';
+import { Explosion } from '../components/Explosion';
 
 class ExplosionSprite {
     public sprite: THREE.Sprite;

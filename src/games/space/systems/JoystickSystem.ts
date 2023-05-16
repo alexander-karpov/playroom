@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { World } from '~/ecs';
 import { System } from '~/ecs';
-import { Joystick } from './components/Joystick';
+import { Joystick } from '../components/Joystick';
 
 export class JoystickSystem extends System {
     public constructor(

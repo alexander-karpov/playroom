@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { type ComponentClass } from '~/ecs/ComponentClass';
-import { type SoundTrack } from '~/systems/AudioSystem';
+import { type SoundTrack } from '~/games/space/systems/AudioSystem';
 
 export class Gun {
     public readonly direction = new THREE.Vector3();

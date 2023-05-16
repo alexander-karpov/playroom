@@ -1,17 +1,17 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
 import { type GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
-import { Player } from './components/Player';
+import { Player } from '../components/Player';
 import { Active, GameObject, RigibBody } from '~/games/space/components';
-import { Ship } from './components/Ship';
-import { Enemy } from './components/Enemy';
-import { Gun } from './components/Gun';
+import { Ship } from '../components/Ship';
+import { Enemy } from '../components/Enemy';
+import { Gun } from '../components/Gun';
 import { Object3D } from 'three';
 import { Composite, type Engine } from 'matter-js';
-import { CollisionCategory } from './CollisionCategory';
+import { CollisionCategory } from '../CollisionCategory';
 import { loadGLTF } from '~/utils/loadGLTF';
 import { createBodyForObject3d } from '~/utils/createBodyForObject3d';
-import { SoundTrack } from '~/systems/AudioSystem';
+import { SoundTrack } from '~/games/space/systems/AudioSystem';
 
 export class SceneSystem extends System {
     public constructor(

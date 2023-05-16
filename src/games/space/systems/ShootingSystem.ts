@@ -1,16 +1,16 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
 import { Active, GameObject, RigibBody, Sound } from '~/games/space/components';
-import { Projectile } from './components/Projectile';
-import { Gun } from './components/Gun';
+import { Projectile } from '../components/Projectile';
+import { Gun } from '../components/Gun';
 import { Bodies, Body, Vector, type Engine } from 'matter-js';
 import { signedAngleBetween } from '~/utils/signedAngleBetween';
-import { Hit } from './components/Hit';
+import { Hit } from '../components/Hit';
 import { VectorEx } from '~/utils/VectorEx';
-import { CollisionCategory } from './CollisionCategory';
-import { ObjectPoolHelper } from './ObjectPoolHelper';
+import { CollisionCategory } from '../CollisionCategory';
+import { ObjectPoolHelper } from '../ObjectPoolHelper';
 import { fib } from '~/utils/fib';
-import { SoundTrack } from '~/systems/AudioSystem';
+import { SoundTrack } from '~/games/space/systems/AudioSystem';
 import { choose } from '~/utils/choose';
 
 export class ShootingSystem extends System {

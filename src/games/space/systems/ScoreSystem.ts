@@ -1,9 +1,9 @@
 import { System, type World } from '~/ecs';
 
 import type * as THREE from 'three';
-import { Enemy } from './components/Enemy';
-import { Explosion } from './components/Explosion';
-import { Player } from './components/Player';
+import { Enemy } from '../components/Enemy';
+import { Explosion } from '../components/Explosion';
+import { Player } from '../components/Player';
 import { Active } from '~/games/space/components';
 
 export const MAX_SCORE_KEY = 'kukuruku_max_space_score';
