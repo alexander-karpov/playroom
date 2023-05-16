@@ -141,9 +141,9 @@ export class SceneSystem extends ShooterSystem {
     }
 
     private createGround() {
-        const width = 16;
+        const width = 32;
         const height = 1;
-        const depth = 16;
+        const depth = 32;
 
         /**
          * Mesh

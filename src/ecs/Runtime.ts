@@ -59,6 +59,6 @@ export class Runtime<TSystem extends System = System> {
     }
 
     private isSystemOverridesHandler(system: TSystem, methodName: keyof TSystem): boolean {
-        return Object.prototype.hasOwnProperty.call(system, methodName);
+        return Object.prototype.hasOwnProperty.call(system.constructor.prototype, methodName);
     }
 }
