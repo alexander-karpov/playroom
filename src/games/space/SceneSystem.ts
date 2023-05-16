@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
 import { type GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
-import { Player } from './Player';
-import { Active, GameObject, RigibBody } from '~/components';
-import { Ship } from './Ship';
-import { Enemy } from './Enemy';
-import { Gun } from './Gun';
+import { Player } from './components/Player';
+import { Active, GameObject, RigibBody } from '~/games/space/components';
+import { Ship } from './components/Ship';
+import { Enemy } from './components/Enemy';
+import { Gun } from './components/Gun';
 import { Object3D } from 'three';
 import { Composite, type Engine } from 'matter-js';
 import { CollisionCategory } from './CollisionCategory';

@@ -2,9 +2,9 @@ import { type World } from '~/ecs';
 import { type Engine } from 'matter-js';
 import type * as THREE from 'three';
 import { SpawnSystem } from './SpawnSystem';
-import { Player } from './Player';
-import { Active } from '~/components';
-import { Enemy } from './Enemy';
+import { Player } from './components/Player';
+import { Active } from '~/games/space/components';
+import { Enemy } from './components/Enemy';
 
 export class SurvivalSpawnSystem extends SpawnSystem {
     private survivalTimeSec;

@@ -1,8 +1,8 @@
 import { System, type World } from '~/ecs';
-import { Active, GameObject, Sound } from '~/components';
+import { Active, GameObject, Sound } from '~/games/space/components';
 import * as THREE from 'three';
 import { PositionalAudio } from 'three';
-import { Player } from '~/games/space/Player';
+import { Player } from '~/games/space/components/Player';
 // TODO неправильная зависимость
 
 export enum SoundTrack {

@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
-import { Active, GameObject, RigibBody, Sound } from '~/components';
-import { Projectile } from './Projectile';
-import { Gun } from './Gun';
+import { Active, GameObject, RigibBody, Sound } from '~/games/space/components';
+import { Projectile } from './components/Projectile';
+import { Gun } from './components/Gun';
 import { Bodies, Body, Vector, type Engine } from 'matter-js';
 import { signedAngleBetween } from '~/utils/signedAngleBetween';
-import { Hit } from './Hit';
+import { Hit } from './components/Hit';
 import { VectorEx } from '~/utils/VectorEx';
 import { CollisionCategory } from './CollisionCategory';
 import { ObjectPoolHelper } from './ObjectPoolHelper';

@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
-import { Active, GameObject, RigibBody } from '~/components';
-import { Ship } from './Ship';
-import { Gun } from './Gun';
+import { Active, GameObject, RigibBody } from '~/games/space/components';
+import { Ship } from './components/Ship';
+import { Gun } from './components/Gun';
 import { rotationDirection } from '~/utils/dotBetween';
 import { Body } from 'matter-js';
 

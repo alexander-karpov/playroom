@@ -1,5 +1,5 @@
 import { type World } from '~/ecs';
-import { Active, GameObject, RigibBody } from '~/components';
+import { Active, GameObject, RigibBody } from '~/games/space/components';
 import { Body, Composite, type Engine } from 'matter-js';
 
 export class ObjectPoolHelper {

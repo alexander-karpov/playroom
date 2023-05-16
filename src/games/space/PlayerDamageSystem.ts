@@ -1,15 +1,15 @@
 import type * as THREE from 'three';
 import { System, type World } from '~/ecs';
-import { Player } from './Player';
-import { Ship } from './Ship';
-import { Active, RigibBody, Sound } from '~/components';
-import { Target } from './Target';
-import { Hit } from './Hit';
+import { Player } from './components/Player';
+import { Ship } from './components/Ship';
+import { Active, RigibBody, Sound } from '~/games/space/components';
+import { Target } from './components/Target';
+import { Hit } from './components/Hit';
 import { ObjectPoolHelper } from './ObjectPoolHelper';
 import { Body, type Engine } from 'matter-js';
 import { SoundTrack } from '~/systems/AudioSystem';
 import { choose } from '~/utils/choose';
-import { Explosion } from './Explosion';
+import { Explosion } from './components/Explosion';
 
 const hitSoundtracks = [
     SoundTrack.BulletMetalHit01,

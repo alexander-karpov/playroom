@@ -8,4 +8,3 @@ export * from './GameObject';
 export * from './Sound';
 export * from './RigibBody';
 export * from './Active';
-export * from './Touched';

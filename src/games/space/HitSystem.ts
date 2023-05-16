@@ -3,9 +3,9 @@ import type { Pair } from 'matter-js';
 import { type Engine, Events } from 'matter-js';
 import { type Body } from 'matter-js';
 import { readEntityId } from '~/utils/extraProps';
-import { Ship } from './Ship';
-import { Projectile } from './Projectile';
-import { Hit } from './Hit';
+import { Ship } from './components/Ship';
+import { Projectile } from './components/Projectile';
+import { Hit } from './components/Hit';
 
 export class HitSystem extends System {
     public constructor(private readonly world: World, private readonly engine: Engine) {

@@ -1,9 +1,9 @@
 import { System, type World } from '~/ecs';
-import { Target } from './Target';
-import { Ship } from './Ship';
-import { Enemy } from './Enemy';
-import { Active, RigibBody } from '~/components';
-import { Player } from './Player';
+import { Target } from './components/Target';
+import { Ship } from './components/Ship';
+import { Enemy } from './components/Enemy';
+import { Active, RigibBody } from '~/games/space/components';
+import { Player } from './components/Player';
 import * as THREE from 'three';
 import { Body, Vector } from 'matter-js';
 import { VectorEx } from '~/utils/VectorEx';

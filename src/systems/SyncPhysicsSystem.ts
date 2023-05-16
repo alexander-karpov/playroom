@@ -1,7 +1,7 @@
 import { Engine } from 'matter-js';
 import { System, type World } from '~/ecs';
-import { RigibBody } from '~/components/RigibBody';
-import { GameObject } from '~/components/GameObject';
+import { RigibBody } from '~/games/space/components/RigibBody';
+import { GameObject } from '~/games/space/components/GameObject';
 import { writeEntityId } from '~/utils/extraProps';
 
 export class SyncPhysicsSystem extends System {

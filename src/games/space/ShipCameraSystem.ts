@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { System, type World } from '~/ecs';
-import { Player } from './Player';
-import { GameObject } from '~/components';
+import { Player } from './components/Player';
+import { GameObject } from '~/games/space/components';
 
 export class ShipCameraSystem extends System {
     private readonly targetPositionProjection = new THREE.Vector3();
