@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { ScreenSizeSource } from '~/utils/ScreenSizeSource';
+import type { ScreenSizeSource } from '~/games/space/utils/ScreenSizeSource';
 
 /**
  * Screen

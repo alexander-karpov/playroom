@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { SizedPointsMaterial } from '~/materials/SizedPointsMaterial';
-import { type World, System } from '~/ecs';
-import { type ProjectionUtil } from '~/utils/ProjectionUtil';
-import { type ScreenSizeSource } from '~/utils/ScreenSizeSource';
+import { SizedPointsMaterial } from '~/games/space/materials/SizedPointsMaterial';
+import { System } from '~/ecs';
+import { type ProjectionUtil } from '~/games/space/utils/ProjectionUtil';
+import { type ScreenSizeSource } from '~/games/space/utils/ScreenSizeSource';
 
 export class DustSystem extends System {
     private readonly particleSystem;

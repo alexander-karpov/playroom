@@ -5,7 +5,7 @@ import { Ship } from '../components/Ship';
 import { Active, RigibBody, Sound } from '~/games/space/components';
 import { Target } from '../components/Target';
 import { Hit } from '../components/Hit';
-import { ObjectPoolHelper } from '../ObjectPoolHelper';
+import { ObjectPoolHelper } from '../utils/ObjectPoolHelper';
 import { Body, type Engine } from 'matter-js';
 import { SoundTrack } from '~/games/space/systems/AudioSystem';
 import { choose } from '~/utils/choose';

@@ -5,7 +5,7 @@ import { Enemy } from '../components/Enemy';
 import { Active, GameObject, Sound } from '~/games/space/components';
 import { Hit } from '../components/Hit';
 import { type Engine } from 'matter-js';
-import { ObjectPoolHelper } from '../ObjectPoolHelper';
+import { ObjectPoolHelper } from '../utils/ObjectPoolHelper';
 import { Target } from '../components/Target';
 import { SoundTrack } from '~/games/space/systems/AudioSystem';
 import { choose } from '~/utils/choose';

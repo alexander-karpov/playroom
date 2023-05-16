@@ -2,7 +2,7 @@ import { Engine } from 'matter-js';
 import { System, type World } from '~/ecs';
 import { RigibBody } from '~/games/space/components/RigibBody';
 import { GameObject } from '~/games/space/components/GameObject';
-import { writeEntityId } from '~/utils/extraProps';
+import { writeEntityId } from '~/utils/entityHelpers';
 
 export class SyncPhysicsSystem extends System {
     public constructor(private readonly engine: Engine) {

@@ -9,8 +9,8 @@ import { Gun } from '../components/Gun';
 import { Object3D } from 'three';
 import { Composite, type Engine } from 'matter-js';
 import { CollisionCategory } from '../CollisionCategory';
-import { loadGLTF } from '~/utils/loadGLTF';
-import { createBodyForObject3d } from '~/utils/createBodyForObject3d';
+import { loadGLTF } from '~/games/space/utils/loadGLTF';
+import { createBodyForObject3d } from '~/games/space/utils/createBodyForObject3d';
 import { SoundTrack } from '~/games/space/systems/AudioSystem';
 
 export class SceneSystem extends System {

@@ -4,13 +4,13 @@ import { Active, GameObject, RigibBody } from '~/games/space/components';
 import { Composite, type Engine, Body, Vector } from 'matter-js';
 import { Enemy } from '../components/Enemy';
 import * as THREE from 'three';
-import { loadGLTF } from '~/utils/loadGLTF';
+import { loadGLTF } from '~/games/space/utils/loadGLTF';
 import { Ship } from '../components/Ship';
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils';
-import { createBodyForObject3d } from '~/utils/createBodyForObject3d';
+import { createBodyForObject3d } from '~/games/space/utils/createBodyForObject3d';
 import { CollisionCategory } from '../CollisionCategory';
 import { Gun } from '../components/Gun';
-import { ObjectPoolHelper } from '../ObjectPoolHelper';
+import { ObjectPoolHelper } from '../utils/ObjectPoolHelper';
 import { SoundTrack } from '~/games/space/systems/AudioSystem';
 
 /**

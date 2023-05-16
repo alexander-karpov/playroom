@@ -5,7 +5,7 @@ import { System } from '~/ecs';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Player } from '../components/Player';
 import { Active } from '~/games/space/components';
-import { ObjectPoolHelper } from '../ObjectPoolHelper';
+import { ObjectPoolHelper } from '../utils/ObjectPoolHelper';
 import { type Engine } from 'matter-js';
 import { TinyEmitter } from 'tiny-emitter';
 import { MAX_SCORE_KEY } from './ScoreSystem';

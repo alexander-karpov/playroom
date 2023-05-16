@@ -19,7 +19,7 @@ import { SurvivalSpawnSystem } from './systems/SurvivalSpawnSystem';
 import { HudSystem } from './systems/HudSystem';
 import { PlayerDamageSystem } from './systems/PlayerDamageSystem';
 import { AudioSystem } from '~/games/space/systems/AudioSystem';
-import { ProjectionUtil } from '~/utils/ProjectionUtil';
+import { ProjectionUtil } from '~/games/space/utils/ProjectionUtil';
 import { ExplosionsSystem } from './systems/ExplosionsSystem';
 import { ScoreSystem } from './systems/ScoreSystem';
 import { MainMenuSystem } from './systems/MainMenuSystem';

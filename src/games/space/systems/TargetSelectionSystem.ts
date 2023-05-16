@@ -6,7 +6,7 @@ import { Active, RigibBody } from '~/games/space/components';
 import { Player } from '../components/Player';
 import * as THREE from 'three';
 import { Body, Vector } from 'matter-js';
-import { VectorEx } from '~/utils/VectorEx';
+import { VectorEx } from '~/games/space/utils/VectorEx';
 
 export class TargetSelectionSystem extends System {
     private readonly directionToEnemy = Vector.create();

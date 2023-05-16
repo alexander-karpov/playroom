@@ -1,8 +1,8 @@
-import { Common } from 'matter-js';
+import { clamp } from './clamp';
 
 /**
  * Source: https://stackoverflow.com/questions/2353211/hsl-to-rgb-color-conversion
- * 
+ *
  * Converts an HSL color value to RGB. Conversion formula
  * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
  * Assumes h, s, and l are contained in the set [0, 1] and
@@ -15,8 +15,8 @@ import { Common } from 'matter-js';
  */
 export function hslToRgb(h: number, s: number, l: number): number {
     h -= Math.floor(h);
-    s = Common.clamp(s, 0, 1);
-    l = Common.clamp(l, 0, 1);
+    s = clamp(s, 0, 1);
+    l = clamp(l, 0, 1);
 
     let r: number, g: number, b: number;
 
@@ -43,5 +43,5 @@ function hue2rgb(p: number, q: number, t: number): number {
 }
 
 function rgbToHex(r: number, g: number, b: number): number {
-    return r << 16 | g << 8 | b;
+    return (r << 16) | (g << 8) | b;
 }
