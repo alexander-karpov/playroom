@@ -31,6 +31,7 @@ export class HandsSystem extends ShooterSystem {
     private thingInHandIndex?: number;
     private readonly constraint: Physics6DoFConstraint;
     private readonly pickupDistance = 100;
+    private readonly handLength = 4;
 
     public constructor(
         private readonly world: World,
@@ -92,7 +93,7 @@ export class HandsSystem extends ShooterSystem {
         this.hand.transformNode.position.copyFrom(this.camera.position);
         const dir = TmpVectors.Vector3[0];
         this.camera.getDirectionToRef(Vector3.LeftHandedForwardReadOnly, dir);
-        dir.scaleInPlace(4);
+        dir.scaleInPlace(this.handLength);
 
         this.hand.transformNode.position.addInPlace(dir);
         this.hand.disablePreStep = false;
@@ -122,7 +123,7 @@ export class HandsSystem extends ShooterSystem {
             this.thingInHand === this.raycastResult.body &&
             this.thingInHandIndex === this.raycastResult.bodyIndex
         ) {
-            this.dropThing();
+            this.dropThing(16);
 
             return;
         }
@@ -140,7 +141,7 @@ export class HandsSystem extends ShooterSystem {
          * Клик в никуда
          */
         if (this.isThingHeld) {
-            this.dropThing(1);
+            this.dropThing(0);
         }
     }
 
@@ -170,7 +171,7 @@ export class HandsSystem extends ShooterSystem {
 
     private takeThing(thing: PhysicsBody, thingIndex?: number) {
         if (this.isThingHeld) {
-            this.dropThing();
+            this.dropThing(0);
         }
 
         this.hand.addConstraint(thing, this.constraint, undefined, thingIndex);
@@ -178,16 +179,24 @@ export class HandsSystem extends ShooterSystem {
         this.thingInHandIndex = thingIndex;
     }
 
-    private dropThing(impulse: number = 10) {
-        if (this.isThingHeld) {
-            this.constraint.dispose();
+    private dropThing(impulse: number) {
+        if (!this.isThingHeld) {
+            return;
         }
 
-        this.thingInHand?.applyImpulse(
-            this.camera.getDirection(Vector3.LeftHandedForwardReadOnly).scale(impulse),
-            Vector3.ZeroReadOnly,
-            this.thingInHandIndex
-        );
+        this.constraint.dispose();
+
+        if (impulse > 0) {
+            const dir = TmpVectors.Vector3[0];
+            this.camera.getDirectionToRef(Vector3.LeftHandedForwardReadOnly, dir);
+            dir.scaleInPlace(impulse);
+
+            this.thingInHand?.applyImpulse(
+                dir,
+                this.hand.transformNode.position,
+                this.thingInHandIndex
+            );
+        }
 
         this.thingInHand = undefined;
         this.thingInHandIndex = undefined;
