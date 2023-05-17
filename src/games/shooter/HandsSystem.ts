@@ -21,7 +21,7 @@ import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
 import { Color3 } from '@babylonjs/core/Maths/math.color';
 import { CreateBox } from '@babylonjs/core/Meshes/Builders/boxBuilder';
 import { Physics6DoFConstraint } from '@babylonjs/core/Physics/v2/physicsConstraint';
-import { type Camera } from '@babylonjs/core/Cameras/camera';
+import { type TargetCamera } from '@babylonjs/core/Cameras/targetCamera';
 
 const raycastEnd = new Vector3();
 const ray = new Ray(Vector3.Zero(), Vector3.Zero());
@@ -38,7 +38,7 @@ export class HandsSystem extends ShooterSystem {
     public constructor(
         private readonly world: World,
         private readonly scene: Scene,
-        private readonly camera: Camera,
+        private readonly camera: TargetCamera,
         private readonly havok: HavokPlugin
     ) {
         super();
@@ -74,6 +74,8 @@ export class HandsSystem extends ShooterSystem {
             ],
             this.scene
         );
+
+        // TODO: Отписываться если камера перестала быть активной
 
         this.scene._inputManager._addCameraPointerObserver(
             this.onTap.bind(this),
@@ -136,11 +138,11 @@ export class HandsSystem extends ShooterSystem {
     }
 
     private updateHandPosition() {
-        if (!this.isThingHeld) {
-            this.hand.disablePreStep = true;
+        // if (!this.isThingHeld) {
+        //     this.hand.disablePreStep = true;
 
-            return;
-        }
+        //     return;
+        // }
 
         this.camera.getDirectionToRef(
             Vector3.LeftHandedForwardReadOnly,
@@ -149,6 +151,9 @@ export class HandsSystem extends ShooterSystem {
 
         this.hand.transformNode.position.scaleInPlace(this.handLength);
         this.hand.transformNode.position.addInPlace(this.camera.position);
+
+        this.hand.transformNode.rotation.copyFrom(this.camera.rotation);
+        this.hand.transformNode.rotationQuaternion?.copyFrom(this.camera.absoluteRotation);
 
         this.hand.disablePreStep = false;
     }
