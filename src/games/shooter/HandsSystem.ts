@@ -2,7 +2,7 @@ import { type World } from '~/ecs';
 import { ShooterSystem } from './ShooterSystem';
 import { type Scene } from '@babylonjs/core/scene';
 import { PointerEventTypes, type PointerInfo } from '@babylonjs/core/Events/pointerEvents';
-import { TmpVectors, Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { Ray } from '@babylonjs/core/Culling/ray';
 import { raycast2 } from './raycast2';
 import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
@@ -23,9 +23,11 @@ import { CreateBox } from '@babylonjs/core/Meshes/Builders/boxBuilder';
 import { Physics6DoFConstraint } from '@babylonjs/core/Physics/v2/physicsConstraint';
 import { type Camera } from '@babylonjs/core/Cameras/camera';
 
+const raycastEnd = new Vector3();
+const ray = new Ray(Vector3.Zero(), Vector3.Zero());
+const raycastResult = new PhysicsRaycastResult();
+
 export class HandsSystem extends ShooterSystem {
-    private readonly ray = new Ray(Vector3.Zero(), Vector3.Zero());
-    private readonly raycastResult = new PhysicsRaycastResult();
     private readonly hand: PhysicsBody;
     private thingInHand?: PhysicsBody;
     private thingInHandIndex?: number;
@@ -100,16 +102,16 @@ export class HandsSystem extends ShooterSystem {
     }
 
     private onTap(p: PointerInfo) {
-        this.raycastThing(p);
+        this.raycastThingToRef(p, raycastResult);
 
         /**
          * Клик в удерживаемый предмет
          */
         if (
-            this.raycastResult.hasHit &&
+            raycastResult.hasHit &&
             this.isThingHeld &&
-            this.thingInHand === this.raycastResult.body &&
-            this.thingInHandIndex === this.raycastResult.bodyIndex
+            this.thingInHand === raycastResult.body &&
+            this.thingInHandIndex === raycastResult.bodyIndex
         ) {
             this.dropThing(16);
 
@@ -119,8 +121,8 @@ export class HandsSystem extends ShooterSystem {
         /**
          * Клик в другой предмет
          */
-        if (this.raycastResult.hasHit && this.raycastResult.body) {
-            this.takeThing(this.raycastResult.body, this.raycastResult.bodyIndex);
+        if (raycastResult.hasHit && raycastResult.body) {
+            this.takeThing(raycastResult.body, raycastResult.bodyIndex);
 
             return;
         }
@@ -140,34 +142,27 @@ export class HandsSystem extends ShooterSystem {
             return;
         }
 
-        this.hand.transformNode.position.copyFrom(this.camera.position);
-        const dir = TmpVectors.Vector3[0];
-        this.camera.getDirectionToRef(Vector3.LeftHandedForwardReadOnly, dir);
-        dir.scaleInPlace(this.handLength);
+        this.camera.getDirectionToRef(
+            Vector3.LeftHandedForwardReadOnly,
+            this.hand.transformNode.position
+        );
 
-        this.hand.transformNode.position.addInPlace(dir);
+        this.hand.transformNode.position.scaleInPlace(this.handLength);
+        this.hand.transformNode.position.addInPlace(this.camera.position);
+
         this.hand.disablePreStep = false;
     }
 
-    private raycastThing(p: PointerInfo) {
-        this.scene.createPickingRayToRef(
-            p.event.offsetX,
-            p.event.offsetY,
-            null,
-            this.ray,
-            this.camera
-        );
+    private raycastThingToRef(p: PointerInfo, result: PhysicsRaycastResult) {
+        this.scene.createPickingRayToRef(p.event.offsetX, p.event.offsetY, null, ray, this.camera);
 
-        const end = TmpVectors.Vector3[0];
-        end.copyFrom(this.ray.direction)
-            .scaleInPlace(this.pickupDistance)
-            .addInPlace(this.ray.origin);
+        raycastEnd.copyFrom(ray.direction).scaleInPlace(this.pickupDistance).addInPlace(ray.origin);
 
         raycast2(
             this.havok,
-            this.ray.origin,
-            end,
-            this.raycastResult,
+            ray.origin,
+            raycastEnd,
+            result,
             Bits.bit(FilterCategory.Character),
             Bits.bit(FilterCategory.Thing)
         );
@@ -191,12 +186,11 @@ export class HandsSystem extends ShooterSystem {
         this.constraint.dispose();
 
         if (impulse > 0) {
-            const dir = TmpVectors.Vector3[0];
-            this.camera.getDirectionToRef(Vector3.LeftHandedForwardReadOnly, dir);
-            dir.scaleInPlace(impulse);
+            this.camera.getDirectionToRef(Vector3.LeftHandedForwardReadOnly, raycastEnd);
+            raycastEnd.scaleInPlace(impulse);
 
             this.thingInHand?.applyImpulse(
-                dir,
+                raycastEnd,
                 this.hand.transformNode.position,
                 this.thingInHandIndex
             );

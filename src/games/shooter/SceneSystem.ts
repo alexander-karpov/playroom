@@ -48,8 +48,6 @@ export class SceneSystem extends ShooterSystem {
 
         box.thinInstanceAdd(Matrix.Translation(0, 11, 8), true);
 
-        console.log(box.thinInstanceCount);
-
         // Affect a material
         box.material = material;
 

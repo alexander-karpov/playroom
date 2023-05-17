@@ -1,5 +1,4 @@
 import { type World } from '~/ecs';
-import { TmpVectors } from '@babylonjs/core/Maths/math.vector';
 import type { Scene } from '@babylonjs/core/scene';
 import { PhysicsRaycastResult } from '@babylonjs/core/Physics/physicsRaycastResult';
 import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
@@ -10,8 +9,11 @@ import { Epsilon } from '@babylonjs/core/Maths/math.constants';
 import { FilterCategory } from '../FilterCategory';
 import { ShooterSystem } from '../ShooterSystem';
 import { raycast2 } from '../raycast2';
+import { Vector3 } from '@babylonjs/core/Maths/math.vector';
 
 const GRAVITY = 9.8; //30;
+const groundProbe = new Vector3();
+const velocity = new Vector3();
 
 export class CharacterControllerSystem extends ShooterSystem {
     private readonly raycastResult = new PhysicsRaycastResult();
@@ -29,9 +31,6 @@ export class CharacterControllerSystem extends ShooterSystem {
             const character = this.world.get(id, Character);
             const { capsuleHeight, direction, speed } = character;
             const { body } = this.world.get(id, RigidBody);
-
-            const groundProbe = TmpVectors.Vector3[0];
-            const velocity = TmpVectors.Vector3[1];
 
             const footY = body.transformNode.position.y - capsuleHeight / 2;
             groundProbe.copyFrom(body.transformNode.position);

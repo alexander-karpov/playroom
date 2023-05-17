@@ -1,14 +1,17 @@
 import { type TargetCamera } from '@babylonjs/core/Cameras/targetCamera';
-import { TmpVectors, Vector2, Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { Vector2, Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { BaseCameraPointersInput } from '@babylonjs/core/Cameras/Inputs/BaseCameraPointersInput';
 import { type PointerTouch } from '@babylonjs/core/Events/pointerEvents';
 import { type Nullable } from '@babylonjs/core/types';
 import { type IPointerEvent } from '@babylonjs/core/Events/deviceInputEvents';
 import { Epsilon } from '@babylonjs/core/Maths/math.constants';
 
+const delta = new Vector2();
+const localDirection = new Vector3();
+
 export class ShooterCameraPointersInput extends BaseCameraPointersInput {
-    public angularSensibilityX = 0.0064;
-    public angularSensibilityY = 0.0064;
+    public angularSensibilityX = 0.0128;
+    public angularSensibilityY = 0.0128;
     public movementSpeed = 0.2;
 
     private halfScreenWidth: number = 0;
@@ -102,7 +105,6 @@ export class ShooterCameraPointersInput extends BaseCameraPointersInput {
     }
 
     private applyRotation() {
-        const delta = TmpVectors.Vector2[0];
         delta.copyFrom(this.rotationPoint).subtractInPlace(this.previousRotationPoint);
 
         if (delta.lengthSquared() > Epsilon) {
@@ -127,8 +129,6 @@ export class ShooterCameraPointersInput extends BaseCameraPointersInput {
     }
 
     private updateMovement() {
-        const localDirection = TmpVectors.Vector3[0];
-
         localDirection.set(
             this.movementPoint.x - this.startMovementPoint.x,
             0,
