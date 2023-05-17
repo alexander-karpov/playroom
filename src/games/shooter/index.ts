@@ -54,6 +54,8 @@ void (async () => {
         systemsRuntime.addSystem(system);
     }
 
+    scene.onBeforeRenderObservable.add(() => systemsRuntime.update(engine.getDeltaTime() / 1000));
+
     /**
      * Resize
      */
@@ -90,11 +92,9 @@ void (async () => {
     }
 
     /**
-     * Run render loop
+     * Loop
      */
     engine.runRenderLoop(() => {
-        systemsRuntime.update(engine.getDeltaTime() / 1000);
-
         scene.render();
     });
 })();

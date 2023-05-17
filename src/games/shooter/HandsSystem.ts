@@ -84,19 +84,7 @@ export class HandsSystem extends ShooterSystem {
     }
 
     public override onUpdate(world: World, deltaSec: number): void {
-        if (!this.isThingHeld) {
-            this.hand.disablePreStep = true;
-
-            return;
-        }
-
-        this.hand.transformNode.position.copyFrom(this.camera.position);
-        const dir = TmpVectors.Vector3[0];
-        this.camera.getDirectionToRef(Vector3.LeftHandedForwardReadOnly, dir);
-        dir.scaleInPlace(this.handLength);
-
-        this.hand.transformNode.position.addInPlace(dir);
-        this.hand.disablePreStep = false;
+        this.updateHandPosition();
     }
 
     public override onDebug(gui: GUI): void {
@@ -143,6 +131,22 @@ export class HandsSystem extends ShooterSystem {
         if (this.isThingHeld) {
             this.dropThing(0);
         }
+    }
+
+    private updateHandPosition() {
+        if (!this.isThingHeld) {
+            this.hand.disablePreStep = true;
+
+            return;
+        }
+
+        this.hand.transformNode.position.copyFrom(this.camera.position);
+        const dir = TmpVectors.Vector3[0];
+        this.camera.getDirectionToRef(Vector3.LeftHandedForwardReadOnly, dir);
+        dir.scaleInPlace(this.handLength);
+
+        this.hand.transformNode.position.addInPlace(dir);
+        this.hand.disablePreStep = false;
     }
 
     private raycastThing(p: PointerInfo) {
