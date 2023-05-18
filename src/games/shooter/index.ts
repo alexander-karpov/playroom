@@ -9,7 +9,7 @@ import { SceneSystem } from './SceneSystem';
 import { ShooterCamera } from './ShooterCamera';
 import { type ShooterSystem } from './ShooterSystem';
 import { HandsSystem } from './HandsSystem';
-import { MazeSystem } from './MazeSystem';
+import { DirectorSystem } from './DirectorSystem';
 
 void (async () => {
     // Get the canvas element from the DOM.
@@ -51,7 +51,7 @@ void (async () => {
     for (const system of [
         new SceneSystem(world, scene),
         new HandsSystem(world, scene, camera, hk),
-        new MazeSystem(world, scene),
+        new DirectorSystem(world, scene),
     ]) {
         systemsRuntime.addSystem(system);
     }

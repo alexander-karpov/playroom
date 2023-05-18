@@ -1,4 +1,4 @@
-import { type World, type System } from './index';
+import { type World, System } from './index';
 
 export class Runtime<TSystem extends System = System> {
     private readonly systems: TSystem[] = [];
@@ -59,6 +59,8 @@ export class Runtime<TSystem extends System = System> {
     }
 
     private isSystemOverridesHandler(system: TSystem, methodName: keyof TSystem): boolean {
-        return Object.prototype.hasOwnProperty.call(system.constructor.prototype, methodName);
+        // @ts-expect-error
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        return system.constructor.prototype[methodName] !== System.prototype[methodName];
     }
 }
