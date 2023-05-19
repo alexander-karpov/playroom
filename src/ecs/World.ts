@@ -230,15 +230,15 @@ export class World {
 
                 // eslint-disable-next-line @typescript-eslint/prefer-for-of
                 for (let si = 0; si < this.onAttachQueries.length; si++) {
-                    const subsMask = this.onAttachQueries[si]!;
+                    const query = this.onAttachQueries[si]!;
 
                     if (
                         /**
                          * Важно проверить, что интересующие подписчика компоненты
                          * были изменены именно в этой итерации
                          */
-                        (subsMask & addedMask) !== 0 &&
-                        (this.entities[eid]! & subsMask) === subsMask
+                        (query & addedMask) !== 0 &&
+                        (this.entities[eid]! & query) === query
                     ) {
                         this.onAttachHandlers[si]!(this, eid);
                         entityTriggersHandler = true;

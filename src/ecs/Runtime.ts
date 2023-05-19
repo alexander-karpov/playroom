@@ -5,12 +5,15 @@ export class Runtime<TSystem extends System = System> {
     private readonly inputSystems: TSystem[] = [];
     private readonly updateSystems: TSystem[] = [];
     private readonly outputSystems: TSystem[] = [];
+    private readonly forEveryHandlers: ((system: TSystem) => void)[] = [];
 
     public constructor(private readonly world: World) {}
 
     public addSystem(system: TSystem) {
         this.registerSystem(system);
         system.uploadSubscriptionToWorld(this.world);
+
+        this.forEveryHandlers.forEach((handler) => handler(system));
     }
 
     public update(deltaSec: number): void {
@@ -18,8 +21,9 @@ export class Runtime<TSystem extends System = System> {
         this.world.applyChanges();
     }
 
-    public forEach(fn: (system: TSystem) => void): void {
-        this.systems.forEach(fn);
+    public forEvery(handler: (system: TSystem) => void): void {
+        this.systems.forEach(handler);
+        this.forEveryHandlers.push(handler);
     }
 
     // TODO: Возможно стоит заменить циклы вызовов

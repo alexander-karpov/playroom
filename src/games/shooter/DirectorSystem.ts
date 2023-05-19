@@ -1,4 +1,4 @@
-import { type World } from '~/ecs';
+import { System, type World } from '~/ecs';
 import { ShooterSystem } from './ShooterSystem';
 import { type Scene } from '@babylonjs/core/scene';
 import { PointerEventTypes, type PointerInfo } from '@babylonjs/core/Events/pointerEvents';
@@ -24,9 +24,11 @@ import { Physics6DoFConstraint } from '@babylonjs/core/Physics/v2/physicsConstra
 import { type Camera } from '@babylonjs/core/Cameras/camera';
 import { fib } from '~/utils/fib';
 
-const roomCoords = new Vector2();
+// Это нужно для CubeTexture.CreateFromPrefilteredData
+// import '@babylonjs/core/Materials/Textures/Loaders/ddsTextureLoader';
 
-const prevRoomCoords = new Vector2();
+// Это нужно для scene.createDefaultSkybox
+// import '@babylonjs/core/Helpers/sceneHelpers.js';
 
 export class DirectorSystem extends ShooterSystem {
     private readonly roomSize = fib(10);
@@ -36,4 +38,25 @@ export class DirectorSystem extends ShooterSystem {
     }
 
     public override onUpdate(world: World, deltaSec: number): void {}
+
+    private addPistol() {}
 }
+
+class Pistol {}
+class Thing {}
+class Model {}
+class RigibBody {}
+class GameObject {}
+
+// export class PistolSystem extends ShooterSystem {
+//     private readonly roomSize = fib(10);
+
+//     public constructor(private readonly world: World, private readonly scene: Scene) {
+//         super();
+//     }
+
+//     @System.on([Pistol])
+//     private onPistol(world: World, id: number) {
+
+//     }
+// }
