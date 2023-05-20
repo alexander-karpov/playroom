@@ -1,9 +1,9 @@
 import { TargetCamera } from '@babylonjs/core/Cameras/targetCamera';
 import { CameraInputsManager } from '@babylonjs/core/Cameras/cameraInputsManager';
-import { ShooterCameraPointersInput } from './ShooterCameraPointersInput';
+import { FirstPersonPointersInput } from './FirstPersonPointersInput';
 
-export class ShooterCamera extends TargetCamera {
-    private readonly input = new ShooterCameraPointersInput(this);
+export class FirstPersonCamera extends TargetCamera {
+    private readonly input = new FirstPersonPointersInput(this);
 
     public constructor(...args: unknown[]) {
         // @ts-expect-error

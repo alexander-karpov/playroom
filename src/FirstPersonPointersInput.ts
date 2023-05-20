@@ -9,7 +9,7 @@ import { Epsilon } from '@babylonjs/core/Maths/math.constants';
 const delta = new Vector2();
 const localDirection = new Vector3();
 
-export class ShooterCameraPointersInput extends BaseCameraPointersInput {
+export class FirstPersonPointersInput extends BaseCameraPointersInput {
     public angularSensibilityX = 0.0128;
     public angularSensibilityY = 0.0128;
     public movementSpeed = 0.2;

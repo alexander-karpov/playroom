@@ -3,25 +3,34 @@ import '@babylonjs/core/Meshes/thinInstanceMesh';
 import type { Scene } from '@babylonjs/core/scene';
 import { PhysicsBody } from '@babylonjs/core/Physics/v2/physicsBody';
 import { PhysicsMotionType } from '@babylonjs/core/Physics/v2/IPhysicsEnginePlugin';
-import { PhysicsShapeBox } from '@babylonjs/core/Physics/v2/physicsShape';
+import { PhysicsShapeBox, PhysicsShapeCylinder } from '@babylonjs/core/Physics/v2/physicsShape';
 import { PBRMaterial } from '@babylonjs/core/Materials/PBR/pbrMaterial';
 import { CreateBox } from '@babylonjs/core/Meshes/Builders/boxBuilder';
 import { CreateCylinder } from '@babylonjs/core/Meshes/Builders/cylinderBuilder';
 import { Bits } from '~/utils/Bits';
 import type { GUI } from 'lil-gui';
 import { Color3 } from '@babylonjs/core/Maths/math.color';
-import { Matrix, Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { Matrix, Quaternion, Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { DebugableSystem } from './DebugableSystem';
 import { fib } from '~/utils/fib';
 import { GridMaterial } from '@babylonjs/materials/Grid';
 import { type Material } from '@babylonjs/core/Materials/material';
+import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 
 export class LevelSystem extends DebugableSystem {
-    public constructor(private readonly world: World, private readonly scene: Scene) {
+    public constructor(
+        private readonly world: World,
+        private readonly scene: Scene,
+        private readonly havok: Promise<HavokPlugin>
+    ) {
         super();
 
         this.createWalls();
-        this.createRoundDiningTable(new Vector3(0, 0.74 / 2, 3));
+        this.createRoundDiningTable(new Vector3(0, 0.74 / 2, 2));
+        this.createCup(new Vector3(0, 0.74, 2 + 0.3));
+        this.createCup(new Vector3(0, 0.74, 2 - 0.3));
+        this.createCup(new Vector3(+0.3, 0.74, 2));
+        this.createCup(new Vector3(-0.3, 0.74, 2));
     }
 
     private createStaticBox(start: Vector3, end: Vector3, material: Material) {
@@ -65,7 +74,8 @@ export class LevelSystem extends DebugableSystem {
         height: number,
         diameter: number,
         position: Vector3,
-        material: Material
+        material: Material,
+        isDynamic: boolean = false
     ) {
         /**
          * Mesh
@@ -76,24 +86,33 @@ export class LevelSystem extends DebugableSystem {
 
         node.material = material;
 
-        // /**
-        //  * PhysicsBody
-        //  */
-        // const body = new PhysicsBody(node, PhysicsMotionType.STATIC, false, this.scene);
-        // body.shape = new PhysicsShapeBox(
-        //     new Vector3(0, 0, 0),
-        //     new Quaternion(0, 0, 0, 1),
-        //     new Vector3(width, height, depth),
-        //     this.scene
-        // );
-        // body.transformNode = node;
+        /**
+         * PhysicsBody
+         */
+        void this.havok.then(() => {
+            const body = new PhysicsBody(
+                node,
+                isDynamic ? PhysicsMotionType.DYNAMIC : PhysicsMotionType.STATIC,
+                false,
+                this.scene
+            );
 
-        // body.shape.filterMembershipMask = Bits.bits(FilterCategory.Ground);
-        // body.shape.filterCollideMask = Bits.bits(FilterCategory.Character, FilterCategory.Thing);
+            body.transformNode = node;
+
+            body.shape = new PhysicsShapeCylinder(
+                new Vector3(0, -height / 2, 0),
+                new Vector3(0, height / 2, 0),
+                diameter / 2,
+                this.scene
+            );
+
+            // body.shape.filterMembershipMask = Bits.bits(FilterCategory.Ground);
+            // body.shape.filterCollideMask = Bits.bits(FilterCategory.Character, FilterCategory.Thing);
+        });
     }
 
     private createWalls() {
-        const size = 16;
+        const size = 8;
         const height = 3;
         const halfSize = size / 2;
 
@@ -149,5 +168,30 @@ export class LevelSystem extends DebugableSystem {
         material.gridRatio = 0.1;
 
         this.createStaticCylinder(height, diameter, position, material);
+    }
+
+    /**
+     * https://www.ikea.com/gb/en/p/vaerdera-teacup-with-saucer-white-40277459/
+     */
+    private createCup(position: Vector3) {
+        const cupHeight = 0.08;
+        const saucerHeight = 0.11 - cupHeight;
+        const saucerDiameter = 0.18;
+        const cupDiameter = saucerDiameter - 0.06;
+
+        const saucerPosition = position.clone();
+        saucerPosition.y += saucerHeight / 2;
+
+        const cupPositon = saucerPosition.clone();
+        cupPositon.y = position.y + saucerHeight + cupHeight / 2;
+
+        const material = new GridMaterial('roundDiningTableMaterial', this.scene);
+        material.mainColor = Color3.FromHSV(200, 0.5, 0.6);
+        material.lineColor = Color3.FromHSV(200, 0.5, 0.4);
+        material.majorUnitFrequency = 5;
+        material.gridRatio = 0.01;
+
+        this.createStaticCylinder(saucerHeight, saucerDiameter, saucerPosition, material, true);
+        this.createStaticCylinder(cupHeight, cupDiameter, cupPositon, material, true);
     }
 }

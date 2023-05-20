@@ -6,8 +6,9 @@ import '@babylonjs/core/Physics/joinedPhysicsEngineComponent';
 import HavokPhysics from '@babylonjs/havok';
 import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight';
 import { Runtime, World } from '~/ecs';
-import { ShooterCamera } from './games/shooter/ShooterCamera';
+import { FirstPersonCamera } from './FirstPersonCamera';
 import { type DebugableSystem } from './systems/DebugableSystem';
+import { HandsSystem } from './games/shooter/HandsSystem';
 
 /**
  * Canvas
@@ -40,7 +41,7 @@ directionalLight.intensity = 2.5;
 /**
  * Camera
  */
-export const playerCamera = new ShooterCamera('playerCamera', new Vector3(0, 1.6, 0), scene);
+export const playerCamera = new FirstPersonCamera('playerCamera', new Vector3(0, 1.6, 0), scene);
 playerCamera.attachControl(undefined);
 
 /**
@@ -101,9 +102,13 @@ export function start() {
  * Physics
  */
 
-void (async () => {
+export const havok = (async () => {
     const havokInstance = await HavokPhysics();
 
     const hk = new HavokPlugin(true, havokInstance);
     scene.enablePhysics(new Vector3(0, -9.8, 0), hk);
+
+    systemsRuntime.addSystem(new HandsSystem(world, scene, playerCamera, hk));
+
+    return hk;
 })();

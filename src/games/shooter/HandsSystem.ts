@@ -33,7 +33,7 @@ export class HandsSystem extends DebugableSystem {
     private thingInHandIndex?: number;
     private readonly constraint: Physics6DoFConstraint;
     private readonly pickupDistance = 100;
-    private readonly handLength = 4;
+    private readonly handLength = 0.6;
 
     public constructor(
         private readonly world: World,
@@ -98,7 +98,7 @@ export class HandsSystem extends DebugableSystem {
         const mat = new StandardMaterial('handsMaterial', this.scene);
         mat.diffuseColor = Color3.Yellow();
 
-        const handsMarker = CreateBox('handsMarker', { size: 0.1 }, this.scene);
+        const handsMarker = CreateBox('handsMarker', { size: 0.01 }, this.scene);
         handsMarker.material = mat;
         handsMarker.parent = this.hand.transformNode;
     }
