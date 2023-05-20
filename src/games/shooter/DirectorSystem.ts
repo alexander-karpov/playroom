@@ -8,7 +8,7 @@ import { raycast2 } from './raycast2';
 import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 import { PhysicsRaycastResult } from '@babylonjs/core/Physics/physicsRaycastResult';
 import { Bits } from '~/utils/Bits';
-import { FilterCategory } from './FilterCategory';
+import { FilterCategory } from '../../FilterCategory';
 import { PhysicsBody } from '@babylonjs/core/Physics/v2/physicsBody';
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 import { PhysicsShapeSphere } from '@babylonjs/core/Physics/v2/physicsShape';

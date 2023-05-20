@@ -16,6 +16,7 @@ import { fib } from '~/utils/fib';
 import { GridMaterial } from '@babylonjs/materials/Grid';
 import { type Material } from '@babylonjs/core/Materials/material';
 import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
+import { FilterCategory, getCollideMaskFor, getCategoryMask } from '~/FilterCategory';
 
 export class LevelSystem extends DebugableSystem {
     public constructor(
@@ -33,7 +34,13 @@ export class LevelSystem extends DebugableSystem {
         this.createCup(new Vector3(-0.3, 0.74, 2));
     }
 
-    private createStaticBox(start: Vector3, end: Vector3, material: Material) {
+    private createBox(
+        start: Vector3,
+        end: Vector3,
+        material: Material,
+        membership: FilterCategory,
+        isDynamic: boolean = false
+    ) {
         if (process.env['NODE_ENV'] !== 'production') {
             if (start.x >= end.x || start.y >= end.y || start.z >= end.z) {
                 throw new Error(
@@ -55,26 +62,37 @@ export class LevelSystem extends DebugableSystem {
         node.material = material;
         node.position.set(start.x + width / 2, start.y + height / 2, start.z + depth / 2);
 
-        // /**
-        //  * PhysicsBody
-        //  */
-        // const body = new PhysicsBody(node, PhysicsMotionType.STATIC, false, this.scene);
-        // body.shape = new PhysicsShapeBox(
-        //     new Vector3(0, 0, 0),
-        //     new Quaternion(0, 0, 0, 1),
-        //     new Vector3(width, height, depth),
-        //     this.scene
-        // );
-        // body.transformNode = node;
+        /**
+         * PhysicsBody
+         */
+        void this.havok.then(() => {
+            const body = new PhysicsBody(
+                node,
+                isDynamic ? PhysicsMotionType.DYNAMIC : PhysicsMotionType.STATIC,
+                true,
+                this.scene
+            );
 
-        // body.shape.filterMembershipMask = Bits.bits(FilterCategory.Ground);
-        // body.shape.filterCollideMask = Bits.bits(FilterCategory.Character, FilterCategory.Thing);
+            body.transformNode = node;
+
+            body.shape = new PhysicsShapeBox(
+                new Vector3(0, 0, 0),
+                new Quaternion(0, 0, 0, 1),
+                new Vector3(width, height, depth),
+                this.scene
+            );
+
+            body.shape.filterMembershipMask = getCategoryMask(membership);
+            body.shape.filterCollideMask = getCollideMaskFor(membership);
+        });
     }
-    private createStaticCylinder(
+
+    private createCylinder(
         height: number,
         diameter: number,
         position: Vector3,
         material: Material,
+        membership: FilterCategory,
         isDynamic: boolean = false
     ) {
         /**
@@ -93,7 +111,7 @@ export class LevelSystem extends DebugableSystem {
             const body = new PhysicsBody(
                 node,
                 isDynamic ? PhysicsMotionType.DYNAMIC : PhysicsMotionType.STATIC,
-                false,
+                true,
                 this.scene
             );
 
@@ -106,8 +124,8 @@ export class LevelSystem extends DebugableSystem {
                 this.scene
             );
 
-            // body.shape.filterMembershipMask = Bits.bits(FilterCategory.Ground);
-            // body.shape.filterCollideMask = Bits.bits(FilterCategory.Character, FilterCategory.Thing);
+            body.shape.filterMembershipMask = getCategoryMask(membership);
+            body.shape.filterCollideMask = getCollideMaskFor(membership);
         });
     }
 
@@ -128,12 +146,37 @@ export class LevelSystem extends DebugableSystem {
         const y2 = halfSize;
 
         // floor
-        this.createStaticBox(new Vector3(x1, -1, y1), new Vector3(x2, 0, y2), material);
+        this.createBox(
+            new Vector3(x1, -1, y1),
+            new Vector3(x2, 0, y2),
+            material,
+            FilterCategory.Static
+        );
         // walls
-        this.createStaticBox(new Vector3(x1, 0, y1 - 1), new Vector3(x2, height, y1), material);
-        this.createStaticBox(new Vector3(x1, 0, y2), new Vector3(x2, height, y2 + 1), material);
-        this.createStaticBox(new Vector3(x1 - 1, 0, y1), new Vector3(x1, height, y2), material);
-        this.createStaticBox(new Vector3(x2, 0, y1), new Vector3(x2 + 1, height, y2), material);
+        this.createBox(
+            new Vector3(x1, 0, y1 - 1),
+            new Vector3(x2, height, y1),
+            material,
+            FilterCategory.Static
+        );
+        this.createBox(
+            new Vector3(x1, 0, y2),
+            new Vector3(x2, height, y2 + 1),
+            material,
+            FilterCategory.Static
+        );
+        this.createBox(
+            new Vector3(x1 - 1, 0, y1),
+            new Vector3(x1, height, y2),
+            material,
+            FilterCategory.Static
+        );
+        this.createBox(
+            new Vector3(x2, 0, y1),
+            new Vector3(x2 + 1, height, y2),
+            material,
+            FilterCategory.Static
+        );
     }
 
     /**
@@ -167,7 +210,7 @@ export class LevelSystem extends DebugableSystem {
         material.majorUnitFrequency = 5;
         material.gridRatio = 0.1;
 
-        this.createStaticCylinder(height, diameter, position, material);
+        this.createCylinder(height, diameter, position, material, FilterCategory.Static);
     }
 
     /**
@@ -191,7 +234,22 @@ export class LevelSystem extends DebugableSystem {
         material.majorUnitFrequency = 5;
         material.gridRatio = 0.01;
 
-        this.createStaticCylinder(saucerHeight, saucerDiameter, saucerPosition, material, true);
-        this.createStaticCylinder(cupHeight, cupDiameter, cupPositon, material, true);
+        this.createCylinder(
+            saucerHeight,
+            saucerDiameter,
+            saucerPosition,
+            material,
+            FilterCategory.Thing,
+            true
+        );
+
+        this.createCylinder(
+            cupHeight,
+            cupDiameter,
+            cupPositon,
+            material,
+            FilterCategory.Thing,
+            true
+        );
     }
 }

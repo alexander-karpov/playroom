@@ -8,7 +8,7 @@ import { raycast2 } from './raycast2';
 import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 import { PhysicsRaycastResult } from '@babylonjs/core/Physics/physicsRaycastResult';
 import { Bits } from '~/utils/Bits';
-import { FilterCategory } from './FilterCategory';
+import { FilterCategory } from '../../FilterCategory';
 import { PhysicsBody } from '@babylonjs/core/Physics/v2/physicsBody';
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 import { PhysicsShapeSphere } from '@babylonjs/core/Physics/v2/physicsShape';
@@ -51,7 +51,7 @@ export class HandsSystem extends DebugableSystem {
 
         this.hand = new PhysicsBody(node, PhysicsMotionType.ANIMATED, true, this.scene);
         this.hand.shape = new PhysicsShapeSphere(new Vector3(0, 0, 0), 0.1, this.scene);
-        this.hand.shape.filterMembershipMask = Bits.bit(FilterCategory.Hands);
+        this.hand.shape.filterMembershipMask = Bits.bit(FilterCategory.Hand);
         this.hand.shape.filterCollideMask = 0;
 
         /**
@@ -168,7 +168,7 @@ export class HandsSystem extends DebugableSystem {
             ray.origin,
             raycastEnd,
             result,
-            Bits.bit(FilterCategory.Character),
+            Bits.bit(FilterCategory.Thing),
             Bits.bit(FilterCategory.Thing)
         );
     }
