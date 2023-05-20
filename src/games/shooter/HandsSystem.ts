@@ -1,5 +1,5 @@
 import { type World } from '~/ecs';
-import { ShooterSystem } from './ShooterSystem';
+import { DebugableSystem } from '../../systems/DebugableSystem';
 import { type Scene } from '@babylonjs/core/scene';
 import { PointerEventTypes, type PointerInfo } from '@babylonjs/core/Events/pointerEvents';
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
@@ -27,7 +27,7 @@ const raycastEnd = new Vector3();
 const ray = new Ray(Vector3.Zero(), Vector3.Zero());
 const raycastResult = new PhysicsRaycastResult();
 
-export class HandsSystem extends ShooterSystem {
+export class HandsSystem extends DebugableSystem {
     private readonly hand: PhysicsBody;
     private thingInHand?: PhysicsBody;
     private thingInHandIndex?: number;

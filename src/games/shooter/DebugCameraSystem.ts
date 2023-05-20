@@ -1,13 +1,13 @@
 import { type World } from '~/ecs';
 import type { Scene } from '@babylonjs/core/scene';
-import { ShooterSystem } from './ShooterSystem';
+import { DebugableSystem } from '../../systems/DebugableSystem';
 import type { GUI } from 'lil-gui';
 import { ArcRotateCamera } from '@babylonjs/core/Cameras/arcRotateCamera';
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { type Camera } from '@babylonjs/core/Cameras/camera';
 import { nameof } from '~/utils/nameof';
 
-export class DebugCameraSystem extends ShooterSystem {
+export class DebugCameraSystem extends DebugableSystem {
     private readonly debugCamera: ArcRotateCamera;
     private gameCamera: Camera | null;
 

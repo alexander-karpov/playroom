@@ -1,5 +1,5 @@
 import { System, type World } from '~/ecs';
-import { ShooterSystem } from './ShooterSystem';
+import { DebugableSystem } from '../../systems/DebugableSystem';
 import { type Scene } from '@babylonjs/core/scene';
 import { PointerEventTypes, type PointerInfo } from '@babylonjs/core/Events/pointerEvents';
 import { Vector2, Vector3 } from '@babylonjs/core/Maths/math.vector';
@@ -30,7 +30,7 @@ import { fib } from '~/utils/fib';
 // Это нужно для scene.createDefaultSkybox
 // import '@babylonjs/core/Helpers/sceneHelpers.js';
 
-export class DirectorSystem extends ShooterSystem {
+export class DirectorSystem extends DebugableSystem {
     private readonly roomSize = fib(10);
 
     public constructor(private readonly world: World, private readonly scene: Scene) {

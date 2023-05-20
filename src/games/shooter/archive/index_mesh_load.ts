@@ -25,6 +25,32 @@
 // import { GLTFLoader } from '@babylonjs/loaders/glTF/2.0/glTFLoader';
 // import { GLTFFileLoader } from '@babylonjs/loaders/glTF';
 
+// import { ReflectionProbe } from '@babylonjs/core/Probes/reflectionProbe';
+
+// import '@babylonjs/loaders/glTF';
+// import '@babylonjs/loaders/glTF/2.0/glTFLoader';
+// import { AssetsManager } from '@babylonjs/core/Misc/assetsManager';
+
+// import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
+// import '@babylonjs/core/Loading/loadingScreen';
+// import { Engine } from '@babylonjs/core/Engines/engine';
+
+// import { HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
+// import '@babylonjs/core/Physics/joinedPhysicsEngineComponent';
+// import HavokPhysics from '@babylonjs/havok';
+
+// import '@babylonjs/loaders/glTF';
+// import { GLTFLoader } from '@babylonjs/loaders/glTF/2.0/glTFLoader';
+// import { GLTFFileLoader } from '@babylonjs/loaders/glTF';
+// import { CubeTexture } from '@babylonjs/core/Materials/Textures/cubeTexture';
+
+// // // Это нужно для CubeTexture.CreateFromPrefilteredData
+// import '@babylonjs/core/Materials/Textures/Loaders/ddsTextureLoader';
+
+// // // Это нужно для scene.createDefaultSkybox
+// import '@babylonjs/core/Helpers/sceneHelpers.js';
+// import { Mesh } from '@babylonjs/core/Meshes/mesh';
+
 // // Get the canvas element from the DOM.
 // const canvas = document.createElement('canvas');
 // document.body.appendChild(canvas);

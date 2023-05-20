@@ -1,7 +1,6 @@
 import { TargetCamera } from '@babylonjs/core/Cameras/targetCamera';
 import { CameraInputsManager } from '@babylonjs/core/Cameras/cameraInputsManager';
 import { ShooterCameraPointersInput } from './ShooterCameraPointersInput';
-import { type Vector3 } from '@babylonjs/core/Maths/math.vector';
 
 export class ShooterCamera extends TargetCamera {
     private readonly input = new ShooterCameraPointersInput(this);
@@ -13,6 +12,7 @@ export class ShooterCamera extends TargetCamera {
         this.inputs = new CameraInputsManager(this);
         this.inputs.add(this.input);
 
+        this.minZ = 0;
         this.inertia = 0;
     }
 

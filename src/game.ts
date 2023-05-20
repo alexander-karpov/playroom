@@ -4,9 +4,10 @@ import { Scene } from '@babylonjs/core/scene';
 import { HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 import '@babylonjs/core/Physics/joinedPhysicsEngineComponent';
 import HavokPhysics from '@babylonjs/havok';
+import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight';
 import { Runtime, World } from '~/ecs';
 import { ShooterCamera } from './games/shooter/ShooterCamera';
-import { type ShooterSystem } from './games/shooter/ShooterSystem';
+import { type DebugableSystem } from './systems/DebugableSystem';
 
 /**
  * Canvas
@@ -25,6 +26,18 @@ export const engine = new Engine(canvas);
 export const scene = new Scene(engine);
 
 /**
+ * Directional Light
+ */
+const directionalLight = new DirectionalLight(
+    'directional',
+    new Vector3(-0.5, -0.65, -0.57),
+    scene
+);
+
+directionalLight.radius = 0.04;
+directionalLight.intensity = 2.5;
+
+/**
  * Camera
  */
 export const playerCamera = new ShooterCamera('playerCamera', new Vector3(0, 1.6, 0), scene);
@@ -34,7 +47,7 @@ playerCamera.attachControl(undefined);
  * ECS
  */
 export const world = new World();
-export const systemsRuntime = new Runtime<ShooterSystem>(world);
+export const systemsRuntime = new Runtime<DebugableSystem>(world);
 
 scene.onBeforeRenderObservable.add(() => systemsRuntime.update(engine.getDeltaTime() / 1000));
 

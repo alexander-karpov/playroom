@@ -1,3 +1,3 @@
-export class Player {
-    public speed: number = 0;
-}
+// export class Player {
+//     public speed: number = 0;
+// }
