@@ -134,7 +134,7 @@ export class HandSystem extends DebugableSystem {
          * Клик в другой предмет
          */
         if (raycastResult.hasHit && raycastResult.body) {
-            this.takeThing(raycastResult.body, raycastResult.bodyIndex);
+            this.pickupThing(raycastResult.body, raycastResult.bodyIndex);
 
             return;
         }
@@ -246,7 +246,7 @@ export class HandSystem extends DebugableSystem {
         );
     }
 
-    private takeThing(thing: PhysicsBody, thingIndex?: number) {
+    private pickupThing(thing: PhysicsBody, thingIndex?: number) {
         if (this.isThingHeld) {
             this.dropThing(0);
         }
@@ -254,6 +254,8 @@ export class HandSystem extends DebugableSystem {
         this.hand.addConstraint(thing, this.constraint, undefined, thingIndex);
         this.thingInHand = thing;
         this.thingInHandIndex = thingIndex;
+
+        this.updateHandPosition();
     }
 
     private dropThing(impulse: number) {
