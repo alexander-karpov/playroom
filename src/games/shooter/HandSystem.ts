@@ -134,7 +134,11 @@ export class HandSystem extends DebugableSystem {
          * Клик в другой предмет
          */
         if (raycastResult.hasHit && raycastResult.body) {
-            this.pickupThing(raycastResult.body, raycastResult.bodyIndex);
+            if (this.isThingHeld) {
+                this.putThing(raycastResult);
+            } else {
+                this.pickupThing(raycastResult.body, raycastResult.bodyIndex);
+            }
 
             return;
         }
@@ -149,14 +153,14 @@ export class HandSystem extends DebugableSystem {
             this.raycastThingToRef(p, raycastResult, FilterCategory.Static);
 
             if (raycastResult.hasHit && this.thingInHand?.shape) {
-                this.putThing();
+                this.putThing(raycastResult);
             } else {
                 this.dropThing(0);
             }
         }
     }
 
-    private putThing() {
+    private putThing(raycastResult: PhysicsRaycastResult) {
         if (!this.thingInHand?.shape) {
             return;
         }
