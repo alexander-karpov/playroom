@@ -8,7 +8,7 @@ import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight';
 import { Runtime, World } from '~/ecs';
 import { FirstPersonCamera } from './FirstPersonCamera';
 import { type DebugableSystem } from './systems/DebugableSystem';
-import { HandsSystem } from './games/shooter/HandsSystem';
+import { HandSystem } from './games/shooter/HandSystem';
 
 /**
  * Canvas
@@ -108,7 +108,7 @@ export const havok = (async () => {
     const hk = new HavokPlugin(true, havokInstance);
     scene.enablePhysics(new Vector3(0, -9.8, 0), hk);
 
-    systemsRuntime.addSystem(new HandsSystem(world, scene, playerCamera, hk));
+    systemsRuntime.addSystem(new HandSystem(world, scene, playerCamera, hk));
 
     return hk;
 })();

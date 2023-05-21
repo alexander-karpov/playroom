@@ -2,13 +2,12 @@ import { type World } from '~/ecs';
 import { DebugableSystem } from '../../systems/DebugableSystem';
 import { type Scene } from '@babylonjs/core/scene';
 import { PointerEventTypes, type PointerInfo } from '@babylonjs/core/Events/pointerEvents';
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { Quaternion, Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { Ray } from '@babylonjs/core/Culling/ray';
 import { raycast2 } from './raycast2';
 import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 import { PhysicsRaycastResult } from '@babylonjs/core/Physics/physicsRaycastResult';
-import { Bits } from '~/utils/Bits';
-import { FilterCategory } from '../../FilterCategory';
+import { FilterCategory, getCategoryMask } from '../../FilterCategory';
 import { PhysicsBody } from '@babylonjs/core/Physics/v2/physicsBody';
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 import { PhysicsShapeSphere } from '@babylonjs/core/Physics/v2/physicsShape';
@@ -22,18 +21,25 @@ import { Color3 } from '@babylonjs/core/Maths/math.color';
 import { CreateBox } from '@babylonjs/core/Meshes/Builders/boxBuilder';
 import { Physics6DoFConstraint } from '@babylonjs/core/Physics/v2/physicsConstraint';
 import { type TargetCamera } from '@babylonjs/core/Cameras/targetCamera';
+import { type Mesh } from '@babylonjs/core/Meshes/mesh';
+import { Epsilon } from '@babylonjs/core/Maths/math.constants';
 
 const raycastEnd = new Vector3();
+const putForward = new Vector3();
+const quat = Quaternion.Zero();
 const ray = new Ray(Vector3.Zero(), Vector3.Zero());
 const raycastResult = new PhysicsRaycastResult();
 
-export class HandsSystem extends DebugableSystem {
+export class HandSystem extends DebugableSystem {
     private readonly hand: PhysicsBody;
     private thingInHand?: PhysicsBody;
     private thingInHandIndex?: number;
     private readonly constraint: Physics6DoFConstraint;
     private readonly pickupDistance = 100;
     private readonly handLength = 0.6;
+
+    // Это нужно чтобы поместить руку куда-то чтобы положить предмет
+    private isHandPositionFixed = false;
 
     public constructor(
         private readonly world: World,
@@ -51,7 +57,7 @@ export class HandsSystem extends DebugableSystem {
 
         this.hand = new PhysicsBody(node, PhysicsMotionType.ANIMATED, true, this.scene);
         this.hand.shape = new PhysicsShapeSphere(new Vector3(0, 0, 0), 0.1, this.scene);
-        this.hand.shape.filterMembershipMask = Bits.bit(FilterCategory.Hand);
+        this.hand.shape.filterMembershipMask = getCategoryMask(FilterCategory.Hand);
         this.hand.shape.filterCollideMask = 0;
 
         /**
@@ -104,7 +110,11 @@ export class HandsSystem extends DebugableSystem {
     }
 
     private onTap(p: PointerInfo) {
-        this.raycastThingToRef(p, raycastResult);
+        if (this.isHandPositionFixed) {
+            return;
+        }
+
+        this.raycastThingToRef(p, raycastResult, FilterCategory.Thing);
 
         /**
          * Клик в удерживаемый предмет
@@ -133,16 +143,75 @@ export class HandsSystem extends DebugableSystem {
          * Клик в никуда
          */
         if (this.isThingHeld) {
-            this.dropThing(0);
+            /**
+             * Попытка положить куда-то
+             */
+            this.raycastThingToRef(p, raycastResult, FilterCategory.Static);
+
+            if (raycastResult.hasHit && this.thingInHand?.shape) {
+                this.putThing();
+            } else {
+                this.dropThing(0);
+            }
         }
     }
 
-    private updateHandPosition() {
-        // if (!this.isThingHeld) {
-        //     this.hand.disablePreStep = true;
+    private putThing() {
+        if (!this.thingInHand?.shape) {
+            return;
+        }
 
-        //     return;
-        // }
+        const bb = (this.thingInHand.transformNode as Mesh).getBoundingInfo();
+        const height = bb.maximum.y - bb.minimum.y;
+
+        // Преподнимаем точку куда класть
+        this.hand.transformNode.position
+            .copyFrom(raycastResult.hitNormalWorld)
+            .scaleInPlace(height / 2 + Epsilon)
+            .addInPlace(raycastResult.hitPointWorld);
+
+        if (this.hand.transformNode.rotationQuaternion) {
+            raycastResult.hitNormalWorld.getNormalToRef(putForward);
+
+            // Поворачиваем предмет примерно как он был в руке
+            Quaternion.RotationAxisToRef(
+                raycastResult.hitNormalWorld,
+                // Эмпирически
+                this.hand.transformNode.rotation.y + Math.PI * 1.5,
+                quat
+            );
+
+            putForward.normalize().applyRotationQuaternionInPlace(quat);
+
+            // Поворачиваем по нормали куда кладём
+            Quaternion.FromLookDirectionRHToRef(
+                putForward,
+                raycastResult.hitNormalWorld,
+                this.hand.transformNode.rotationQuaternion
+            );
+        }
+
+        this.hand.disablePreStep = false;
+        this.isHandPositionFixed = true;
+
+        setTimeout(() => {
+            this.dropThing(0);
+
+            this.isHandPositionFixed = false;
+            this.hand.disablePreStep = true;
+        }, 200);
+    }
+
+    private updateHandPosition() {
+        if (!this.isThingHeld) {
+            this.hand.disablePreStep = true;
+
+            return;
+        }
+
+        if (this.isHandPositionFixed) {
+            return;
+        }
 
         this.camera.getDirectionToRef(
             Vector3.LeftHandedForwardReadOnly,
@@ -158,7 +227,11 @@ export class HandsSystem extends DebugableSystem {
         this.hand.disablePreStep = false;
     }
 
-    private raycastThingToRef(p: PointerInfo, result: PhysicsRaycastResult) {
+    private raycastThingToRef(
+        p: PointerInfo,
+        result: PhysicsRaycastResult,
+        targetCategory: FilterCategory
+    ) {
         this.scene.createPickingRayToRef(p.event.offsetX, p.event.offsetY, null, ray, this.camera);
 
         raycastEnd.copyFrom(ray.direction).scaleInPlace(this.pickupDistance).addInPlace(ray.origin);
@@ -168,8 +241,8 @@ export class HandsSystem extends DebugableSystem {
             ray.origin,
             raycastEnd,
             result,
-            Bits.bit(FilterCategory.Thing),
-            Bits.bit(FilterCategory.Thing)
+            getCategoryMask(FilterCategory.Thing),
+            getCategoryMask(targetCategory)
         );
     }
 
