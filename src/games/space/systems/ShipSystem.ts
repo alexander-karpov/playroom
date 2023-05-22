@@ -35,7 +35,7 @@ export class ShipSystem extends System {
 
                 object3d.quaternion.setFromUnitVectors(this.screenNormal, direction);
 
-                if (world.has(Gun, id)) {
+                if (world.has(id, Gun)) {
                     const gun = world.get(id, Gun);
                     gun.direction.copy(direction);
                 }

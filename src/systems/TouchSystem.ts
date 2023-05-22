@@ -2,7 +2,7 @@ import { type World } from '~/ecs';
 import { DebugableSystem } from './DebugableSystem';
 import { type Scene } from '@babylonjs/core/scene';
 import { PointerEventTypes, type PointerInfo } from '@babylonjs/core/Events/pointerEvents';
-import { raycast2 } from '../games/shooter/raycast2';
+import { raycast2 } from '../utils/raycast2';
 import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 import { PhysicsRaycastResult } from '@babylonjs/core/Physics/physicsRaycastResult';
 import { FilterCategory, getCategoryMask, getCollideMaskFor } from '../FilterCategory';

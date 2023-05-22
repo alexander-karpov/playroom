@@ -38,8 +38,7 @@ export class HandSystem extends DebugableSystem {
     public constructor(
         private readonly world: World,
         private readonly scene: Scene,
-        private readonly camera: TargetCamera,
-        private readonly havok: HavokPlugin
+        private readonly camera: TargetCamera
     ) {
         super();
 
@@ -81,7 +80,7 @@ export class HandSystem extends DebugableSystem {
             return;
         }
 
-        const isHandheld = this.world.has(Handheld, id);
+        const isHandheld = this.world.has(id, Handheld);
         const { body, bodyIndex } = this.world.get(id, RigidBody);
         const { point, normal } = this.world.get(id, Touched);
 

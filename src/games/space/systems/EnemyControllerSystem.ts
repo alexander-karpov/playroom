@@ -36,19 +36,19 @@ export class EnemyControllerSystem extends System {
 
         ship.health -= 1;
 
-        const sound = world.has(Sound, id) ? world.get(id, Sound) : world.attach(id, Sound);
+        const sound = world.has(id, Sound) ? world.get(id, Sound) : world.attach(id, Sound);
         sound.track = choose(hitSoundtracks);
 
         if (ship.health <= 0) {
             setTimeout(() => {
-                const sound = world.has(Sound, id) ? world.get(id, Sound) : world.attach(id, Sound);
+                const sound = world.has(id, Sound) ? world.get(id, Sound) : world.attach(id, Sound);
                 sound.track = SoundTrack.Explosion02;
             }, 1);
             world.attach(id, Explosion);
 
             ObjectPoolHelper.deactivate(world, this.engine, id);
 
-            if (world.has(Target, id)) {
+            if (world.has(id, Target)) {
                 world.detach(id, Target);
             }
         }

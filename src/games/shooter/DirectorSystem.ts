@@ -4,7 +4,7 @@ import { type Scene } from '@babylonjs/core/scene';
 import { PointerEventTypes, type PointerInfo } from '@babylonjs/core/Events/pointerEvents';
 import { Vector2, Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { Ray } from '@babylonjs/core/Culling/ray';
-import { raycast2 } from './raycast2';
+import { raycast2 } from '../../utils/raycast2';
 import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 import { PhysicsRaycastResult } from '@babylonjs/core/Physics/physicsRaycastResult';
 import { Bits } from '~/utils/Bits';

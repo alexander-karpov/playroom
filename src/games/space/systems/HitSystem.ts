@@ -29,12 +29,12 @@ export class HitSystem extends System {
 
         if (idA != null && idB != null) {
             if (
-                (world.has(Ship, idA) && world.has(Projectile, idB)) ||
-                (world.has(Projectile, idA) && world.has(Ship, idB))
+                (world.has(idA, Ship) && world.has(idB, Projectile)) ||
+                (world.has(idA, Projectile) && world.has(idB, Ship))
             ) {
-                world.has(Hit, idA) ? world.get(idA, Hit) : world.attach(idA, Hit);
+                world.has(idA, Hit) ? world.get(idA, Hit) : world.attach(idA, Hit);
 
-                world.has(Hit, idB) ? world.get(idB, Hit) : world.attach(idB, Hit);
+                world.has(idB, Hit) ? world.get(idB, Hit) : world.attach(idB, Hit);
             }
         }
     }

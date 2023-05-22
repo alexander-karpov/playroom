@@ -4,7 +4,7 @@ import { Body, Composite, type Engine } from 'matter-js';
 
 export class ObjectPoolHelper {
     public static activate(world: World, engine: Engine, id: number) {
-        if (!world.has(Active, id)) {
+        if (!world.has(id, Active)) {
             world.attach(id, Active);
         }
 
@@ -17,7 +17,7 @@ export class ObjectPoolHelper {
     }
 
     public static deactivate(world: World, engine: Engine, id: number) {
-        if (world.has(Active, id)) {
+        if (world.has(id, Active)) {
             world.detach(id, Active);
         }
 

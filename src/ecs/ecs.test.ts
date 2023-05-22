@@ -26,29 +26,29 @@ describe('ECS / World', () => {
 
             const [e] = world.newEntity(CompA);
 
-            expect(world.has(CompA, e)).toBe(true);
-            expect(world.has(CompB, e)).toBe(false);
+            expect(world.has(e, CompA)).toBe(true);
+            expect(world.has(e, CompB)).toBe(false);
 
             world.applyChanges();
 
-            expect(world.has(CompA, e)).toBe(true);
-            expect(world.has(CompB, e)).toBe(false);
+            expect(world.has(e, CompA)).toBe(true);
+            expect(world.has(e, CompB)).toBe(false);
 
             world.attach(e, CompB);
 
-            expect(world.has(CompB, e)).toBe(true);
+            expect(world.has(e, CompB)).toBe(true);
 
             world.applyChanges();
 
-            expect(world.has(CompB, e)).toBe(true);
+            expect(world.has(e, CompB)).toBe(true);
 
             world.detach(e, CompB);
 
-            expect(world.has(CompB, e)).toBe(true);
+            expect(world.has(e, CompB)).toBe(true);
 
             world.applyChanges();
 
-            expect(world.has(CompB, e)).toBe(false);
+            expect(world.has(e, CompB)).toBe(false);
         });
 
         test('Добавляет и удаляет компонент из обработчика', () => {
@@ -69,7 +69,7 @@ describe('ECS / World', () => {
 
             world.applyChanges();
 
-            expect(world.has(CompB, e)).toBe(false);
+            expect(world.has(e, CompB)).toBe(false);
         });
     });
 
@@ -85,7 +85,7 @@ describe('ECS / World', () => {
             const [e, a] = world.newEntity(CompA);
 
             expect(world.get(e, CompA)).toBe(a);
-            expect(world.has(CompA, e)).toBe(true);
+            expect(world.has(e, CompA)).toBe(true);
         });
     });
 

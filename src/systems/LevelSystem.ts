@@ -63,7 +63,7 @@ export class LevelSystem extends DebugableSystem {
         material: Material,
         membership: FilterCategory,
         isDynamic: boolean = false
-    ): Mesh {
+    ): number {
         if (process.env['NODE_ENV'] !== 'production') {
             if (start.x >= end.x || start.y >= end.y || start.z >= end.z) {
                 throw new Error(
@@ -89,6 +89,14 @@ export class LevelSystem extends DebugableSystem {
         mesh.position.set(start.x + width / 2, start.y + height / 2, start.z + depth / 2);
 
         /**
+         * GameObject
+         */
+        const [entityId, go] = this.world.newEntity(GameObject);
+
+        go.node = mesh;
+        writeEntityId(mesh, entityId);
+
+        /**
          * PhysicsBody
          */
         void this.havok.then(() => {
@@ -110,9 +118,15 @@ export class LevelSystem extends DebugableSystem {
 
             body.shape.filterMembershipMask = getCategoryMask(membership);
             body.shape.filterCollideMask = getCollideMaskFor(membership);
+
+            /**
+             * RigidBody
+             */
+            const rb = this.world.attach(entityId, RigidBody);
+            rb.body = body;
         });
 
-        return mesh;
+        return entityId;
     }
 
     private createCylinderEntity(
@@ -309,16 +323,15 @@ export class LevelSystem extends DebugableSystem {
         material.majorUnitFrequency = 5;
         material.gridRatio = 0.01;
 
-        const mesh = this.createBox(
+        const id = this.createBox(
             position.clone().subtractInPlace(halfSize),
             position.clone().addInPlace(halfSize),
             material,
             FilterCategory.Static
         );
 
-        const [id, switch_] = this.world.newEntity(LightSwitch);
-        writeEntityId(mesh, id);
+        const lightSwitch = this.world.attach(id, LightSwitch);
 
-        switch_.lightUniqueIds.push(...lightUniqueIds);
+        lightSwitch.lightUniqueIds.push(...lightUniqueIds);
     }
 }

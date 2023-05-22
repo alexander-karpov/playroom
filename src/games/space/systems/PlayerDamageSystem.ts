@@ -52,7 +52,7 @@ export class PlayerDamageSystem extends System {
 
             world.attach(id, Explosion);
 
-            if (world.has(Active, id)) {
+            if (world.has(id, Active)) {
                 world.detach(id, Active);
                 Body.setPosition(body, { x: 0, y: 0 });
                 ship.health = ship.maxHealth;

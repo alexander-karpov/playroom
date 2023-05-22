@@ -1,5 +1,5 @@
 import { type Vector3 } from '@babylonjs/core/Maths/math.vector';
-import { PhysicsRaycastResult } from '@babylonjs/core/Physics/physicsRaycastResult';
+import { type PhysicsRaycastResult } from '@babylonjs/core/Physics/physicsRaycastResult';
 import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 
 /* eslint-disable @typescript-eslint/no-unsafe-call */

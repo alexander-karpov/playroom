@@ -122,7 +122,7 @@ export class World {
         return this.components.get(componentId) as T;
     }
 
-    public has<T>(componentClass: ComponentClass<T>, entityId: number): boolean {
+    public has<T>(entityId: number, componentClass: ComponentClass<T>): boolean {
         return this.hasComponentClassId(this.componentClassId(componentClass), entityId);
     }
 
