@@ -38,7 +38,8 @@ export class HandSystem extends DebugableSystem {
     public constructor(
         private readonly world: World,
         private readonly scene: Scene,
-        private readonly camera: TargetCamera
+        private readonly camera: TargetCamera,
+        private readonly havok: HavokPlugin
     ) {
         super();
 

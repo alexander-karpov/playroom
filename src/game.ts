@@ -10,6 +10,7 @@ import { FirstPersonCamera } from './FirstPersonCamera';
 import { type DebugableSystem } from './systems/DebugableSystem';
 import { TouchSystem } from './systems/TouchSystem';
 import { HandSystem } from './systems/HandSystem';
+import { CameraBoundariesSystem } from './systems/CameraBoundariesSystem';
 
 /**
  * Canvas
@@ -90,15 +91,20 @@ export function start() {
 /**
  * Physics
  */
-
 export const havok = (async () => {
     const havokInstance = await HavokPhysics();
 
     const hk = new HavokPlugin(true, havokInstance);
     scene.enablePhysics(new Vector3(0, -9.8, 0), hk);
 
-    systemsRuntime.addSystem(new TouchSystem(world, scene, playerCamera, hk));
-    systemsRuntime.addSystem(new HandSystem(world, scene, playerCamera, hk));
-
     return hk;
 })();
+
+/**
+ * Physics related systems
+ */
+void havok.then((hk) => {
+    systemsRuntime.addSystem(new TouchSystem(world, scene, playerCamera, hk));
+    systemsRuntime.addSystem(new HandSystem(world, scene, playerCamera, hk));
+    systemsRuntime.addSystem(new CameraBoundariesSystem(world, scene, playerCamera, hk));
+});
