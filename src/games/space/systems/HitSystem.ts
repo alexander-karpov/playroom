@@ -2,7 +2,7 @@ import { System, type World } from '~/ecs';
 import type { Pair } from 'matter-js';
 import { type Engine, Events } from 'matter-js';
 import { type Body } from 'matter-js';
-import { readEntityId } from '~/utils/entityHelpers';
+import { readEntityId } from '../utils/entityHelpers';
 import { Ship } from '../components/Ship';
 import { Projectile } from '../components/Projectile';
 import { Hit } from '../components/Hit';

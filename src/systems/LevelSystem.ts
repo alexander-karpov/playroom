@@ -17,6 +17,13 @@ import { GridMaterial } from '@babylonjs/materials/Grid';
 import { type Material } from '@babylonjs/core/Materials/material';
 import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 import { FilterCategory, getCollideMaskFor, getCategoryMask } from '~/FilterCategory';
+import { writeEntityId } from '~/utils/entityHelpers';
+import { type Mesh } from '@babylonjs/core/Meshes/mesh';
+import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight';
+import { LightSwitch } from '~/components/LightSwitch';
+import { GameObject } from '~/components/GameObject';
+import { RigidBody } from '~/components/RigidBody';
+import { Handheld } from '~/components/Handheld';
 
 export class LevelSystem extends DebugableSystem {
     public constructor(
@@ -26,12 +33,28 @@ export class LevelSystem extends DebugableSystem {
     ) {
         super();
 
+        /**
+         * Directional Light
+         */
+        const directionalLight = new DirectionalLight(
+            'directional',
+            new Vector3(-0.5, -0.65, -0.57),
+            scene
+        );
+
+        directionalLight.radius = 0.04;
+        directionalLight.intensity = 2.5;
+
+        const box = CreateBox('light box', { size: 1 / 2 }, this.scene);
+        box.position.set(0, 1, 2);
+
         this.createWalls();
         this.createRoundDiningTable(new Vector3(0, 0.74 / 2, 2));
         this.createCup(new Vector3(0, 0.74, 2 + 0.3));
         this.createCup(new Vector3(0, 0.74, 2 - 0.3));
         this.createCup(new Vector3(+0.3, 0.74, 2));
         this.createCup(new Vector3(-0.3, 0.74, 2));
+        this.createLightSwitch(new Vector3(-0.3, 1, 2), [directionalLight.uniqueId]);
     }
 
     private createBox(
@@ -40,7 +63,7 @@ export class LevelSystem extends DebugableSystem {
         material: Material,
         membership: FilterCategory,
         isDynamic: boolean = false
-    ) {
+    ): Mesh {
         if (process.env['NODE_ENV'] !== 'production') {
             if (start.x >= end.x || start.y >= end.y || start.z >= end.z) {
                 throw new Error(
@@ -57,23 +80,26 @@ export class LevelSystem extends DebugableSystem {
          * Mesh
          */
         // TODO: Должны быть инстансы
-        const node = CreateBox('staticBox', { width, height, depth }, this.scene);
+        const mesh = CreateBox('box', { width, height, depth }, this.scene);
 
-        node.material = material;
-        node.position.set(start.x + width / 2, start.y + height / 2, start.z + depth / 2);
+        console.log(mesh.id);
+        console.log(mesh.uniqueId);
+
+        mesh.material = material;
+        mesh.position.set(start.x + width / 2, start.y + height / 2, start.z + depth / 2);
 
         /**
          * PhysicsBody
          */
         void this.havok.then(() => {
             const body = new PhysicsBody(
-                node,
+                mesh,
                 isDynamic ? PhysicsMotionType.DYNAMIC : PhysicsMotionType.STATIC,
                 true,
                 this.scene
             );
 
-            body.transformNode = node;
+            body.transformNode = mesh;
 
             body.shape = new PhysicsShapeBox(
                 new Vector3(0, 0, 0),
@@ -85,37 +111,47 @@ export class LevelSystem extends DebugableSystem {
             body.shape.filterMembershipMask = getCategoryMask(membership);
             body.shape.filterCollideMask = getCollideMaskFor(membership);
         });
+
+        return mesh;
     }
 
-    private createCylinder(
+    private createCylinderEntity(
         height: number,
         diameter: number,
         position: Vector3,
         material: Material,
         membership: FilterCategory,
         isDynamic: boolean = false
-    ) {
+    ): number {
         /**
          * Mesh
          */
         // TODO: Должны быть инстансы
-        const node = CreateCylinder('staticCylinder', { height, diameter }, this.scene);
-        node.position.copyFrom(position);
+        const mesh = CreateCylinder('staticCylinder', { height, diameter }, this.scene);
+        mesh.position.copyFrom(position);
 
-        node.material = material;
+        mesh.material = material;
+
+        /**
+         * GameObject
+         */
+        const [entityId, go] = this.world.newEntity(GameObject);
+
+        go.node = mesh;
+        writeEntityId(mesh, entityId);
 
         /**
          * PhysicsBody
          */
         void this.havok.then(() => {
             const body = new PhysicsBody(
-                node,
+                mesh,
                 isDynamic ? PhysicsMotionType.DYNAMIC : PhysicsMotionType.STATIC,
                 true,
                 this.scene
             );
 
-            body.transformNode = node;
+            body.transformNode = mesh;
 
             body.shape = new PhysicsShapeCylinder(
                 new Vector3(0, -height / 2, 0),
@@ -126,7 +162,15 @@ export class LevelSystem extends DebugableSystem {
 
             body.shape.filterMembershipMask = getCategoryMask(membership);
             body.shape.filterCollideMask = getCollideMaskFor(membership);
+
+            /**
+             * RigidBody
+             */
+            const rb = this.world.attach(entityId, RigidBody);
+            rb.body = body;
         });
+
+        return entityId;
     }
 
     private createWalls() {
@@ -210,7 +254,7 @@ export class LevelSystem extends DebugableSystem {
         material.majorUnitFrequency = 5;
         material.gridRatio = 0.1;
 
-        this.createCylinder(height, diameter, position, material, FilterCategory.Static);
+        this.createCylinderEntity(height, diameter, position, material, FilterCategory.Static);
     }
 
     /**
@@ -234,7 +278,7 @@ export class LevelSystem extends DebugableSystem {
         material.majorUnitFrequency = 5;
         material.gridRatio = 0.01;
 
-        this.createCylinder(
+        const saucerId = this.createCylinderEntity(
             saucerHeight,
             saucerDiameter,
             saucerPosition,
@@ -243,7 +287,7 @@ export class LevelSystem extends DebugableSystem {
             true
         );
 
-        this.createCylinder(
+        const cupId = this.createCylinderEntity(
             cupHeight,
             cupDiameter,
             cupPositon,
@@ -251,5 +295,30 @@ export class LevelSystem extends DebugableSystem {
             FilterCategory.Thing,
             true
         );
+
+        this.world.attach(saucerId, Handheld);
+        this.world.attach(cupId, Handheld);
+    }
+
+    private createLightSwitch(position: Vector3, lightUniqueIds: number[]) {
+        const halfSize = new Vector3(0.05, 0.05, 0.05);
+
+        const material = new GridMaterial('lightSwitchMaterial', this.scene);
+        material.mainColor = Color3.FromHSV(0, 0.5, 0.6);
+        material.lineColor = Color3.FromHSV(0, 0.5, 0.4);
+        material.majorUnitFrequency = 5;
+        material.gridRatio = 0.01;
+
+        const mesh = this.createBox(
+            position.clone().subtractInPlace(halfSize),
+            position.clone().addInPlace(halfSize),
+            material,
+            FilterCategory.Static
+        );
+
+        const [id, switch_] = this.world.newEntity(LightSwitch);
+        writeEntityId(mesh, id);
+
+        switch_.lightUniqueIds.push(...lightUniqueIds);
     }
 }
