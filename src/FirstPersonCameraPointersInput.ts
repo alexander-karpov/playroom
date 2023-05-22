@@ -5,14 +5,22 @@ import { type PointerTouch } from '@babylonjs/core/Events/pointerEvents';
 import { type Nullable } from '@babylonjs/core/types';
 import { type IPointerEvent } from '@babylonjs/core/Events/deviceInputEvents';
 import { Epsilon } from '@babylonjs/core/Maths/math.constants';
+import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
+import { PhysicsRaycastResult } from '@babylonjs/core/Physics/physicsRaycastResult';
+import { raycast2 } from './utils/raycast2';
+import { FilterCategory, getCategoryMask, getCollideMaskFor } from './FilterCategory';
 
 const delta = new Vector2();
 const localDirection = new Vector3();
+const nextPosition = new Vector3();
+const raycastEnd = new Vector3();
+const boundaryPoint = new Vector2();
+const raycastResult = new PhysicsRaycastResult();
 
-export class FirstPersonPointersInput extends BaseCameraPointersInput {
+export class FirstPersonCameraPointersInput extends BaseCameraPointersInput {
     public angularSensibilityX = 0.0128;
     public angularSensibilityY = 0.0128;
-    public movementSpeed = 0.05;
+    public movementSpeed = 0.002;
 
     private halfScreenWidth: number = 0;
     private screenHeight: number = 0;
@@ -28,7 +36,9 @@ export class FirstPersonPointersInput extends BaseCameraPointersInput {
     private readonly movementPoint = new Vector2(0, 0);
     private readonly movement = new Vector3();
 
-    public constructor(public override camera: TargetCamera) {
+    private havok?: HavokPlugin;
+
+    public constructor(public override camera: TargetCamera, havok: Promise<HavokPlugin>) {
         super();
 
         const onResize = () => {
@@ -38,6 +48,8 @@ export class FirstPersonPointersInput extends BaseCameraPointersInput {
 
         onResize();
         window.addEventListener('resize', onResize);
+
+        void havok.then((hk) => (this.havok = hk));
     }
 
     public checkInputs() {
@@ -123,9 +135,15 @@ export class FirstPersonPointersInput extends BaseCameraPointersInput {
             this.previousMovementPoint.copyFrom(this.movementPoint);
         }
 
+        if (this.movement.x === 0 && this.movement.z === 0) {
+            return;
+        }
+
         this.camera.cameraDirection
             .copyFrom(this.movement)
-            .scale(this.camera.getEngine().getDeltaTime());
+            .scaleInPlace(this.camera.getEngine().getDeltaTime());
+
+        this.boundMovement();
     }
 
     private updateMovement() {
@@ -151,5 +169,54 @@ export class FirstPersonPointersInput extends BaseCameraPointersInput {
         this.movement.y = 0;
         this.movement.normalize();
         this.movement.scaleInPlace(this.movementSpeed * tilt);
+    }
+
+    private boundMovement(): void {
+        if (!this.havok) {
+            return;
+        }
+
+        const { cameraDirection, position } = this.camera;
+
+        nextPosition.copyFrom(position).addInPlace(cameraDirection);
+
+        if (this.hitBoundary(nextPosition)) {
+            cameraDirection.setAll(0);
+            this.movement.setAll(0);
+        }
+    }
+
+    /**
+     * Проверяем на столкновение полукруг по направлению движения камеры
+     * @param position
+     * @returns
+     */
+    private hitBoundary(position: Vector3) {
+        const mm = getCategoryMask(FilterCategory.Player);
+        const cm = getCollideMaskFor(FilterCategory.Player);
+        const rays = 10;
+        const radius = 0.2;
+
+        boundaryPoint.set(this.camera.cameraDirection.x, this.camera.cameraDirection.z);
+        boundaryPoint.normalize().scaleInPlace(radius);
+
+        boundaryPoint.rotateToRef(-Math.PI / 2, boundaryPoint);
+
+        for (let i = 0; i < rays; i++) {
+            raycastEnd.copyFrom(position);
+            raycastEnd.y = 0.3;
+            raycastEnd.x += boundaryPoint.x;
+            raycastEnd.z += boundaryPoint.y;
+
+            raycast2(this.havok!, position, raycastEnd, raycastResult, mm, cm);
+
+            if (raycastResult.hasHit) {
+                return true;
+            }
+
+            boundaryPoint.rotateToRef(Math.PI / rays, boundaryPoint);
+        }
+
+        return false;
     }
 }

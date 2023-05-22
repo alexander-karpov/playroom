@@ -1,16 +1,17 @@
 import { TargetCamera } from '@babylonjs/core/Cameras/targetCamera';
 import { CameraInputsManager } from '@babylonjs/core/Cameras/cameraInputsManager';
-import { FirstPersonPointersInput } from './FirstPersonPointersInput';
+import { FirstPersonCameraPointersInput } from './FirstPersonCameraPointersInput';
+import { type Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { type Scene } from '@babylonjs/core/scene';
+import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 
 export class FirstPersonCamera extends TargetCamera {
-    private readonly input = new FirstPersonPointersInput(this);
-
-    public constructor(...args: unknown[]) {
-        // @ts-expect-error
-        super(...args);
+    public constructor(position: Vector3, scene: Scene, havok: Promise<HavokPlugin>) {
+        super('FirstPersonCamera', position, scene);
 
         this.inputs = new CameraInputsManager(this);
-        this.inputs.add(this.input);
+
+        this.inputs.add(new FirstPersonCameraPointersInput(this, havok));
 
         this.minZ = 0;
         this.inertia = 0;

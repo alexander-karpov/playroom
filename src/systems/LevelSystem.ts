@@ -82,9 +82,6 @@ export class LevelSystem extends DebugableSystem {
         // TODO: Должны быть инстансы
         const mesh = CreateBox('box', { width, height, depth }, this.scene);
 
-        console.log(mesh.id);
-        console.log(mesh.uniqueId);
-
         mesh.material = material;
         mesh.position.set(start.x + width / 2, start.y + height / 2, start.z + depth / 2);
 

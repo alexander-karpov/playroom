@@ -4,13 +4,26 @@ import { Scene } from '@babylonjs/core/scene';
 import { HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 import '@babylonjs/core/Physics/joinedPhysicsEngineComponent';
 import HavokPhysics from '@babylonjs/havok';
-import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight';
 import { Runtime, World } from '~/ecs';
 import { FirstPersonCamera } from './FirstPersonCamera';
 import { type DebugableSystem } from './systems/DebugableSystem';
 import { TouchSystem } from './systems/TouchSystem';
 import { HandSystem } from './systems/HandSystem';
-import { CameraBoundariesSystem } from './systems/CameraBoundariesSystem';
+
+/**
+ * Errors alert
+ */
+if (process.env['NODE_ENV'] !== 'production') {
+    window.onerror = function onUnhandledError(
+        event: Event | string,
+        source?: string,
+        lineno?: number,
+        colno?: number,
+        error?: Error
+    ) {
+        alert(`${event.toString()}\nsource ${source ?? ''}\nerror ${error?.message ?? ''}`);
+    };
+}
 
 /**
  * Canvas
@@ -29,9 +42,21 @@ export const engine = new Engine(canvas);
 export const scene = new Scene(engine);
 
 /**
+ * Physics
+ */
+export const havok = (async () => {
+    const havokInstance = await HavokPhysics();
+
+    const hk = new HavokPlugin(true, havokInstance);
+    scene.enablePhysics(new Vector3(0, -9.8, 0), hk);
+
+    return hk;
+})();
+
+/**
  * Camera
  */
-export const playerCamera = new FirstPersonCamera('playerCamera', new Vector3(0, 1.6, 0), scene);
+export const playerCamera = new FirstPersonCamera(new Vector3(0, 1.6, 0), scene, havok);
 playerCamera.attachControl(undefined);
 
 /**
@@ -65,21 +90,6 @@ if (process.env['NODE_ENV'] !== 'production') {
 }
 
 /**
- * Errors alert
- */
-if (process.env['NODE_ENV'] !== 'production') {
-    window.onerror = function onUnhandledError(
-        event: Event | string,
-        source?: string,
-        lineno?: number,
-        colno?: number,
-        error?: Error
-    ) {
-        alert(`${event.toString()}\nsource ${source ?? ''}\nerror ${error?.message ?? ''}`);
-    };
-}
-
-/**
  * Render loop
  */
 export function start() {
@@ -89,22 +99,9 @@ export function start() {
 }
 
 /**
- * Physics
- */
-export const havok = (async () => {
-    const havokInstance = await HavokPhysics();
-
-    const hk = new HavokPlugin(true, havokInstance);
-    scene.enablePhysics(new Vector3(0, -9.8, 0), hk);
-
-    return hk;
-})();
-
-/**
  * Physics related systems
  */
 void havok.then((hk) => {
     systemsRuntime.addSystem(new TouchSystem(world, scene, playerCamera, hk));
     systemsRuntime.addSystem(new HandSystem(world, scene, playerCamera, hk));
-    systemsRuntime.addSystem(new CameraBoundariesSystem(world, scene, playerCamera, hk));
 });
