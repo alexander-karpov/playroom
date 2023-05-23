@@ -45,9 +45,6 @@ export class LevelSystem extends DebugableSystem {
         directionalLight.radius = 0.04;
         directionalLight.intensity = 2.5;
 
-        const box = CreateBox('light box', { size: 1 / 2 }, this.scene);
-        box.position.set(0, 1, 2);
-
         this.createWalls();
         this.createRoundDiningTable(new Vector3(0, 0.74 / 2, 2));
         this.createCup(new Vector3(0, 0.74, 2 + 0.3));
