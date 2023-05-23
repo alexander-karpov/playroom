@@ -17,7 +17,7 @@ import { Physics6DoFConstraint } from '@babylonjs/core/Physics/v2/physicsConstra
 import { type TargetCamera } from '@babylonjs/core/Cameras/targetCamera';
 import { type Mesh } from '@babylonjs/core/Meshes/mesh';
 import { Epsilon } from '@babylonjs/core/Maths/math.constants';
-import { Touched } from '~/components/Touched';
+import { LongTap } from '~/components/LongTap';
 import { Handheld } from '~/components/Handheld';
 import { RigidBody } from '~/components/RigidBody';
 
@@ -75,7 +75,7 @@ export class HandSystem extends DebugableSystem {
         return Boolean(this.constraint._pluginData);
     }
 
-    @System.on([RigidBody, Touched])
+    @System.on([RigidBody, LongTap])
     public onRigidBodyTouched(world: World, id: number) {
         if (this.isHandAnimated) {
             return;
@@ -83,7 +83,7 @@ export class HandSystem extends DebugableSystem {
 
         const isHandheld = this.world.has(id, Handheld);
         const { body, bodyIndex } = this.world.get(id, RigidBody);
-        const { point, normal } = this.world.get(id, Touched);
+        const { point, normal } = this.world.get(id, LongTap);
 
         /**
          * Клик в удерживаемый предмет

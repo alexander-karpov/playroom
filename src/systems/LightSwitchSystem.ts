@@ -3,14 +3,14 @@ import '@babylonjs/core/Meshes/thinInstanceMesh';
 import type { Scene } from '@babylonjs/core/scene';
 import { DebugableSystem } from './DebugableSystem';
 import { LightSwitch } from '~/components/LightSwitch';
-import { Touched } from '~/components/Touched';
+import { LongTap } from '~/components/LongTap';
 
 export class LightSwitchSystem extends DebugableSystem {
     public constructor(private readonly world: World, private readonly scene: Scene) {
         super();
     }
 
-    @System.on([LightSwitch, Touched])
+    @System.on([LightSwitch, LongTap])
     public onLightSwitchTouched(world: World, id: number) {
         const { lightUniqueIds } = this.world.get(id, LightSwitch);
 

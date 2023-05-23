@@ -7,7 +7,7 @@ import HavokPhysics from '@babylonjs/havok';
 import { Runtime, World } from '~/ecs';
 import { FirstPersonCamera } from './FirstPersonCamera';
 import { type DebugableSystem } from './systems/DebugableSystem';
-import { TouchSystem } from './systems/TouchSystem';
+import { TapSystem } from './systems/TapSystem';
 import { HandSystem } from './systems/HandSystem';
 
 /**
@@ -102,6 +102,6 @@ export function start() {
  * Physics related systems
  */
 void havok.then((hk) => {
-    systemsRuntime.addSystem(new TouchSystem(world, scene, playerCamera, hk));
+    systemsRuntime.addSystem(new TapSystem(world, scene, playerCamera, hk));
     systemsRuntime.addSystem(new HandSystem(world, scene, playerCamera, hk));
 });
