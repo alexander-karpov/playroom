@@ -24,6 +24,7 @@ import { LightSwitch } from '~/components/LightSwitch';
 import { GameObject } from '~/components/GameObject';
 import { RigidBody } from '~/components/RigidBody';
 import { Handheld } from '~/components/Handheld';
+import { Pistol } from '~/components/Pistol';
 
 export class LevelSystem extends DebugableSystem {
     public constructor(
@@ -51,7 +52,9 @@ export class LevelSystem extends DebugableSystem {
         this.createCup(new Vector3(0, 0.74, 2 - 0.3));
         this.createCup(new Vector3(+0.3, 0.74, 2));
         this.createCup(new Vector3(-0.3, 0.74, 2));
-        this.createLightSwitch(new Vector3(-0.3, 1, 2), [directionalLight.uniqueId]);
+        this.createLightSwitch(new Vector3(-2, 1, 2), [directionalLight.uniqueId]);
+
+        this.createPistol(new Vector3(0, 0.74 + 0.1, 2));
     }
 
     private createBox(
@@ -327,5 +330,33 @@ export class LevelSystem extends DebugableSystem {
         const lightSwitch = this.world.attach(id, LightSwitch);
 
         lightSwitch.lightUniqueIds.push(...lightUniqueIds);
+    }
+
+    /**
+     * https://disk.yandex.ru/i/kN152Ad9vCFfWA
+     */
+    private createPistol(position: Vector3) {
+        const length = 0.174;
+        const height = 0.128;
+        const width = 0.0255;
+
+        const halfSize = new Vector3(width / 2, height / 2, length / 2);
+
+        const material = new GridMaterial('pistolMaterial', this.scene);
+        material.mainColor = Color3.FromHSV(0, 0, 0.2);
+        material.lineColor = Color3.FromHSV(0, 0, 0.6);
+        material.majorUnitFrequency = 5;
+        material.gridRatio = 0.05;
+
+        const id = this.createBox(
+            position.clone().subtractInPlace(halfSize),
+            position.clone().addInPlace(halfSize),
+            material,
+            FilterCategory.Thing,
+            true
+        );
+
+        this.world.attach(id, Handheld);
+        this.world.attach(id, Pistol);
     }
 }

@@ -20,8 +20,10 @@ import { Epsilon } from '@babylonjs/core/Maths/math.constants';
 import { LongTap } from '~/components/LongTap';
 import { Handheld } from '~/components/Handheld';
 import { RigidBody } from '~/components/RigidBody';
+import { PrivilegedTapListener } from '~/components/PrivilegedTapListener';
+import { readEntityId } from '~/utils/entityHelpers';
 
-const raycastEnd = new Vector3();
+const drop_end = new Vector3();
 const putForward = new Vector3();
 const quat = Quaternion.Zero();
 
@@ -210,10 +212,18 @@ export class HandSystem extends DebugableSystem {
         this.bodyInHand = thing;
         this.bodyInHandIndex = thingIndex;
 
+        const entityId = readEntityId(thing.transformNode);
+
+        if (entityId != null) {
+            this.world.attach(entityId, PrivilegedTapListener);
+        }
+
         this.updateHandPosition();
     }
 
     private drop(impulse: number) {
+        const end = drop_end;
+
         if (!this.isThingHeld) {
             return;
         }
@@ -221,14 +231,20 @@ export class HandSystem extends DebugableSystem {
         this.constraint.dispose();
 
         if (impulse > 0) {
-            this.camera.getDirectionToRef(Vector3.LeftHandedForwardReadOnly, raycastEnd);
-            raycastEnd.scaleInPlace(impulse);
+            this.camera.getDirectionToRef(Vector3.LeftHandedForwardReadOnly, end);
+            end.scaleInPlace(impulse);
 
             this.bodyInHand?.applyImpulse(
-                raycastEnd,
+                end,
                 this.hand.transformNode.position,
                 this.bodyInHandIndex
             );
+        }
+
+        const entityId = readEntityId(this.bodyInHand!.transformNode);
+
+        if (entityId != null) {
+            this.world.detach(entityId, PrivilegedTapListener);
         }
 
         this.bodyInHand = undefined;

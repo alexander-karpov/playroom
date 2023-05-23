@@ -14,7 +14,6 @@ import { Vector2, Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { Ray } from '@babylonjs/core/Culling/ray';
 import { type EventState } from '@babylonjs/core/Misc/observable';
 import { type IPointerEvent } from '@babylonjs/core/Events/deviceInputEvents';
-import { ComponentClass } from '~/ecs/ComponentClass';
 import { PrivilegedTapListener } from '~/components/PrivilegedTapListener';
 
 const raycastEnd = new Vector3();
@@ -57,9 +56,13 @@ export class TapSystem extends DebugableSystem {
 
             this.longTapTimer = setTimeout(
                 (savedPointerId) => {
-                    if (this.currentPointerId === savedPointerId && this.isTapDistance()) {
-                        this.currentPointerId = 0;
+                    if (this.currentPointerId !== savedPointerId) {
+                        return;
+                    }
 
+                    this.currentPointerId = 0;
+
+                    if (this.isTapDistance()) {
                         this.onLongTap(p);
                     }
                 },
