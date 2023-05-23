@@ -42,7 +42,7 @@ export class PistolSystem extends DebugableSystem {
         const force = shoot_force;
         const result = shoot_raycast;
 
-        pistol.transformNode.getDirectionToRef(Vector3.RightHandedBackwardReadOnly, dir);
+        pistol.transformNode.getDirectionToRef(Vector3.LeftHandedForwardReadOnly, dir);
         end.copyFrom(dir).scaleInPlace(this.shotRange);
 
         raycast2(

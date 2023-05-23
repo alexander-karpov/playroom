@@ -149,6 +149,10 @@ export class HandSystem extends DebugableSystem {
             normal.getNormalToRef(putForward);
 
             // Поворачиваем предмет примерно как он был в руке
+            this.hand.transformNode.rotationQuaternion.toEulerAnglesToRef(
+                this.hand.transformNode.rotation
+            );
+
             Quaternion.RotationAxisToRef(
                 normal,
                 // Эмпирически
