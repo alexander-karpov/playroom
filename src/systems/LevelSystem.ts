@@ -52,7 +52,7 @@ export class LevelSystem extends DebugableSystem {
         this.createCup(new Vector3(0, 0.74, 2 - 0.3));
         this.createCup(new Vector3(+0.3, 0.74, 2));
         this.createCup(new Vector3(-0.3, 0.74, 2));
-        this.createLightSwitch(new Vector3(-2, 1, 2), [directionalLight.uniqueId]);
+        this.createLightSwitch(new Vector3(-2, 0.3, 2), [directionalLight.uniqueId]);
 
         this.createPistol(new Vector3(0, 0.74 + 0.1, 2));
     }
@@ -185,7 +185,7 @@ export class LevelSystem extends DebugableSystem {
     }
 
     private createWalls() {
-        const size = 8;
+        const size = 32;
         const height = 3;
         const halfSize = size / 2;
 
@@ -312,7 +312,7 @@ export class LevelSystem extends DebugableSystem {
     }
 
     private createLightSwitch(position: Vector3, lightUniqueIds: number[]) {
-        const halfSize = new Vector3(0.05, 0.05, 0.05);
+        const halfSize = new Vector3(0.2, 0.2, 0.2);
 
         const material = new GridMaterial('lightSwitchMaterial', this.scene);
         material.mainColor = Color3.FromHSV(0, 0.5, 0.6);

@@ -6,21 +6,20 @@ import { type Nullable } from '@babylonjs/core/types';
 import { type IPointerEvent } from '@babylonjs/core/Events/deviceInputEvents';
 import { Epsilon } from '@babylonjs/core/Maths/math.constants';
 import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
-import { PhysicsRaycastResult } from '@babylonjs/core/Physics/physicsRaycastResult';
-import { raycast2 } from './utils/raycast2';
 import { FilterCategory, getCategoryMask, getCollideMaskFor } from './FilterCategory';
+import { PhysicsBody } from '@babylonjs/core/Physics/v2/physicsBody';
+import { PhysicsMotionType } from '@babylonjs/core/Physics/v2/IPhysicsEnginePlugin';
+import { PhysicsShapeSphere } from '@babylonjs/core/Physics/v2/physicsShape';
+import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 
 const delta = new Vector2();
 const localDirection = new Vector3();
-const nextPosition = new Vector3();
-const raycastEnd = new Vector3();
-const boundaryPoint = new Vector2();
-const raycastResult = new PhysicsRaycastResult();
 
 export class FirstPersonCameraPointersInput extends BaseCameraPointersInput {
     public angularSensibilityX = 0.0128;
     public angularSensibilityY = 0.0128;
     public movementSpeed = 0.002;
+    public avatarMoveFactor = 64;
 
     private halfScreenWidth: number = 0;
     private screenHeight: number = 0;
@@ -36,9 +35,12 @@ export class FirstPersonCameraPointersInput extends BaseCameraPointersInput {
     private readonly movementPoint = new Vector2(0, 0);
     private readonly movement = new Vector3();
 
-    private havok?: HavokPlugin;
+    private avatar?: PhysicsBody;
 
-    public constructor(public override camera: TargetCamera, havok: Promise<HavokPlugin>) {
+    public constructor(
+        public override camera: TargetCamera,
+        private readonly havok: Promise<HavokPlugin>
+    ) {
         super();
 
         const onResize = () => {
@@ -49,7 +51,35 @@ export class FirstPersonCameraPointersInput extends BaseCameraPointersInput {
         onResize();
         window.addEventListener('resize', onResize);
 
-        void havok.then((hk) => (this.havok = hk));
+        this.createAvatar(0.5);
+    }
+
+    public createAvatar(diameter: number) {
+        void this.havok.then(() => {
+            const node = new TransformNode('avatar', this.camera.getScene());
+            node.position.copyFrom(this.camera.position);
+            node.position.y = diameter / 2;
+
+            const body = new PhysicsBody(
+                node,
+                PhysicsMotionType.DYNAMIC,
+                false,
+                this.camera.getScene()
+            );
+
+            body.transformNode = node;
+
+            body.shape = new PhysicsShapeSphere(
+                Vector3.ZeroReadOnly,
+                diameter / 2,
+                this.camera.getScene()
+            );
+
+            body.shape.filterMembershipMask = getCategoryMask(FilterCategory.Thing);
+            body.shape.filterCollideMask = getCollideMaskFor(FilterCategory.Thing);
+
+            this.avatar = body;
+        });
     }
 
     public checkInputs() {
@@ -60,6 +90,27 @@ export class FirstPersonCameraPointersInput extends BaseCameraPointersInput {
         if (this.movementPointerId !== -1) {
             this.applyMovement();
         }
+
+        this.applyAvatarMovement();
+    }
+
+    public applyAvatarMovement() {
+        if (!this.avatar) {
+            return;
+        }
+
+        if (this.movementPointerId !== -1) {
+            this.avatar.setLinearVelocity(
+                this.camera.cameraDirection.scaleInPlace(this.avatarMoveFactor)
+            );
+            this.camera.cameraDirection.setAll(0);
+        } else {
+            this.avatar.setLinearVelocity(Vector3.ZeroReadOnly);
+            this.avatar.setAngularVelocity(Vector3.ZeroReadOnly);
+        }
+
+        this.camera.position.x = this.avatar.transformNode.position.x;
+        this.camera.position.z = this.avatar.transformNode.position.z;
     }
 
     public override onTouch(point: Nullable<PointerTouch>, offsetX: number, offsetY: number): void {
@@ -142,8 +193,6 @@ export class FirstPersonCameraPointersInput extends BaseCameraPointersInput {
         this.camera.cameraDirection
             .copyFrom(this.movement)
             .scaleInPlace(this.camera.getEngine().getDeltaTime());
-
-        this.boundMovement();
     }
 
     private updateMovement() {
@@ -169,54 +218,5 @@ export class FirstPersonCameraPointersInput extends BaseCameraPointersInput {
         this.movement.y = 0;
         this.movement.normalize();
         this.movement.scaleInPlace(this.movementSpeed * tilt);
-    }
-
-    private boundMovement(): void {
-        if (!this.havok) {
-            return;
-        }
-
-        const { cameraDirection, position } = this.camera;
-
-        nextPosition.copyFrom(position).addInPlace(cameraDirection);
-
-        if (this.hitBoundary(nextPosition)) {
-            cameraDirection.setAll(0);
-            this.movement.setAll(0);
-        }
-    }
-
-    /**
-     * Проверяем на столкновение полукруг по направлению движения камеры
-     * @param position
-     * @returns
-     */
-    private hitBoundary(position: Vector3) {
-        const mm = getCategoryMask(FilterCategory.Player);
-        const cm = getCollideMaskFor(FilterCategory.Player);
-        const rays = 10;
-        const radius = 0.2;
-
-        boundaryPoint.set(this.camera.cameraDirection.x, this.camera.cameraDirection.z);
-        boundaryPoint.normalize().scaleInPlace(radius);
-
-        boundaryPoint.rotateToRef(-Math.PI / 2, boundaryPoint);
-
-        for (let i = 0; i < rays; i++) {
-            raycastEnd.copyFrom(position);
-            raycastEnd.y = 0.3;
-            raycastEnd.x += boundaryPoint.x;
-            raycastEnd.z += boundaryPoint.y;
-
-            raycast2(this.havok!, position, raycastEnd, raycastResult, mm, cm);
-
-            if (raycastResult.hasHit) {
-                return true;
-            }
-
-            boundaryPoint.rotateToRef(Math.PI / rays, boundaryPoint);
-        }
-
-        return false;
     }
 }
