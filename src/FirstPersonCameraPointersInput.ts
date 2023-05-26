@@ -181,7 +181,12 @@ export class FirstPersonCameraPointersInput extends BaseCameraPointersInput {
     }
 
     private applyMovement() {
-        if (!this.movementPoint.equals(this.previousMovementPoint)) {
+        if (
+            // Нужно обновлять (направление) движения если
+            // пользователь меняет направление взгляда
+            this.rotationPointerId !== -1 ||
+            !this.movementPoint.equals(this.previousMovementPoint)
+        ) {
             this.updateMovement();
             this.previousMovementPoint.copyFrom(this.movementPoint);
         }
