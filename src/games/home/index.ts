@@ -1,4 +1,5 @@
 import { start, world, scene, systemsRuntime, havok, playerCamera } from '~/game';
+import { EnvironmentSystem } from '~/systems/EnvironmentSystem';
 import { LevelSystem } from '~/systems/LevelSystem';
 import { LightSwitchSystem } from '~/systems/LightSwitchSystem';
 import { PistolSystem } from '~/systems/PistolSystem';
@@ -14,6 +15,7 @@ playerCamera.position.y = 1.65 - 0.15;
  */
 systemsRuntime.addSystem(new LevelSystem(world, scene, havok));
 systemsRuntime.addSystem(new LightSwitchSystem(world, scene));
+systemsRuntime.addSystem(new EnvironmentSystem(world, scene));
 
 void havok.then((hk) => {
     systemsRuntime.addSystem(new PistolSystem(world, scene, hk));

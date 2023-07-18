@@ -7,6 +7,8 @@ import { PhysicsShapeBox, PhysicsShapeCylinder } from '@babylonjs/core/Physics/v
 import { PBRMaterial } from '@babylonjs/core/Materials/PBR/pbrMaterial';
 import { CreateBox } from '@babylonjs/core/Meshes/Builders/boxBuilder';
 import { CreateCylinder } from '@babylonjs/core/Meshes/Builders/cylinderBuilder';
+import { CreatePlane } from '@babylonjs/core/Meshes/Builders/planeBuilder';
+import { BackgroundMaterial } from '@babylonjs/core/Materials/Background/backgroundMaterial';
 import { Bits } from '~/utils/Bits';
 import type { GUI } from 'lil-gui';
 import { Color3 } from '@babylonjs/core/Maths/math.color';
@@ -25,6 +27,8 @@ import { GameObject } from '~/components/GameObject';
 import { RigidBody } from '~/components/RigidBody';
 import { Handheld } from '~/components/Handheld';
 import { Pistol } from '~/components/Pistol';
+import { Texture } from '@babylonjs/core/Materials/Textures/texture';
+import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
 
 export class LevelSystem extends DebugableSystem {
     public constructor(
@@ -33,6 +37,23 @@ export class LevelSystem extends DebugableSystem {
         private readonly havok: Promise<HavokPlugin>
     ) {
         super();
+
+        const backgroundMaterial = new StandardMaterial('groundMaterial', this.scene);
+        const texture = new Texture(
+            'https://storage.yandexcloud.net/kukuruku-games/assets/textures/ground_12-1K/1K-ground_12_basecolor-min.png',
+            scene
+        );
+
+        backgroundMaterial.diffuseTexture = texture;
+
+        texture.uScale = 16;
+        texture.vScale = 16;
+        const plane = CreatePlane('ground', { height: 64, width: 64 }, this.scene);
+        plane.material = backgroundMaterial;
+        plane.position.set(0, 0.01, 0);
+        plane.rotate(Vector3.LeftReadOnly, -Math.PI / 2);
+
+        // this.scene.ambientColor = new Color3(0.5, 0.5, 0.5);
 
         /**
          * Directional Light
@@ -44,7 +65,7 @@ export class LevelSystem extends DebugableSystem {
         );
 
         directionalLight.radius = 0.04;
-        directionalLight.intensity = 2.5;
+        directionalLight.intensity = 0.5;
 
         this.createWalls();
         this.createRoundDiningTable(new Vector3(0, 0.74 / 2, 2));
@@ -52,7 +73,7 @@ export class LevelSystem extends DebugableSystem {
         this.createCup(new Vector3(0, 0.74, 2 - 0.3));
         this.createCup(new Vector3(+0.3, 0.74, 2));
         this.createCup(new Vector3(-0.3, 0.74, 2));
-        this.createLightSwitch(new Vector3(-2, 0.3, 2), [directionalLight.uniqueId]);
+        // this.createLightSwitch(new Vector3(-2, 0.3, 2), [directionalLight.uniqueId]);
 
         this.createPistol(new Vector3(0, 0.74 + 0.1, 2));
     }
@@ -185,7 +206,7 @@ export class LevelSystem extends DebugableSystem {
     }
 
     private createWalls() {
-        const size = 32;
+        const size = 128;
         const height = 3;
         const halfSize = size / 2;
 
