@@ -82,7 +82,7 @@ if (process.env['NODE_ENV'] !== 'production') {
         const { GUI } = await import('lil-gui');
         const lil = new GUI({ title: 'Настройки' });
 
-        const { DebugCameraSystem } = await import('./games/shooter/DebugCameraSystem');
+        const { DebugCameraSystem } = await import('./systems/DebugCameraSystem');
 
         systemsRuntime.addSystem(new DebugCameraSystem(world, scene));
         systemsRuntime.forEvery((s) => s.onDebug(lil));

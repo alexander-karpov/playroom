@@ -1,6 +1,6 @@
 import { type World } from '~/ecs';
 import type { Scene } from '@babylonjs/core/scene';
-import { DebugableSystem } from '../../systems/DebugableSystem';
+import { DebugableSystem } from './DebugableSystem';
 import type { GUI } from 'lil-gui';
 import { ArcRotateCamera } from '@babylonjs/core/Cameras/arcRotateCamera';
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
