@@ -4,23 +4,17 @@ import type { Scene } from '@babylonjs/core/scene';
 import { PhysicsBody } from '@babylonjs/core/Physics/v2/physicsBody';
 import { PhysicsMotionType } from '@babylonjs/core/Physics/v2/IPhysicsEnginePlugin';
 import { PhysicsShapeBox, PhysicsShapeCylinder } from '@babylonjs/core/Physics/v2/physicsShape';
-import { PBRMaterial } from '@babylonjs/core/Materials/PBR/pbrMaterial';
 import { CreateBox } from '@babylonjs/core/Meshes/Builders/boxBuilder';
 import { CreateCylinder } from '@babylonjs/core/Meshes/Builders/cylinderBuilder';
 import { CreatePlane } from '@babylonjs/core/Meshes/Builders/planeBuilder';
-import { BackgroundMaterial } from '@babylonjs/core/Materials/Background/backgroundMaterial';
-import { Bits } from '~/utils/Bits';
-import type { GUI } from 'lil-gui';
 import { Color3 } from '@babylonjs/core/Maths/math.color';
-import { Matrix, Quaternion, Vector3 } from '@babylonjs/core/Maths/math.vector';
-import { DebugableSystem } from './DebugableSystem';
-import { fib } from '~/utils/fib';
+import { Quaternion, Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { DebugableSystem } from '~/systems/DebugableSystem';
 import { GridMaterial } from '@babylonjs/materials/Grid';
 import { type Material } from '@babylonjs/core/Materials/material';
 import { type HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 import { FilterCategory, getCollideMaskFor, getCategoryMask } from '~/FilterCategory';
 import { writeEntityId } from '~/utils/entityHelpers';
-import { type Mesh } from '@babylonjs/core/Meshes/mesh';
 import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight';
 import { LightSwitch } from '~/components/LightSwitch';
 import { GameObject } from '~/components/GameObject';
@@ -30,28 +24,13 @@ import { Pistol } from '~/components/Pistol';
 import { Texture } from '@babylonjs/core/Materials/Textures/texture';
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
 
-export class LevelSystem extends DebugableSystem {
+export class WorldSystem extends DebugableSystem {
     public constructor(
         private readonly world: World,
         private readonly scene: Scene,
         private readonly havok: Promise<HavokPlugin>
     ) {
         super();
-
-        const backgroundMaterial = new StandardMaterial('groundMaterial', this.scene);
-        const texture = new Texture(
-            'https://storage.yandexcloud.net/kukuruku-games/assets/textures/ground_12-1K/1K-ground_12_basecolor-min.png',
-            scene
-        );
-
-        backgroundMaterial.diffuseTexture = texture;
-
-        texture.uScale = 16;
-        texture.vScale = 16;
-        const plane = CreatePlane('ground', { height: 64, width: 64 }, this.scene);
-        plane.material = backgroundMaterial;
-        plane.position.set(0, 0.01, 0);
-        plane.rotate(Vector3.LeftReadOnly, -Math.PI / 2);
 
         // this.scene.ambientColor = new Color3(0.5, 0.5, 0.5);
 
@@ -67,15 +46,17 @@ export class LevelSystem extends DebugableSystem {
         directionalLight.radius = 0.04;
         directionalLight.intensity = 0.5;
 
-        this.createWalls();
-        this.createRoundDiningTable(new Vector3(0, 0.74 / 2, 2));
-        this.createCup(new Vector3(0, 0.74, 2 + 0.3));
-        this.createCup(new Vector3(0, 0.74, 2 - 0.3));
-        this.createCup(new Vector3(+0.3, 0.74, 2));
-        this.createCup(new Vector3(-0.3, 0.74, 2));
-        // this.createLightSwitch(new Vector3(-2, 0.3, 2), [directionalLight.uniqueId]);
+        const where = 0;
 
-        this.createPistol(new Vector3(0, 0.74 + 0.1, 2));
+        this.createWalls();
+        this.createRoundDiningTable(new Vector3(0, 0.74 / 2, where));
+        this.createCup(new Vector3(0, 0.74, where + 0.3));
+        this.createCup(new Vector3(0, 0.74, where - 0.3));
+        this.createCup(new Vector3(+0.3, 0.74, where));
+        this.createCup(new Vector3(-0.3, 0.74, where));
+        // this.createLightSwitch(new Vector3(-2, 0.3, where), [directionalLight.uniqueId]);
+
+        this.createPistol(new Vector3(0, 0.74 + 0.1, where));
     }
 
     private createBox(

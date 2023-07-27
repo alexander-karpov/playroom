@@ -5,10 +5,7 @@ import { HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 import '@babylonjs/core/Physics/joinedPhysicsEngineComponent';
 import HavokPhysics from '@babylonjs/havok';
 import { Runtime, World } from '~/ecs';
-import { FirstPersonCamera } from './FirstPersonCamera';
 import { type DebugableSystem } from './systems/DebugableSystem';
-import { TapSystem } from './systems/TapSystem';
-import { HandSystem } from './systems/HandSystem';
 
 /**
  * Errors alert
@@ -54,12 +51,6 @@ export const havok = (async () => {
 })();
 
 /**
- * Camera
- */
-export const playerCamera = new FirstPersonCamera(new Vector3(0, 1.6, 0), scene, havok);
-playerCamera.attachControl(undefined);
-
-/**
  * ECS
  */
 export const world = new World();
@@ -97,11 +88,3 @@ export function start() {
         scene.render();
     });
 }
-
-/**
- * Physics related systems
- */
-void havok.then((hk) => {
-    systemsRuntime.addSystem(new TapSystem(world, scene, playerCamera, hk));
-    systemsRuntime.addSystem(new HandSystem(world, scene, playerCamera, hk));
-});

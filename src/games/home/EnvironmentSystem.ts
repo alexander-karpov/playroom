@@ -2,23 +2,23 @@ import { type World } from '~/ecs';
 import '@babylonjs/core/Meshes/thinInstanceMesh';
 import { Scene } from '@babylonjs/core/scene';
 import { Color3, Color4 } from '@babylonjs/core/Maths/math.color';
-import { DebugableSystem } from './DebugableSystem';
+import { DebugableSystem } from '../../systems/DebugableSystem';
 
 export class EnvironmentSystem extends DebugableSystem {
     private readonly cameraClipDistance = 30;
     private readonly fogMode = Scene.FOGMODE_EXP2;
-    private readonly fogColor = new Color3(0.7, 0.7, 0.67);
+    private readonly fogColor = new Color3(115 / 256, 165 / 256, 111 / 256);
 
     public constructor(private readonly world: World, private readonly scene: Scene) {
         super();
 
         this.scene.clearColor = Color4.FromColor3(this.fogColor);
-        this.scene.fogMode = Scene.FOGMODE_EXP2;
-        this.scene.fogColor = this.fogColor;
+        // this.scene.fogMode = Scene.FOGMODE_EXP2;
+        // this.scene.fogColor = this.fogColor;
 
-        if (this.scene.activeCamera) {
-            this.scene.activeCamera.maxZ = this.cameraClipDistance;
-        }
+        // if (this.scene.activeCamera) {
+        //     this.scene.activeCamera.maxZ = this.cameraClipDistance;
+        // }
     }
 
     public override onDebug() {
