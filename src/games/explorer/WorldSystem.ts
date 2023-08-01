@@ -3,7 +3,11 @@ import '@babylonjs/core/Meshes/thinInstanceMesh';
 import type { Scene } from '@babylonjs/core/scene';
 import { PhysicsBody } from '@babylonjs/core/Physics/v2/physicsBody';
 import { PhysicsMotionType } from '@babylonjs/core/Physics/v2/IPhysicsEnginePlugin';
-import { PhysicsShapeBox, PhysicsShapeCylinder } from '@babylonjs/core/Physics/v2/physicsShape';
+import {
+    PhysicsShapeBox,
+    PhysicsShapeContainer,
+    PhysicsShapeCylinder,
+} from '@babylonjs/core/Physics/v2/physicsShape';
 import { CreateBox } from '@babylonjs/core/Meshes/Builders/boxBuilder';
 import { CreateCylinder } from '@babylonjs/core/Meshes/Builders/cylinderBuilder';
 import { CreatePlane } from '@babylonjs/core/Meshes/Builders/planeBuilder';
@@ -23,6 +27,10 @@ import { Handheld } from '~/components/Handheld';
 import { Pistol } from '~/components/Pistol';
 import { Texture } from '@babylonjs/core/Materials/Textures/texture';
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
+
+import { OBJFileLoader } from '@babylonjs/loaders/OBJ/objFileLoader';
+import '@babylonjs/core/Rendering/boundingBoxRenderer';
+import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
 
 export class WorldSystem extends DebugableSystem {
     public constructor(
@@ -44,9 +52,41 @@ export class WorldSystem extends DebugableSystem {
         );
 
         directionalLight.radius = 0.04;
-        directionalLight.intensity = 0.5;
+        directionalLight.intensity = 1;
 
-        const where = 0;
+        const where = 5;
+
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
+        void this.createItem();
 
         this.createWalls();
         this.createRoundDiningTable(new Vector3(0, 0.74 / 2, where));
@@ -184,6 +224,62 @@ export class WorldSystem extends DebugableSystem {
         });
 
         return entityId;
+    }
+
+    private async createItem() {
+        OBJFileLoader.MATERIAL_LOADING_FAILS_SILENTLY = false;
+
+        const container = await SceneLoader.LoadAssetContainerAsync(
+            'https://storage.yandexcloud.net/kukuruku-games/assets/models/Farm_Animals_by_Quaternius/OBJ/',
+            'Cow.obj',
+            this.scene
+        );
+
+        const mesh = container.createRootMesh();
+        mesh.position.y = Math.random() * 50;
+        mesh.position.x = Math.random() * 20;
+        mesh.position.z = Math.random() * 20;
+
+        this.scene.addMesh(mesh, true);
+
+        // const lines = new CreateLineSystem('shape'm )
+        // https://doc.babylonjs.com/features/featuresDeepDive/mesh/creation/param/lines
+
+        // https://doc.babylonjs.com/features/featuresDeepDive/physics/compounds
+
+        void this.havok.then(() => {
+            // for (const m of mesh.getChildMeshes(true)) {
+            //     const { minimum, maximum } = m.getBoundingInfo();
+            // }
+
+            const { min, max } = mesh.getHierarchyBoundingVectors();
+
+            const membership = FilterCategory.Thing;
+            const shape = new PhysicsShapeBox(
+                new Vector3(0, (max.y - min.y) / 2, 0),
+                new Quaternion(0, 0, 0, 1),
+                new Vector3(max.x - min.x, max.y - min.y, max.z - min.z),
+                this.scene
+            );
+
+            shape.filterMembershipMask = getCategoryMask(membership);
+            shape.filterCollideMask = getCollideMaskFor(membership);
+
+            /**
+             * PhysicsBody
+             */
+            const startsAsleep = false;
+
+            const body = new PhysicsBody(mesh, PhysicsMotionType.DYNAMIC, startsAsleep, this.scene);
+
+            body.shape = shape;
+
+            /**
+             * RigidBody
+             */
+            // const rb = this.world.attach(entityId, RigidBody);
+            // rb.body = body;
+        });
     }
 
     private createWalls() {

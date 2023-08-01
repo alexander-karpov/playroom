@@ -18,7 +18,7 @@ const localDirection = new Vector3();
 export class FirstPersonCameraPointersInput extends BaseCameraPointersInput {
     public angularSensibilityX = 0.0128;
     public angularSensibilityY = 0.0128;
-    public movementSpeed = 0.002;
+    public movementSpeed = 0.005;
     public avatarMoveFactor = 64;
 
     private halfScreenWidth: number = 0;

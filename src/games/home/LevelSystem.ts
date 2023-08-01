@@ -28,9 +28,12 @@ import { Pistol } from '~/components/Pistol';
 import { BackgroundMaterial } from '@babylonjs/core/Materials/Background/backgroundMaterial';
 import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
 import { OBJFileLoader } from '@babylonjs/loaders/OBJ/objFileLoader';
+import { PhysicsViewer } from '@babylonjs/core/Debug/physicsViewer.js';
 import '@babylonjs/core/Rendering/boundingBoxRenderer';
 
 export class LevelSystem extends DebugableSystem {
+    physicsViewer?: PhysicsViewer;
+
     public constructor(
         private readonly world: World,
         private readonly scene: Scene,
@@ -67,7 +70,10 @@ export class LevelSystem extends DebugableSystem {
         // this.createLightSwitch(new Vector3(-2, 0.3, 2), [directionalLight.uniqueId]);
 
         // this.createPistol(new Vector3(0, 0.74 + 0.1, 2));
-        void this.createItem();
+        let i = 50;
+        while (i--) {
+            void this.createItem();
+        }
     }
 
     private createGround() {
@@ -87,22 +93,26 @@ export class LevelSystem extends DebugableSystem {
 
         const container = await SceneLoader.LoadAssetContainerAsync(
             'https://storage.yandexcloud.net/kukuruku-games/assets/models/Survival%20Pack%20-%20Sept%202020/OBJ/',
-            'Axe.obj',
+            'Backpack.obj',
             this.scene
         );
 
         const mesh = container.createRootMesh();
-        mesh.position.y = 1;
-        mesh.position.x = 1;
-        mesh.position.z = 2;
+        // mesh.scaling = new Vector3(0.1, 0.1, 0.1);
+        mesh.position.y = Math.random() * 5;
+        mesh.position.x = Math.random() * 5;
+        mesh.position.z = Math.random() * 5;
+
+        // mesh.scaling.x = mesh.scaling.y = mesh.scaling.z = 0.2;
+        /**
+         * GameObject
+         */
+        const [entityId, go] = this.world.newEntity(GameObject);
+
+        go.node = mesh;
+        writeEntityId(mesh, entityId);
 
         this.scene.addMesh(mesh, true);
-
-        /**
-         * PhysicsBody
-         */
-        const startsAsleep = true;
-        const membership = FilterCategory.Thing;
 
         // const lines = new CreateLineSystem('shape'm )
         // https://doc.babylonjs.com/features/featuresDeepDive/mesh/creation/param/lines
@@ -110,33 +120,79 @@ export class LevelSystem extends DebugableSystem {
         // https://doc.babylonjs.com/features/featuresDeepDive/physics/compounds
 
         void this.havok.then(() => {
-            const shape = new PhysicsShapeContainer(this.scene);
+            if (!this.physicsViewer) {
+                this.physicsViewer = new PhysicsViewer(this.scene);
+            }
+
+            // for (const m of mesh.getChildMeshes(true)) {
+            //     const { minimum, maximum } = m.getBoundingInfo();
+            // }
+
+            // const { min, max } = mesh.getHierarchyBoundingVectors();
+
+            // const min = new Vector3(Infinity, Infinity, Infinity);
+            // const max = new Vector3(-Infinity, -Infinity, -Infinity);
+
+            // for (const m of mesh.getChildMeshes()) {
+            //     m.showBoundingBox = true;
+            //     const { minimumWorld, maximumWorld } = m.getBoundingInfo().boundingBox;
+
+            //     if (minimumWorld.x < min.x) {
+            //         min.x = minimumWorld.x;
+            //     }
+
+            //     if (minimumWorld.y < min.y) {
+            //         min.y = minimumWorld.y;
+            //     }
+
+            //     if (minimumWorld.z < min.z) {
+            //         min.z = minimumWorld.z;
+            //     }
+
+            //     if (maximumWorld.x > max.x) {
+            //         max.x = maximumWorld.x;
+            //     }
+
+            //     if (maximumWorld.y > max.y) {
+            //         max.y = maximumWorld.y;
+            //     }
+
+            //     if (maximumWorld.z > max.z) {
+            //         max.z = maximumWorld.z;
+            //     }
+            // }
+
+            const { min, max } = mesh.getHierarchyBoundingVectors();
+
+            const membership = FilterCategory.Thing;
+            const shape = new PhysicsShapeBox(
+                new Vector3(0, 0, 0),
+                new Quaternion(0, 0, 0, 1),
+                new Vector3(max.x - min.x, max.y - min.y, max.z - min.z),
+                this.scene
+            );
 
             shape.filterMembershipMask = getCategoryMask(membership);
             shape.filterCollideMask = getCollideMaskFor(membership);
 
-            for (const m of mesh.getChildMeshes(true)) {
-                const { minimum, maximum } = m.getBoundingInfo();
-
-                m.showBoundingBox = true;
-
-                shape.addChild(
-                    new PhysicsShapeBox(
-                        new Vector3(m.position.x, m.position.y, m.position.z),
-                        new Quaternion(0, 0, 0, 1),
-                        new Vector3(
-                            maximum.x - minimum.x,
-                            maximum.y - minimum.y,
-                            maximum.z - minimum.z
-                        ),
-                        this.scene
-                    )
-                );
-            }
+            /**
+             * PhysicsBody
+             */
+            const startsAsleep = false;
 
             const body = new PhysicsBody(mesh, PhysicsMotionType.DYNAMIC, startsAsleep, this.scene);
 
             body.shape = shape;
+
+            /**
+             * RigidBody
+             */
+            const rb = this.world.attach(entityId, RigidBody);
+            rb.body = body;
+
+            this.world.attach(entityId, Handheld);
+
+            this.physicsViewer.showBody(body);
 
             /**
              * RigidBody

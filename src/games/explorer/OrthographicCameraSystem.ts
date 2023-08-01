@@ -8,7 +8,7 @@ export class OrthographicCameraSystem extends DebugableSystem {
     public constructor(private readonly camera: TargetCamera) {
         super();
 
-        camera.mode = TargetCamera.ORTHOGRAPHIC_CAMERA;
+        // camera.mode = TargetCamera.ORTHOGRAPHIC_CAMERA;
         camera.position.x = 50;
         camera.position.y = 50;
         camera.position.z = -50;
